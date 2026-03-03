@@ -12,6 +12,7 @@ import android.view.View
 import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
+import android.webkit.SslErrorHandler
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.LinearLayout
@@ -879,6 +880,7 @@ class StandardWebVisitTool(private val context: Context) : ToolExecutor {
         val pageLoaded = remember { mutableStateOf(false) } // 页面是否已加载完成
         val currentUrl = remember { mutableStateOf(url) } // 当前URL
         val pageTitle = remember { mutableStateOf("") } // 页面标题
+        val hasSslError = remember { mutableStateOf(false) }
 
         // 内容状态
         val pageContent = remember { mutableStateOf("") } // 提取的页面内容
@@ -1016,13 +1018,31 @@ class StandardWebVisitTool(private val context: Context) : ToolExecutor {
                                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         ) {
                             Column {
-                                Text(
-                                        text = currentUrl.value,
-                                        fontSize = 13.sp,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (hasSslError.value) {
+                                        Surface(
+                                                shape = RoundedCornerShape(999.dp),
+                                                color = Color(0xFFFFE6CC)
+                                        ) {
+                                            Text(
+                                                    text = stringResource(R.string.web_ssl_error_badge),
+                                                    fontSize = 11.sp,
+                                                    color = Color(0xFF7A3E00),
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+
+                                    Text(
+                                            text = currentUrl.value,
+                                            fontSize = 13.sp,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.weight(1f)
+                                    )
+                                }
 
                                 Spacer(modifier = Modifier.height(2.dp))
 
@@ -1061,6 +1081,7 @@ class StandardWebVisitTool(private val context: Context) : ToolExecutor {
                                                     ) {
                                                         super.onPageStarted(view, startedUrl, favicon)
                                                         currentUrl.value = startedUrl
+                                                        hasSslError.value = false
                                                         isLoading.value = true
                                                         pageLoaded.value = false
                                                         loadToken.value = loadToken.value + 1
@@ -1191,6 +1212,20 @@ class StandardWebVisitTool(private val context: Context) : ToolExecutor {
                                                                 description,
                                                                 failingUrl
                                                         )
+                                                    }
+
+                                                    override fun onReceivedSslError(
+                                                            view: WebView,
+                                                            handler: SslErrorHandler,
+                                                            error: android.net.http.SslError
+                                                    ) {
+                                                        AppLogger.w(
+                                                                TAG,
+                                                                "visit_web SSL error, proceeding anyway. " +
+                                                                        "url=${error.url}, primaryError=${error.primaryError}"
+                                                        )
+                                                        hasSslError.value = true
+                                                        handler.proceed()
                                                     }
                                                 }
 

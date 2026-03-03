@@ -1201,6 +1201,7 @@
     <!-- API Provider names -->
     <string name="provider_openai">OpenAI (Serie GPT)</string>
     <string name="provider_openai_responses">OpenAI (API Responses)</string>
+    <string name="provider_openai_responses_generic">OpenAI Responses (Genérico)</string>
     <string name="provider_openai_generic">OpenAI genérico</string>
     <string name="provider_anthropic">Anthropic (Serie Claude)</string>
     <string name="provider_anthropic_generic">Anthropic genérico</string>
@@ -1334,6 +1335,7 @@
     <string name="thinking_quality_desc">Solo efectivo en modo de pensamiento</string>
     
     <string name="provider_doubao">Doubao (Modelo Volcano)</string>
+    <string name="provider_nvidia">NVIDIA (API Catalog)</string>
 
     <string name="speech_services_stt_type_openai">OpenAI STT (Remoto)</string>
     <string name="speech_services_stt_type_deepgram">Deepgram STT (Remoto)</string>

@@ -16,6 +16,7 @@ import android.view.WindowManager
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
+import android.webkit.SslErrorHandler
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
@@ -202,6 +203,7 @@ private class WebSessionOverlayLifecycleOwner :
         @Volatile var currentUrl: String = "about:blank"
         @Volatile var pageTitle: String = ""
         @Volatile var pageLoaded: Boolean = false
+        @Volatile var hasSslError: Boolean = false
         @Volatile var pendingFileChooserCallback: ValueCallback<Array<Uri>>? = null
         @Volatile var lastFileChooserRequestAt: Long = 0L
     }
@@ -270,6 +272,7 @@ private class WebSessionOverlayLifecycleOwner :
 
             session.pageLoaded = false
             session.currentUrl = initialUrl
+            session.hasSslError = false
             if (headers.isNotEmpty()) {
                 session.webView.loadUrl(initialUrl, headers)
             } else {
@@ -346,6 +349,7 @@ private class WebSessionOverlayLifecycleOwner :
             ensureSessionAttachedOnMain(session.id)
             session.pageLoaded = false
             session.currentUrl = targetUrl
+            session.hasSslError = false
             if (headers.isNotEmpty()) {
                 session.webView.loadUrl(targetUrl, headers)
             } else {
@@ -1028,6 +1032,7 @@ private class WebSessionOverlayLifecycleOwner :
                     super.onPageStarted(view, url, favicon)
                     session.currentUrl = url
                     session.pageLoaded = false
+                    session.hasSslError = false
                     refreshSessionUiOnMain(session.id)
                 }
 
@@ -1047,6 +1052,21 @@ private class WebSessionOverlayLifecycleOwner :
                         return true
                     }
                     return false
+                }
+
+                override fun onReceivedSslError(
+                    view: WebView,
+                    handler: SslErrorHandler,
+                    error: android.net.http.SslError
+                ) {
+                    AppLogger.w(
+                        TAG,
+                        "web_session SSL error, proceeding anyway. " +
+                            "session=${session.id}, url=${error.url}, primaryError=${error.primaryError}"
+                    )
+                    session.hasSslError = true
+                    refreshSessionUiOnMain(session.id)
+                    handler.proceed()
                 }
             }
     }
@@ -1736,7 +1756,9 @@ private class WebSessionOverlayLifecycleOwner :
                 else -> "Session"
             }
         val short = shorten(base, 16)
-        return if (index > 0) "$index · $short" else short
+        val sslBadge = context.getString(R.string.web_ssl_error_badge)
+        val withSslPrefix = if (session.hasSslError) "$sslBadge · $short" else short
+        return if (index > 0) "$index · $withSslPrefix" else withSslPrefix
     }
 
     private fun headerTitle(session: WebSession): String {
@@ -1747,7 +1769,9 @@ private class WebSessionOverlayLifecycleOwner :
                 session.currentUrl.isNotBlank() -> session.currentUrl
                 else -> "Web Session"
             }
-        return shorten(title, 42)
+        val sslBadge = context.getString(R.string.web_ssl_error_badge)
+        val withSslPrefix = if (session.hasSslError) "$sslBadge · $title" else title
+        return shorten(withSslPrefix, 42)
     }
 
     private fun closeSession(sessionId: String): Boolean {

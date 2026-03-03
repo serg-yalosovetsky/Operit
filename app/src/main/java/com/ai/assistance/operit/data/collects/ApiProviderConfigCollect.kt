@@ -27,6 +27,11 @@ object ApiProviderConfigs {
             defaultApiEndpoint = "https://api.openai.com/v1/responses"
         ),
         ProviderApiConfig(
+            providerType = ApiProviderType.OPENAI_RESPONSES_GENERIC,
+            defaultModelName = "",
+            defaultApiEndpoint = ""
+        ),
+        ProviderApiConfig(
             providerType = ApiProviderType.OPENAI_GENERIC,
             defaultModelName = "",
             defaultApiEndpoint = ""
@@ -148,6 +153,11 @@ object ApiProviderConfigs {
             providerType = ApiProviderType.DOUBAO,
             defaultModelName = "Doubao-pro-4k",
             defaultApiEndpoint = "https://ark.cn-beijing.volces.com/api/v3/chat/completions"
+        ),
+        ProviderApiConfig(
+            providerType = ApiProviderType.NVIDIA,
+            defaultModelName = "nvidia/nemotron-3-nano-30b-a3b",
+            defaultApiEndpoint = "https://integrate.api.nvidia.com/v1/chat/completions"
         ),
         ProviderApiConfig(
             providerType = ApiProviderType.LMSTUDIO,

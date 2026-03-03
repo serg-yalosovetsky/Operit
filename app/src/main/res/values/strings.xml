@@ -1543,6 +1543,7 @@
     <string name="webview_ssl_error_notyetvalid">证书尚未生效</string>
     <string name="webview_ssl_error_date_invalid">证书日期无效</string>
     <string name="webview_ssl_error_unknown">未知SSL错误</string>
+    <string name="web_ssl_error_badge">SSL异常</string>
     <string name="webview_security_warning_title">安全警告</string>
     <string name="webview_choose_file">选择文件</string>
     <string name="downloaded_file">已下载: %1$s</string>
@@ -2961,7 +2962,7 @@
     <string name="chat_start_ai_computer_failed">启动AI电脑失败: %1$s</string>
     <string name="chat_ai_computer_closed_due_to_workspace">AI电脑已关闭（由于打开工作区）</string>
     <string name="thinking_mode">思考模式</string>
-    <string name="thinking_mode_desc">目前支持Gemini、Qwen3、Claude、豆包、硅基流动和MNN本地模型，能够启用内置的思考。</string>
+    <string name="thinking_mode_desc">目前支持Gemini、Qwen3、Claude、豆包、NVIDIA、硅基流动和MNN本地模型，能够启用内置的思考。</string>
     <string name="thinking_guidance">思考引导</string>
     <string name="thinking_guidance_desc">能够让不能思考的模型强制进行思考。该选项不建议对思考模型开启。</string>
     <string name="details">详情</string>
@@ -3396,6 +3397,7 @@
     <!-- API Provider names -->
     <string name="provider_openai">OpenAI (GPT系列)</string>
     <string name="provider_openai_responses">OpenAI (Responses API)</string>
+    <string name="provider_openai_responses_generic">OpenAI Responses通用</string>
     <string name="provider_anthropic">Anthropic (Claude系列)</string>
     <string name="provider_anthropic_generic">Anthropic通用</string>
     <string name="provider_google">Google (Gemini系列)</string>
@@ -4890,6 +4892,7 @@
     <string name="backup_confirm">确认</string>
     <string name="backup_cancel">取消</string>
     <string name="provider_doubao">豆包（火山模型）</string>
+    <string name="provider_nvidia">NVIDIA（API Catalog）</string>
 
     <!-- Help Screen - Mirror Selection Dialog -->
     <string name="help_loading_message">正在加载使用手册...</string>

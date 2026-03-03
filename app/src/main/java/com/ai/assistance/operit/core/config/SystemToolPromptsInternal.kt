@@ -575,7 +575,8 @@ object SystemToolPromptsInternal {
                                 ToolParameterSchema(name = "method", type = "string", description = "GET/POST/PUT/DELETE", required = true),
                                 ToolParameterSchema(name = "headers", type = "string", description = "headers", required = false),
                                 ToolParameterSchema(name = "body", type = "string", description = "body", required = false),
-                                ToolParameterSchema(name = "body_type", type = "string", description = "json/form/text/xml", required = false)
+                                ToolParameterSchema(name = "body_type", type = "string", description = "json/form/text/xml", required = false),
+                                ToolParameterSchema(name = "ignore_ssl", type = "boolean", description = "ignore https certificate verification, true/false", required = false)
                             )
                         ),
                         ToolPrompt(
@@ -586,7 +587,8 @@ object SystemToolPromptsInternal {
                                 ToolParameterSchema(name = "method", type = "string", description = "POST/PUT", required = true),
                                 ToolParameterSchema(name = "headers", type = "string", description = "headers", required = false),
                                 ToolParameterSchema(name = "form_data", type = "string", description = "form_data", required = false),
-                                ToolParameterSchema(name = "files", type = "string", description = "JSON array string. Each item is an object: {\"field_name\": string, \"file_path\": string, \"content_type\"?: string, \"file_name\"?: string}", required = false)
+                                ToolParameterSchema(name = "files", type = "string", description = "JSON array string. Each item is an object: {\"field_name\": string, \"file_path\": string, \"content_type\"?: string, \"file_name\"?: string}", required = false),
+                                ToolParameterSchema(name = "ignore_ssl", type = "boolean", description = "ignore https certificate verification, true/false", required = false)
                             )
                         ),
                         ToolPrompt(
@@ -1674,7 +1676,7 @@ object SystemToolPromptsInternal {
                                     ToolParameterSchema(
                                         name = "api_provider_type",
                                         type = "string",
-                                        description = "optional, provider enum name (e.g. OPENAI_GENERIC/DEEPSEEK/GEMINI_GENERIC/OLLAMA/MNN/LLAMA_CPP)",
+                                        description = "optional, provider enum name (e.g. OPENAI_GENERIC/OPENAI_RESPONSES_GENERIC/DEEPSEEK/GEMINI_GENERIC/OLLAMA/MNN/LLAMA_CPP)",
                                         required = false
                                     ),
                                     ToolParameterSchema(
@@ -3029,7 +3031,8 @@ object SystemToolPromptsInternal {
                                 ToolParameterSchema(name = "method", type = "string", description = "GET/POST/PUT/DELETE", required = true),
                                 ToolParameterSchema(name = "headers", type = "string", description = "headers", required = false),
                                 ToolParameterSchema(name = "body", type = "string", description = "body", required = false),
-                                ToolParameterSchema(name = "body_type", type = "string", description = "json/form/text/xml", required = false)
+                                ToolParameterSchema(name = "body_type", type = "string", description = "json/form/text/xml", required = false),
+                                ToolParameterSchema(name = "ignore_ssl", type = "boolean", description = "是否忽略HTTPS证书校验，true/false", required = false)
                             )
                         ),
                         ToolPrompt(
@@ -3040,7 +3043,8 @@ object SystemToolPromptsInternal {
                                 ToolParameterSchema(name = "method", type = "string", description = "POST/PUT", required = true),
                                 ToolParameterSchema(name = "headers", type = "string", description = "headers", required = false),
                                 ToolParameterSchema(name = "form_data", type = "string", description = "form_data", required = false),
-                                ToolParameterSchema(name = "files", type = "string", description = "JSON数组字符串。每个元素是对象: {\"field_name\": 字符串, \"file_path\": 字符串, 可选 \"content_type\": 字符串, 可选 \"file_name\": 字符串}", required = false)
+                                ToolParameterSchema(name = "files", type = "string", description = "JSON数组字符串。每个元素是对象: {\"field_name\": 字符串, \"file_path\": 字符串, 可选 \"content_type\": 字符串, 可选 \"file_name\": 字符串}", required = false),
+                                ToolParameterSchema(name = "ignore_ssl", type = "boolean", description = "是否忽略HTTPS证书校验，true/false", required = false)
                             )
                         ),
                         ToolPrompt(
@@ -4128,7 +4132,7 @@ object SystemToolPromptsInternal {
                                     ToolParameterSchema(
                                         name = "api_provider_type",
                                         type = "string",
-                                        description = "可选，提供商枚举名（如 OPENAI_GENERIC/DEEPSEEK/GEMINI_GENERIC/OLLAMA/MNN/LLAMA_CPP）",
+                                        description = "可选，提供商枚举名（如 OPENAI_GENERIC/OPENAI_RESPONSES_GENERIC/DEEPSEEK/GEMINI_GENERIC/OLLAMA/MNN/LLAMA_CPP）",
                                         required = false
                                     ),
                                     ToolParameterSchema(

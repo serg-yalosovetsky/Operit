@@ -1484,6 +1484,7 @@
     <string name="webview_ssl_error_notyetvalid">Certificate is not yet valid</string>
     <string name="webview_ssl_error_date_invalid">Invalid certificate date</string>
     <string name="webview_ssl_error_unknown">Unknown SSL error</string>
+    <string name="web_ssl_error_badge">SSL Error</string>
     <string name="webview_security_warning_title">Security warning</string>
     <string name="webview_choose_file">Choose file</string>
     <string name="downloaded_file">Downloaded: %1$s</string>
@@ -3066,7 +3067,7 @@
     <string name="chat_ai_computer_closed_due_to_workspace">AI computer closed (workspace opened)</string>
     <string name="ai_planning_desc">Will perform task decomposition and trigger multiple sub-agents to collect information, then summarize. Sub-agents have the same tool-calling capabilities as the chat agent. This can be very time-consuming, only recommended when collecting information.</string>
     <string name="thinking_mode">Thinking Mode</string>
-    <string name="thinking_mode_desc">Currently supports Gemini, Qwen3, Claude, Doubao, SiliconFlow and MNN local models, enabling built-in thinking.</string>
+    <string name="thinking_mode_desc">Currently supports Gemini, Qwen3, Claude, Doubao, NVIDIA, SiliconFlow and MNN local models, enabling built-in thinking.</string>
     <string name="thinking_guidance">Thinking Guidance</string>
     <string name="thinking_guidance_desc">Can force models that can\'t think to perform thinking. This option is not recommended for thinking models.</string>
     <string name="model_selection">Model Selection</string>
@@ -3490,6 +3491,7 @@
     <!-- API Provider names -->
     <string name="provider_openai">OpenAI (GPT Series)</string>
     <string name="provider_openai_responses">OpenAI (Responses API)</string>
+    <string name="provider_openai_responses_generic">OpenAI Responses (Generic)</string>
     <string name="provider_anthropic">Anthropic (Claude Series)</string>
     <string name="provider_anthropic_generic">Anthropic (Generic)</string>
     <string name="provider_google">Google (Gemini Series)</string>
@@ -3513,6 +3515,7 @@
     <string name="provider_openai_generic">OpenAI (Generic)</string>
     <string name="provider_other">Other Providers</string>
     <string name="provider_doubao">Doubao</string>
+    <string name="provider_nvidia">NVIDIA (API Catalog)</string>
     <string name="provider_llama_cpp">llama.cpp Local Inference</string>
     <string name="provider_mnn">MNN Local Inference</string>
     <string name="select_api_provider_title">Select API Provider</string>
