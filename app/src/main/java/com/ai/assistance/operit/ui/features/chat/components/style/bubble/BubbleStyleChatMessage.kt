@@ -20,6 +20,8 @@ fun BubbleStyleChatMessage(
     aiTextColor: Color,
     systemMessageColor: Color,
     systemTextColor: Color,
+    userBubbleImageStyle: BubbleImageStyleConfig? = null,
+    aiBubbleImageStyle: BubbleImageStyleConfig? = null,
     isHidden: Boolean = false,
     onDeleteMessage: ((Int) -> Unit)? = null,
     index: Int = -1,
@@ -32,6 +34,7 @@ fun BubbleStyleChatMessage(
                 message = message,
                 backgroundColor = userMessageColor,
                 textColor = userTextColor,
+                bubbleImageStyle = userBubbleImageStyle,
                 enableDialogs = enableDialogs
             )
         }
@@ -40,6 +43,7 @@ fun BubbleStyleChatMessage(
                 message = message,
                 backgroundColor = aiMessageColor,
                 textColor = aiTextColor,
+                bubbleImageStyle = aiBubbleImageStyle,
                 isHidden = isHidden,
                 enableDialogs = enableDialogs,
                 onAvatarLongPressMention = onRoleAvatarLongPress

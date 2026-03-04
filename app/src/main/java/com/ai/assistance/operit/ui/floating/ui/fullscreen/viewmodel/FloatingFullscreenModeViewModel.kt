@@ -46,6 +46,7 @@ class FloatingFullscreenModeViewModel(
     var attachNotifications by mutableStateOf(false)
     var attachLocation by mutableStateOf(false)
     var hasOcrSelection by mutableStateOf(false)
+    var isStreamingTtsMuted by mutableStateOf(false)
     
     val isInitialLoad = mutableStateOf(true)
 
@@ -96,6 +97,17 @@ class FloatingFullscreenModeViewModel(
 
     // ===== 业务逻辑 =====
 
+    fun toggleStreamingTtsMuted() {
+        isStreamingTtsMuted = !isStreamingTtsMuted
+        if (isStreamingTtsMuted) {
+            stopCurrentTtsPlayback()
+        }
+    }
+
+    private fun stopCurrentTtsPlayback() {
+        coroutineScope.launch { speechManager.voiceService.stop() }
+    }
+
     fun processAndSpeakAiMessage(lastMessage: ChatMessage?, ttsCleanerRegexs: List<String>) {
         val message = lastMessage ?: return
 
@@ -114,7 +126,7 @@ class FloatingFullscreenModeViewModel(
             return
         }
         
-        coroutineScope.launch { speechManager.voiceService.stop() }
+        stopCurrentTtsPlayback()
         
         when (message.sender) {
             "think" -> {
@@ -185,6 +197,10 @@ class FloatingFullscreenModeViewModel(
     ): Boolean {
         val cleanText = speechManager.cleanTextForTts(text.trim(), cleaners)
         if (cleanText.isNotEmpty()) {
+            // 仅在非直接对话模式（底部输入模式）下应用静音
+            if (isStreamingTtsMuted && !isWaveActive) {
+                return true
+            }
             if (armMicSuppression && isWaveActive) {
                 suppressRecognitionUntilMs = System.currentTimeMillis() + FULLSCREEN_TTS_CAPTURE_SUPPRESS_MS
             }

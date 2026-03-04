@@ -68,6 +68,7 @@ fun BubbleUserMessageComposable(
     message: ChatMessage,
     backgroundColor: Color,
     textColor: Color,
+    bubbleImageStyle: BubbleImageStyleConfig? = null,
     enableDialogs: Boolean = true
 ) {
     val context = LocalContext.current
@@ -302,20 +303,39 @@ fun BubbleUserMessageComposable(
                 // Message bubble
                 BoxWithConstraints {
                     val maxBubbleWidth = maxWidth * 0.85f
-                    Surface(
-                        modifier = Modifier
+                    val bubbleShape = RoundedCornerShape(20.dp, 4.dp, 20.dp, 20.dp)
+                    val bubbleModifier =
+                        Modifier
                             .widthIn(max = maxBubbleWidth)
-                            .defaultMinSize(minHeight = 44.dp),
-                        shape = RoundedCornerShape(20.dp, 4.dp, 20.dp, 20.dp),
-                        color = backgroundColor,
-                        tonalElevation = 2.dp
-                    ) {
-                        Text(
-                            text = textContent,
-                            modifier = Modifier.padding(12.dp),
-                            color = textColor,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                            .defaultMinSize(minHeight = 44.dp)
+
+                    if (bubbleImageStyle != null) {
+                        BubbleImageBackgroundSurface(
+                            imageStyle = bubbleImageStyle,
+                            shape = bubbleShape,
+                            modifier = bubbleModifier,
+                            contentPadding = PaddingValues(12.dp),
+                        ) {
+                            Text(
+                                text = textContent,
+                                color = textColor,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    } else {
+                        Surface(
+                            modifier = bubbleModifier,
+                            shape = bubbleShape,
+                            color = backgroundColor,
+                            tonalElevation = 2.dp
+                        ) {
+                            Text(
+                                text = textContent,
+                                modifier = Modifier.padding(12.dp),
+                                color = textColor,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                 }
             }

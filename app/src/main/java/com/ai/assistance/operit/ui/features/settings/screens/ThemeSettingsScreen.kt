@@ -182,6 +182,46 @@ fun ThemeSettingsScreen() {
         ).value
 
     val bubbleShowAvatar = preferencesManager.bubbleShowAvatar.collectAsState(initial = true).value
+    val cursorUserBubbleFollowTheme =
+        preferencesManager.cursorUserBubbleFollowTheme.collectAsState(initial = true).value
+    val cursorUserBubbleColor =
+        preferencesManager.cursorUserBubbleColor.collectAsState(initial = null).value
+    val bubbleUserBubbleColor =
+        preferencesManager.bubbleUserBubbleColor.collectAsState(initial = null).value
+    val bubbleAiBubbleColor =
+        preferencesManager.bubbleAiBubbleColor.collectAsState(initial = null).value
+    val bubbleUserUseImage =
+        preferencesManager.bubbleUserUseImage.collectAsState(initial = false).value
+    val bubbleAiUseImage =
+        preferencesManager.bubbleAiUseImage.collectAsState(initial = false).value
+    val bubbleUserImageUri =
+        preferencesManager.bubbleUserImageUri.collectAsState(initial = null).value
+    val bubbleAiImageUri =
+        preferencesManager.bubbleAiImageUri.collectAsState(initial = null).value
+    val bubbleUserImageCropLeft =
+        preferencesManager.bubbleUserImageCropLeft.collectAsState(initial = 0f).value
+    val bubbleUserImageCropTop =
+        preferencesManager.bubbleUserImageCropTop.collectAsState(initial = 0f).value
+    val bubbleUserImageCropRight =
+        preferencesManager.bubbleUserImageCropRight.collectAsState(initial = 0f).value
+    val bubbleUserImageCropBottom =
+        preferencesManager.bubbleUserImageCropBottom.collectAsState(initial = 0f).value
+    val bubbleUserImageRepeatStart =
+        preferencesManager.bubbleUserImageRepeatStart.collectAsState(initial = 0.35f).value
+    val bubbleUserImageRepeatEnd =
+        preferencesManager.bubbleUserImageRepeatEnd.collectAsState(initial = 0.65f).value
+    val bubbleAiImageCropLeft =
+        preferencesManager.bubbleAiImageCropLeft.collectAsState(initial = 0f).value
+    val bubbleAiImageCropTop =
+        preferencesManager.bubbleAiImageCropTop.collectAsState(initial = 0f).value
+    val bubbleAiImageCropRight =
+        preferencesManager.bubbleAiImageCropRight.collectAsState(initial = 0f).value
+    val bubbleAiImageCropBottom =
+        preferencesManager.bubbleAiImageCropBottom.collectAsState(initial = 0f).value
+    val bubbleAiImageRepeatStart =
+        preferencesManager.bubbleAiImageRepeatStart.collectAsState(initial = 0.35f).value
+    val bubbleAiImageRepeatEnd =
+        preferencesManager.bubbleAiImageRepeatEnd.collectAsState(initial = 0.65f).value
 
     // Collect new display settings
     val showThinkingProcess = preferencesManager.showThinkingProcess.collectAsState(initial = true).value
@@ -243,6 +283,9 @@ fun ThemeSettingsScreen() {
     // Default color definitions
     val defaultPrimaryColor = Color.Magenta.toArgb()
     val defaultSecondaryColor = Color.Blue.toArgb()
+    val defaultCursorUserBubbleColor = MaterialTheme.colorScheme.primaryContainer.toArgb()
+    val defaultBubbleUserBubbleColor = MaterialTheme.colorScheme.primaryContainer.toArgb()
+    val defaultBubbleAiBubbleColor = MaterialTheme.colorScheme.surface.toArgb()
     // Mutable state
     var themeModeInput by remember { mutableStateOf(themeMode) }
     var useSystemThemeInput by remember { mutableStateOf(useSystemTheme) }
@@ -299,6 +342,29 @@ fun ThemeSettingsScreen() {
     var inputStyleInput by remember { mutableStateOf(inputStyle) }
 
     var bubbleShowAvatarInput by remember { mutableStateOf(bubbleShowAvatar) }
+    var cursorUserBubbleFollowThemeInput by remember { mutableStateOf(cursorUserBubbleFollowTheme) }
+    var cursorUserBubbleColorInput by
+        remember { mutableStateOf(cursorUserBubbleColor ?: defaultCursorUserBubbleColor) }
+    var bubbleUserBubbleColorInput by
+        remember { mutableStateOf(bubbleUserBubbleColor ?: defaultBubbleUserBubbleColor) }
+    var bubbleAiBubbleColorInput by
+        remember { mutableStateOf(bubbleAiBubbleColor ?: defaultBubbleAiBubbleColor) }
+    var bubbleUserUseImageInput by remember { mutableStateOf(bubbleUserUseImage) }
+    var bubbleAiUseImageInput by remember { mutableStateOf(bubbleAiUseImage) }
+    var bubbleUserImageUriInput by remember { mutableStateOf(bubbleUserImageUri) }
+    var bubbleAiImageUriInput by remember { mutableStateOf(bubbleAiImageUri) }
+    var bubbleUserImageCropLeftInput by remember { mutableStateOf(bubbleUserImageCropLeft) }
+    var bubbleUserImageCropTopInput by remember { mutableStateOf(bubbleUserImageCropTop) }
+    var bubbleUserImageCropRightInput by remember { mutableStateOf(bubbleUserImageCropRight) }
+    var bubbleUserImageCropBottomInput by remember { mutableStateOf(bubbleUserImageCropBottom) }
+    var bubbleUserImageRepeatStartInput by remember { mutableStateOf(bubbleUserImageRepeatStart) }
+    var bubbleUserImageRepeatEndInput by remember { mutableStateOf(bubbleUserImageRepeatEnd) }
+    var bubbleAiImageCropLeftInput by remember { mutableStateOf(bubbleAiImageCropLeft) }
+    var bubbleAiImageCropTopInput by remember { mutableStateOf(bubbleAiImageCropTop) }
+    var bubbleAiImageCropRightInput by remember { mutableStateOf(bubbleAiImageCropRight) }
+    var bubbleAiImageCropBottomInput by remember { mutableStateOf(bubbleAiImageCropBottom) }
+    var bubbleAiImageRepeatStartInput by remember { mutableStateOf(bubbleAiImageRepeatStart) }
+    var bubbleAiImageRepeatEndInput by remember { mutableStateOf(bubbleAiImageRepeatEnd) }
 
     // New display settings state
     var showThinkingProcessInput by remember { mutableStateOf(showThinkingProcess) }
@@ -617,6 +683,92 @@ fun ThemeSettingsScreen() {
                 }
             }
 
+    var bubbleImagePickerTarget by remember { mutableStateOf("user") }
+    val bubbleImageCropLauncher =
+        rememberLauncherForActivityResult(CropImageContract()) { result ->
+            if (result.isSuccessful) {
+                val croppedUri = result.uriContent
+                if (croppedUri != null) {
+                    scope.launch {
+                        val uniqueName =
+                            if (bubbleImagePickerTarget == "ai") {
+                                "bubble_ai"
+                            } else {
+                                "bubble_user"
+                            }
+                        val internalUri =
+                            FileUtils.copyFileToInternalStorage(context, croppedUri, uniqueName)
+                        if (internalUri != null) {
+                            if (bubbleImagePickerTarget == "ai") {
+                                bubbleAiImageUriInput = internalUri.toString()
+                                bubbleAiUseImageInput = true
+                                saveThemeSettingsWithCharacterCard {
+                                    preferencesManager.saveThemeSettings(
+                                        bubbleAiImageUri = internalUri.toString(),
+                                        bubbleAiUseImage = true,
+                                    )
+                                }
+                            } else {
+                                bubbleUserImageUriInput = internalUri.toString()
+                                bubbleUserUseImageInput = true
+                                saveThemeSettingsWithCharacterCard {
+                                    preferencesManager.saveThemeSettings(
+                                        bubbleUserImageUri = internalUri.toString(),
+                                        bubbleUserUseImage = true,
+                                    )
+                                }
+                            }
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.chat_style_bubble_image_saved),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.theme_copy_failed),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            } else if (result.error != null) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.theme_image_crop_failed, result.error!!.message),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+    fun launchBubbleImageCrop(uri: Uri) {
+        val cropOptions =
+            CropImageContractOptions(
+                uri,
+                CropImageOptions().apply {
+                    guidelines = com.canhub.cropper.CropImageView.Guidelines.ON
+                    // Bubble images need alpha channel, so use PNG to preserve transparency.
+                    outputCompressFormat = android.graphics.Bitmap.CompressFormat.PNG
+                    outputCompressQuality = 90
+                    fixAspectRatio = false
+                    cropMenuCropButtonTitle = context.getString(R.string.theme_crop_done)
+                    activityTitle = context.getString(R.string.theme_crop_image)
+                    showCropOverlay = true
+                    showProgressBar = true
+                    multiTouchEnabled = true
+                    autoZoomEnabled = true
+                },
+            )
+        bubbleImageCropLauncher.launch(cropOptions)
+    }
+
+    val bubbleImagePickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) {
+                launchBubbleImageCrop(uri)
+            }
+        }
+
     // Migrate existing background image if needed (on first load)
     LaunchedEffect(Unit) {
         // Check if we have a background image URI that starts with content://
@@ -682,6 +834,26 @@ fun ThemeSettingsScreen() {
             chatStyle,
             inputStyle,
             bubbleShowAvatar,
+            cursorUserBubbleFollowTheme,
+            cursorUserBubbleColor,
+            bubbleUserBubbleColor,
+            bubbleAiBubbleColor,
+            bubbleUserUseImage,
+            bubbleAiUseImage,
+            bubbleUserImageUri,
+            bubbleAiImageUri,
+            bubbleUserImageCropLeft,
+            bubbleUserImageCropTop,
+            bubbleUserImageCropRight,
+            bubbleUserImageCropBottom,
+            bubbleUserImageRepeatStart,
+            bubbleUserImageRepeatEnd,
+            bubbleAiImageCropLeft,
+            bubbleAiImageCropTop,
+            bubbleAiImageCropRight,
+            bubbleAiImageCropBottom,
+            bubbleAiImageRepeatStart,
+            bubbleAiImageRepeatEnd,
             showThinkingProcess,
             showStatusTags,
             showInputProcessingStatus,
@@ -730,6 +902,26 @@ fun ThemeSettingsScreen() {
         chatStyleInput = chatStyle
         inputStyleInput = inputStyle
         bubbleShowAvatarInput = bubbleShowAvatar
+        cursorUserBubbleFollowThemeInput = cursorUserBubbleFollowTheme
+        cursorUserBubbleColorInput = cursorUserBubbleColor ?: defaultCursorUserBubbleColor
+        bubbleUserBubbleColorInput = bubbleUserBubbleColor ?: defaultBubbleUserBubbleColor
+        bubbleAiBubbleColorInput = bubbleAiBubbleColor ?: defaultBubbleAiBubbleColor
+        bubbleUserUseImageInput = bubbleUserUseImage
+        bubbleAiUseImageInput = bubbleAiUseImage
+        bubbleUserImageUriInput = bubbleUserImageUri
+        bubbleAiImageUriInput = bubbleAiImageUri
+        bubbleUserImageCropLeftInput = bubbleUserImageCropLeft
+        bubbleUserImageCropTopInput = bubbleUserImageCropTop
+        bubbleUserImageCropRightInput = bubbleUserImageCropRight
+        bubbleUserImageCropBottomInput = bubbleUserImageCropBottom
+        bubbleUserImageRepeatStartInput = bubbleUserImageRepeatStart
+        bubbleUserImageRepeatEndInput = bubbleUserImageRepeatEnd
+        bubbleAiImageCropLeftInput = bubbleAiImageCropLeft
+        bubbleAiImageCropTopInput = bubbleAiImageCropTop
+        bubbleAiImageCropRightInput = bubbleAiImageCropRight
+        bubbleAiImageCropBottomInput = bubbleAiImageCropBottom
+        bubbleAiImageRepeatStartInput = bubbleAiImageRepeatStart
+        bubbleAiImageRepeatEndInput = bubbleAiImageRepeatEnd
         showThinkingProcessInput = showThinkingProcess
         showStatusTagsInput = showStatusTags
         showInputProcessingStatusInput = showInputProcessingStatus
@@ -946,6 +1138,73 @@ fun ThemeSettingsScreen() {
             onInputStyleInputChange = { inputStyleInput = it },
             bubbleShowAvatarInput = bubbleShowAvatarInput,
             onBubbleShowAvatarInputChange = { bubbleShowAvatarInput = it },
+            cursorUserBubbleFollowThemeInput = cursorUserBubbleFollowThemeInput,
+            onCursorUserBubbleFollowThemeInputChange = { cursorUserBubbleFollowThemeInput = it },
+            cursorUserBubbleColorInput = cursorUserBubbleColorInput,
+            bubbleUserBubbleColorInput = bubbleUserBubbleColorInput,
+            bubbleAiBubbleColorInput = bubbleAiBubbleColorInput,
+            onShowColorPicker = {
+                currentColorPickerMode = it
+                showColorPicker = true
+            },
+            bubbleUserUseImageInput = bubbleUserUseImageInput,
+            onBubbleUserUseImageInputChange = { bubbleUserUseImageInput = it },
+            bubbleAiUseImageInput = bubbleAiUseImageInput,
+            onBubbleAiUseImageInputChange = { bubbleAiUseImageInput = it },
+            bubbleUserImageUriInput = bubbleUserImageUriInput,
+            bubbleAiImageUriInput = bubbleAiImageUriInput,
+            onPickBubbleUserImage = {
+                bubbleImagePickerTarget = "user"
+                bubbleImagePickerLauncher.launch("image/*")
+            },
+            onPickBubbleAiImage = {
+                bubbleImagePickerTarget = "ai"
+                bubbleImagePickerLauncher.launch("image/*")
+            },
+            onClearBubbleUserImage = {
+                bubbleUserImageUriInput = null
+                bubbleUserUseImageInput = false
+                saveThemeSettingsWithCharacterCard {
+                    preferencesManager.saveThemeSettings(
+                        bubbleUserImageUri = "",
+                        bubbleUserUseImage = false,
+                    )
+                }
+            },
+            onClearBubbleAiImage = {
+                bubbleAiImageUriInput = null
+                bubbleAiUseImageInput = false
+                saveThemeSettingsWithCharacterCard {
+                    preferencesManager.saveThemeSettings(
+                        bubbleAiImageUri = "",
+                        bubbleAiUseImage = false,
+                    )
+                }
+            },
+            bubbleUserImageCropLeftInput = bubbleUserImageCropLeftInput,
+            onBubbleUserImageCropLeftInputChange = { bubbleUserImageCropLeftInput = it },
+            bubbleUserImageCropTopInput = bubbleUserImageCropTopInput,
+            onBubbleUserImageCropTopInputChange = { bubbleUserImageCropTopInput = it },
+            bubbleUserImageCropRightInput = bubbleUserImageCropRightInput,
+            onBubbleUserImageCropRightInputChange = { bubbleUserImageCropRightInput = it },
+            bubbleUserImageCropBottomInput = bubbleUserImageCropBottomInput,
+            onBubbleUserImageCropBottomInputChange = { bubbleUserImageCropBottomInput = it },
+            bubbleUserImageRepeatStartInput = bubbleUserImageRepeatStartInput,
+            onBubbleUserImageRepeatStartInputChange = { bubbleUserImageRepeatStartInput = it },
+            bubbleUserImageRepeatEndInput = bubbleUserImageRepeatEndInput,
+            onBubbleUserImageRepeatEndInputChange = { bubbleUserImageRepeatEndInput = it },
+            bubbleAiImageCropLeftInput = bubbleAiImageCropLeftInput,
+            onBubbleAiImageCropLeftInputChange = { bubbleAiImageCropLeftInput = it },
+            bubbleAiImageCropTopInput = bubbleAiImageCropTopInput,
+            onBubbleAiImageCropTopInputChange = { bubbleAiImageCropTopInput = it },
+            bubbleAiImageCropRightInput = bubbleAiImageCropRightInput,
+            onBubbleAiImageCropRightInputChange = { bubbleAiImageCropRightInput = it },
+            bubbleAiImageCropBottomInput = bubbleAiImageCropBottomInput,
+            onBubbleAiImageCropBottomInputChange = { bubbleAiImageCropBottomInput = it },
+            bubbleAiImageRepeatStartInput = bubbleAiImageRepeatStartInput,
+            onBubbleAiImageRepeatStartInputChange = { bubbleAiImageRepeatStartInput = it },
+            bubbleAiImageRepeatEndInput = bubbleAiImageRepeatEndInput,
+            onBubbleAiImageRepeatEndInputChange = { bubbleAiImageRepeatEndInput = it },
             saveThemeSettingsWithCharacterCard = ::saveThemeSettingsWithCharacterCard,
             preferencesManager = preferencesManager,
         )
@@ -1073,6 +1332,26 @@ fun ThemeSettingsScreen() {
                         chatStyleInput = UserPreferencesManager.CHAT_STYLE_CURSOR
                         inputStyleInput = UserPreferencesManager.INPUT_STYLE_AGENT
                         bubbleShowAvatarInput = true
+                        cursorUserBubbleFollowThemeInput = true
+                        cursorUserBubbleColorInput = defaultCursorUserBubbleColor
+                        bubbleUserBubbleColorInput = defaultBubbleUserBubbleColor
+                        bubbleAiBubbleColorInput = defaultBubbleAiBubbleColor
+                        bubbleUserUseImageInput = false
+                        bubbleAiUseImageInput = false
+                        bubbleUserImageUriInput = null
+                        bubbleAiImageUriInput = null
+                        bubbleUserImageCropLeftInput = 0f
+                        bubbleUserImageCropTopInput = 0f
+                        bubbleUserImageCropRightInput = 0f
+                        bubbleUserImageCropBottomInput = 0f
+                        bubbleUserImageRepeatStartInput = 0.35f
+                        bubbleUserImageRepeatEndInput = 0.65f
+                        bubbleAiImageCropLeftInput = 0f
+                        bubbleAiImageCropTopInput = 0f
+                        bubbleAiImageCropRightInput = 0f
+                        bubbleAiImageCropBottomInput = 0f
+                        bubbleAiImageRepeatStartInput = 0.35f
+                        bubbleAiImageRepeatEndInput = 0.65f
                         showThinkingProcessInput = true
                         showStatusTagsInput = true
                         showInputProcessingStatusInput = true
@@ -1121,6 +1400,9 @@ fun ThemeSettingsScreen() {
                     appBarColorInput = customAppBarColorInput,
                     historyIconColorInput = chatHeaderHistoryIconColorInput,
                     pipIconColorInput = chatHeaderPipIconColorInput,
+                    cursorUserBubbleColorInput = cursorUserBubbleColorInput,
+                    bubbleUserBubbleColorInput = bubbleUserBubbleColorInput,
+                    bubbleAiBubbleColorInput = bubbleAiBubbleColorInput,
                     recentColors = recentColors,
                     onColorSelected = {
                         primaryColor,
@@ -1128,13 +1410,19 @@ fun ThemeSettingsScreen() {
                         statusBarColor,
                         appBarColor,
                         historyIconColor,
-                        pipIconColor ->
+                        pipIconColor,
+                        cursorUserBubbleColor,
+                        bubbleUserBubbleColor,
+                        bubbleAiBubbleColor ->
                         primaryColor?.let { primaryColorInput = it }
                         secondaryColor?.let { secondaryColorInput = it }
                         statusBarColor?.let { customStatusBarColorInput = it }
                         appBarColor?.let { customAppBarColorInput = it }
                         historyIconColor?.let { chatHeaderHistoryIconColorInput = it }
                         pipIconColor?.let { chatHeaderPipIconColorInput = it }
+                        cursorUserBubbleColor?.let { cursorUserBubbleColorInput = it }
+                        bubbleUserBubbleColor?.let { bubbleUserBubbleColorInput = it }
+                        bubbleAiBubbleColor?.let { bubbleAiBubbleColorInput = it }
 
                         // Save the new color to recent colors
                         val newColor =
@@ -1144,6 +1432,9 @@ fun ThemeSettingsScreen() {
                                         ?: appBarColor
                                         ?: historyIconColor
                                         ?: pipIconColor
+                                        ?: cursorUserBubbleColor
+                                        ?: bubbleUserBubbleColor
+                                        ?: bubbleAiBubbleColor
                         newColor?.let { scope.launch { preferencesManager.addRecentColor(it) } }
 
                         // Save the colors
@@ -1183,6 +1474,24 @@ fun ThemeSettingsScreen() {
                                         pipIconColor?.let {
                                             preferencesManager.saveThemeSettings(
                                                     chatHeaderPipIconColor = it
+                                            )
+                                        }
+                                "cursorUserBubble" ->
+                                        cursorUserBubbleColor?.let {
+                                            preferencesManager.saveThemeSettings(
+                                                cursorUserBubbleColor = it,
+                                            )
+                                        }
+                                "bubbleUserBubble" ->
+                                        bubbleUserBubbleColor?.let {
+                                            preferencesManager.saveThemeSettings(
+                                                bubbleUserBubbleColor = it,
+                                            )
+                                        }
+                                "bubbleAiBubble" ->
+                                        bubbleAiBubbleColor?.let {
+                                            preferencesManager.saveThemeSettings(
+                                                bubbleAiBubbleColor = it,
                                             )
                                         }
                             }

@@ -129,6 +129,31 @@ class UserPreferencesManager private constructor(private val context: Context) {
         private val INPUT_STYLE = stringPreferencesKey("input_style")
 
         private val BUBBLE_SHOW_AVATAR = booleanPreferencesKey("bubble_show_avatar")
+        private val CURSOR_USER_BUBBLE_FOLLOW_THEME =
+            booleanPreferencesKey("cursor_user_bubble_follow_theme")
+        private val CURSOR_USER_BUBBLE_COLOR = intPreferencesKey("cursor_user_bubble_color")
+        private val BUBBLE_USER_BUBBLE_COLOR = intPreferencesKey("bubble_user_bubble_color")
+        private val BUBBLE_AI_BUBBLE_COLOR = intPreferencesKey("bubble_ai_bubble_color")
+        private val BUBBLE_USER_USE_IMAGE = booleanPreferencesKey("bubble_user_use_image")
+        private val BUBBLE_AI_USE_IMAGE = booleanPreferencesKey("bubble_ai_use_image")
+        private val BUBBLE_USER_IMAGE_URI = stringPreferencesKey("bubble_user_image_uri")
+        private val BUBBLE_AI_IMAGE_URI = stringPreferencesKey("bubble_ai_image_uri")
+        private val BUBBLE_USER_IMAGE_CROP_LEFT = floatPreferencesKey("bubble_user_image_crop_left")
+        private val BUBBLE_USER_IMAGE_CROP_TOP = floatPreferencesKey("bubble_user_image_crop_top")
+        private val BUBBLE_USER_IMAGE_CROP_RIGHT = floatPreferencesKey("bubble_user_image_crop_right")
+        private val BUBBLE_USER_IMAGE_CROP_BOTTOM = floatPreferencesKey("bubble_user_image_crop_bottom")
+        private val BUBBLE_USER_IMAGE_REPEAT_START =
+            floatPreferencesKey("bubble_user_image_repeat_start")
+        private val BUBBLE_USER_IMAGE_REPEAT_END =
+            floatPreferencesKey("bubble_user_image_repeat_end")
+        private val BUBBLE_AI_IMAGE_CROP_LEFT = floatPreferencesKey("bubble_ai_image_crop_left")
+        private val BUBBLE_AI_IMAGE_CROP_TOP = floatPreferencesKey("bubble_ai_image_crop_top")
+        private val BUBBLE_AI_IMAGE_CROP_RIGHT = floatPreferencesKey("bubble_ai_image_crop_right")
+        private val BUBBLE_AI_IMAGE_CROP_BOTTOM = floatPreferencesKey("bubble_ai_image_crop_bottom")
+        private val BUBBLE_AI_IMAGE_REPEAT_START =
+            floatPreferencesKey("bubble_ai_image_repeat_start")
+        private val BUBBLE_AI_IMAGE_REPEAT_END =
+            floatPreferencesKey("bubble_ai_image_repeat_end")
 
         // 默认配置文件ID
         private const val DEFAULT_PROFILE_ID = "default"
@@ -420,6 +445,106 @@ class UserPreferencesManager private constructor(private val context: Context) {
                 preferences[BUBBLE_SHOW_AVATAR] ?: true
             }
 
+    val cursorUserBubbleFollowTheme: Flow<Boolean> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[CURSOR_USER_BUBBLE_FOLLOW_THEME] ?: true
+        }
+
+    val cursorUserBubbleColor: Flow<Int?> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[CURSOR_USER_BUBBLE_COLOR]
+        }
+
+    val bubbleUserBubbleColor: Flow<Int?> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_BUBBLE_COLOR]
+        }
+
+    val bubbleAiBubbleColor: Flow<Int?> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_BUBBLE_COLOR]
+        }
+
+    val bubbleUserUseImage: Flow<Boolean> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_USE_IMAGE] ?: false
+        }
+
+    val bubbleAiUseImage: Flow<Boolean> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_USE_IMAGE] ?: false
+        }
+
+    val bubbleUserImageUri: Flow<String?> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_IMAGE_URI]
+        }
+
+    val bubbleAiImageUri: Flow<String?> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_IMAGE_URI]
+        }
+
+    val bubbleUserImageCropLeft: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_IMAGE_CROP_LEFT] ?: 0f
+        }
+
+    val bubbleUserImageCropTop: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_IMAGE_CROP_TOP] ?: 0f
+        }
+
+    val bubbleUserImageCropRight: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_IMAGE_CROP_RIGHT] ?: 0f
+        }
+
+    val bubbleUserImageCropBottom: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_IMAGE_CROP_BOTTOM] ?: 0f
+        }
+
+    val bubbleUserImageRepeatStart: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_IMAGE_REPEAT_START] ?: 0.35f
+        }
+
+    val bubbleUserImageRepeatEnd: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_IMAGE_REPEAT_END] ?: 0.65f
+        }
+
+    val bubbleAiImageCropLeft: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_IMAGE_CROP_LEFT] ?: 0f
+        }
+
+    val bubbleAiImageCropTop: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_IMAGE_CROP_TOP] ?: 0f
+        }
+
+    val bubbleAiImageCropRight: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_IMAGE_CROP_RIGHT] ?: 0f
+        }
+
+    val bubbleAiImageCropBottom: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_IMAGE_CROP_BOTTOM] ?: 0f
+        }
+
+    val bubbleAiImageRepeatStart: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_IMAGE_REPEAT_START] ?: 0.35f
+        }
+
+    val bubbleAiImageRepeatEnd: Flow<Float> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_AI_IMAGE_REPEAT_END] ?: 0.65f
+        }
+
     val showThinkingProcess: Flow<Boolean> =
             context.userPreferencesDataStore.data.map { preferences ->
                 preferences[KEY_SHOW_THINKING_PROCESS] ?: true
@@ -667,6 +792,26 @@ class UserPreferencesManager private constructor(private val context: Context) {
             backgroundBlurRadius: Float? = null,
             chatStyle: String? = null,
             bubbleShowAvatar: Boolean? = null,
+            cursorUserBubbleFollowTheme: Boolean? = null,
+            cursorUserBubbleColor: Int? = null,
+            bubbleUserBubbleColor: Int? = null,
+            bubbleAiBubbleColor: Int? = null,
+            bubbleUserUseImage: Boolean? = null,
+            bubbleAiUseImage: Boolean? = null,
+            bubbleUserImageUri: String? = null,
+            bubbleAiImageUri: String? = null,
+            bubbleUserImageCropLeft: Float? = null,
+            bubbleUserImageCropTop: Float? = null,
+            bubbleUserImageCropRight: Float? = null,
+            bubbleUserImageCropBottom: Float? = null,
+            bubbleUserImageRepeatStart: Float? = null,
+            bubbleUserImageRepeatEnd: Float? = null,
+            bubbleAiImageCropLeft: Float? = null,
+            bubbleAiImageCropTop: Float? = null,
+            bubbleAiImageCropRight: Float? = null,
+            bubbleAiImageCropBottom: Float? = null,
+            bubbleAiImageRepeatStart: Float? = null,
+            bubbleAiImageRepeatEnd: Float? = null,
             showThinkingProcess: Boolean? = null,
             showStatusTags: Boolean? = null,
             customUserAvatarUri: String? = null,
@@ -718,6 +863,26 @@ class UserPreferencesManager private constructor(private val context: Context) {
             backgroundBlurRadius?.let { preferences[BACKGROUND_BLUR_RADIUS] = it }
             chatStyle?.let { preferences[CHAT_STYLE] = it }
             bubbleShowAvatar?.let { preferences[BUBBLE_SHOW_AVATAR] = it }
+            cursorUserBubbleFollowTheme?.let { preferences[CURSOR_USER_BUBBLE_FOLLOW_THEME] = it }
+            cursorUserBubbleColor?.let { preferences[CURSOR_USER_BUBBLE_COLOR] = it }
+            bubbleUserBubbleColor?.let { preferences[BUBBLE_USER_BUBBLE_COLOR] = it }
+            bubbleAiBubbleColor?.let { preferences[BUBBLE_AI_BUBBLE_COLOR] = it }
+            bubbleUserUseImage?.let { preferences[BUBBLE_USER_USE_IMAGE] = it }
+            bubbleAiUseImage?.let { preferences[BUBBLE_AI_USE_IMAGE] = it }
+            bubbleUserImageUri?.let { preferences[BUBBLE_USER_IMAGE_URI] = it }
+            bubbleAiImageUri?.let { preferences[BUBBLE_AI_IMAGE_URI] = it }
+            bubbleUserImageCropLeft?.let { preferences[BUBBLE_USER_IMAGE_CROP_LEFT] = it }
+            bubbleUserImageCropTop?.let { preferences[BUBBLE_USER_IMAGE_CROP_TOP] = it }
+            bubbleUserImageCropRight?.let { preferences[BUBBLE_USER_IMAGE_CROP_RIGHT] = it }
+            bubbleUserImageCropBottom?.let { preferences[BUBBLE_USER_IMAGE_CROP_BOTTOM] = it }
+            bubbleUserImageRepeatStart?.let { preferences[BUBBLE_USER_IMAGE_REPEAT_START] = it }
+            bubbleUserImageRepeatEnd?.let { preferences[BUBBLE_USER_IMAGE_REPEAT_END] = it }
+            bubbleAiImageCropLeft?.let { preferences[BUBBLE_AI_IMAGE_CROP_LEFT] = it }
+            bubbleAiImageCropTop?.let { preferences[BUBBLE_AI_IMAGE_CROP_TOP] = it }
+            bubbleAiImageCropRight?.let { preferences[BUBBLE_AI_IMAGE_CROP_RIGHT] = it }
+            bubbleAiImageCropBottom?.let { preferences[BUBBLE_AI_IMAGE_CROP_BOTTOM] = it }
+            bubbleAiImageRepeatStart?.let { preferences[BUBBLE_AI_IMAGE_REPEAT_START] = it }
+            bubbleAiImageRepeatEnd?.let { preferences[BUBBLE_AI_IMAGE_REPEAT_END] = it }
             showThinkingProcess?.let { preferences[KEY_SHOW_THINKING_PROCESS] = it }
             showStatusTags?.let { preferences[KEY_SHOW_STATUS_TAGS] = it }
             customUserAvatarUri?.let { preferences[KEY_CUSTOM_USER_AVATAR_URI] = it }
@@ -769,6 +934,26 @@ class UserPreferencesManager private constructor(private val context: Context) {
             preferences.remove(BACKGROUND_BLUR_RADIUS)
             preferences.remove(CHAT_STYLE)
             preferences.remove(BUBBLE_SHOW_AVATAR)
+            preferences.remove(CURSOR_USER_BUBBLE_FOLLOW_THEME)
+            preferences.remove(CURSOR_USER_BUBBLE_COLOR)
+            preferences.remove(BUBBLE_USER_BUBBLE_COLOR)
+            preferences.remove(BUBBLE_AI_BUBBLE_COLOR)
+            preferences.remove(BUBBLE_USER_USE_IMAGE)
+            preferences.remove(BUBBLE_AI_USE_IMAGE)
+            preferences.remove(BUBBLE_USER_IMAGE_URI)
+            preferences.remove(BUBBLE_AI_IMAGE_URI)
+            preferences.remove(BUBBLE_USER_IMAGE_CROP_LEFT)
+            preferences.remove(BUBBLE_USER_IMAGE_CROP_TOP)
+            preferences.remove(BUBBLE_USER_IMAGE_CROP_RIGHT)
+            preferences.remove(BUBBLE_USER_IMAGE_CROP_BOTTOM)
+            preferences.remove(BUBBLE_USER_IMAGE_REPEAT_START)
+            preferences.remove(BUBBLE_USER_IMAGE_REPEAT_END)
+            preferences.remove(BUBBLE_AI_IMAGE_CROP_LEFT)
+            preferences.remove(BUBBLE_AI_IMAGE_CROP_TOP)
+            preferences.remove(BUBBLE_AI_IMAGE_CROP_RIGHT)
+            preferences.remove(BUBBLE_AI_IMAGE_CROP_BOTTOM)
+            preferences.remove(BUBBLE_AI_IMAGE_REPEAT_START)
+            preferences.remove(BUBBLE_AI_IMAGE_REPEAT_END)
             preferences.remove(KEY_SHOW_THINKING_PROCESS)
             preferences.remove(KEY_SHOW_STATUS_TAGS)
             preferences.remove(KEY_CUSTOM_USER_AVATAR_URI)
@@ -1032,7 +1217,8 @@ class UserPreferencesManager private constructor(private val context: Context) {
         return listOf(
             THEME_MODE, BACKGROUND_IMAGE_URI, BACKGROUND_MEDIA_TYPE, APP_BAR_CONTENT_COLOR_MODE,
             CHAT_STYLE, KEY_CUSTOM_USER_AVATAR_URI, KEY_CUSTOM_AI_AVATAR_URI, KEY_AVATAR_SHAPE,
-            KEY_ON_COLOR_MODE, KEY_CUSTOM_CHAT_TITLE, INPUT_STYLE, FONT_TYPE, SYSTEM_FONT_NAME, CUSTOM_FONT_PATH
+            KEY_ON_COLOR_MODE, KEY_CUSTOM_CHAT_TITLE, INPUT_STYLE, FONT_TYPE, SYSTEM_FONT_NAME,
+            CUSTOM_FONT_PATH, BUBBLE_USER_IMAGE_URI, BUBBLE_AI_IMAGE_URI
             // 注意：全局用户头像和名称已移至 DisplayPreferencesManager，不跟随角色卡主题切换
         )
     }
@@ -1043,7 +1229,8 @@ class UserPreferencesManager private constructor(private val context: Context) {
             VIDEO_BACKGROUND_LOOP, TOOLBAR_TRANSPARENT, USE_CUSTOM_APP_BAR_COLOR, USE_CUSTOM_STATUS_BAR_COLOR,
             STATUS_BAR_TRANSPARENT, STATUS_BAR_HIDDEN, CHAT_HEADER_TRANSPARENT, CHAT_INPUT_TRANSPARENT,
             FORCE_APP_BAR_CONTENT_COLOR_ENABLED, CHAT_HEADER_OVERLAY_MODE, USE_BACKGROUND_BLUR,
-            BUBBLE_SHOW_AVATAR, KEY_SHOW_THINKING_PROCESS, KEY_SHOW_STATUS_TAGS,
+            BUBBLE_SHOW_AVATAR, CURSOR_USER_BUBBLE_FOLLOW_THEME, BUBBLE_USER_USE_IMAGE,
+            BUBBLE_AI_USE_IMAGE, KEY_SHOW_THINKING_PROCESS, KEY_SHOW_STATUS_TAGS,
             KEY_SHOW_INPUT_PROCESSING_STATUS, KEY_SHOW_CHAT_FLOATING_DOTS_ANIMATION, USE_CUSTOM_FONT
             // 注意：消息显示设置已移至 DisplayPreferencesManager，不跟随角色卡主题切换
         )
@@ -1052,13 +1239,18 @@ class UserPreferencesManager private constructor(private val context: Context) {
     private fun getAllIntThemeKeys(): List<Preferences.Key<Int>> {
         return listOf(
             CUSTOM_PRIMARY_COLOR, CUSTOM_SECONDARY_COLOR, CUSTOM_APP_BAR_COLOR,
-            CUSTOM_STATUS_BAR_COLOR, CHAT_HEADER_HISTORY_ICON_COLOR, CHAT_HEADER_PIP_ICON_COLOR
+            CUSTOM_STATUS_BAR_COLOR, CHAT_HEADER_HISTORY_ICON_COLOR, CHAT_HEADER_PIP_ICON_COLOR,
+            CURSOR_USER_BUBBLE_COLOR, BUBBLE_USER_BUBBLE_COLOR, BUBBLE_AI_BUBBLE_COLOR
         )
     }
 
     private fun getAllFloatThemeKeys(): List<Preferences.Key<Float>> {
         return listOf(
-            BACKGROUND_IMAGE_OPACITY, BACKGROUND_BLUR_RADIUS, KEY_AVATAR_CORNER_RADIUS, FONT_SCALE
+            BACKGROUND_IMAGE_OPACITY, BACKGROUND_BLUR_RADIUS, KEY_AVATAR_CORNER_RADIUS, FONT_SCALE,
+            BUBBLE_USER_IMAGE_CROP_LEFT, BUBBLE_USER_IMAGE_CROP_TOP, BUBBLE_USER_IMAGE_CROP_RIGHT,
+            BUBBLE_USER_IMAGE_CROP_BOTTOM, BUBBLE_USER_IMAGE_REPEAT_START, BUBBLE_USER_IMAGE_REPEAT_END,
+            BUBBLE_AI_IMAGE_CROP_LEFT, BUBBLE_AI_IMAGE_CROP_TOP, BUBBLE_AI_IMAGE_CROP_RIGHT,
+            BUBBLE_AI_IMAGE_CROP_BOTTOM, BUBBLE_AI_IMAGE_REPEAT_START, BUBBLE_AI_IMAGE_REPEAT_END
         )
     }
 

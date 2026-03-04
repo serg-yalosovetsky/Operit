@@ -489,6 +489,8 @@ fun FloatingFullscreenMode(floatContext: FloatContext) {
             onAttachLocationChange = { viewModel.attachLocation = it },
             hasOcrSelection = viewModel.hasOcrSelection,
             onHasOcrSelectionChange = { viewModel.hasOcrSelection = it },
+            isTtsMuted = viewModel.isStreamingTtsMuted,
+            onToggleTtsMute = { viewModel.toggleStreamingTtsMuted() },
             onSendClick = { viewModel.sendInputMessage() },
             volumeLevel = volumeLevel,
             modifier = Modifier.align(Alignment.BottomCenter)

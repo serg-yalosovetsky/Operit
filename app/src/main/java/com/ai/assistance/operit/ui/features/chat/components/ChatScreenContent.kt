@@ -49,6 +49,7 @@ import com.ai.assistance.operit.data.model.ActivePrompt
 import com.ai.assistance.operit.ui.features.chat.viewmodel.ChatViewModel
 import com.ai.assistance.operit.ui.features.chat.viewmodel.ChatHistoryDisplayMode
 import com.ai.assistance.operit.ui.common.rememberLocal
+import com.ai.assistance.operit.ui.features.chat.components.style.bubble.BubbleImageStyleConfig
 import com.ai.assistance.operit.ui.features.chat.webview.workspace.WorkspaceBackupManager
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -122,6 +123,8 @@ fun ChatScreenContent(
         historyListState: LazyListState,
         onSwitchCharacter: (CharacterSelectorTarget) -> Unit,
         chatAreaHorizontalPadding: Float = 16f, // 聊天区域水平内边距
+        bubbleUserImageStyle: BubbleImageStyleConfig? = null,
+        bubbleAiImageStyle: BubbleImageStyleConfig? = null,
         showChatFloatingDotsAnimation: Boolean = true,
 ) {
     val density = LocalDensity.current
@@ -341,6 +344,8 @@ fun ChatScreenContent(
                             }
                         },
                         horizontalPadding = chatAreaHorizontalPadding.dp,
+                        bubbleUserImageStyle = bubbleUserImageStyle,
+                        bubbleAiImageStyle = bubbleAiImageStyle,
                         showChatFloatingDotsAnimation = showChatFloatingDotsAnimation,
                 )
                 ChatScreenHeader(
@@ -412,6 +417,8 @@ fun ChatScreenContent(
                             }
                         },
                         showChatFloatingDotsAnimation = showChatFloatingDotsAnimation,
+                        bubbleUserImageStyle = bubbleUserImageStyle,
+                        bubbleAiImageStyle = bubbleAiImageStyle,
                 )
             }
         }

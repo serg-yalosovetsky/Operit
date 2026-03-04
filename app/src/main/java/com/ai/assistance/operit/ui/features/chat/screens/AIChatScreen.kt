@@ -61,6 +61,7 @@ import com.ai.assistance.operit.ui.features.chat.components.style.input.agent.Ag
 import com.ai.assistance.operit.ui.features.chat.components.style.input.classic.ClassicChatInputSection
 import com.ai.assistance.operit.ui.features.chat.components.style.input.classic.ClassicChatSettingsBar
 import com.ai.assistance.operit.ui.features.chat.components.style.input.common.PendingQueueMessageItem
+import com.ai.assistance.operit.ui.features.chat.components.style.bubble.BubbleImageStyleConfig
 import com.ai.assistance.operit.ui.features.chat.components.AndroidExportDialog
 import com.ai.assistance.operit.ui.features.chat.components.ExportCompleteDialog
 import com.ai.assistance.operit.ui.features.chat.components.ExportPlatformDialog
@@ -91,6 +92,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Constraints
 import com.ai.assistance.operit.data.preferences.ActivePromptManager
 import com.ai.assistance.operit.data.model.ActivePrompt
+import com.ai.assistance.operit.ui.theme.getTextColorForBackground
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -181,7 +183,8 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
     val enableEnterToSend by displayPreferencesManager.enableEnterToSend.collectAsState(initial = false)
     val showChatFloatingDotsAnimation by
         preferencesManager.showChatFloatingDotsAnimation.collectAsState(initial = true)
-    val hasBackgroundImage = useBackgroundImage && backgroundImageUri != null
+    val hasBackgroundImageFromPrefs = useBackgroundImage && backgroundImageUri != null
+    val effectiveHasBackgroundImage = hasBackgroundImage || hasBackgroundImageFromPrefs
 
     // Collect chat style from preferences
     val chatStyleSetting by preferencesManager.chatStyle.collectAsState(initial = UserPreferencesManager.CHAT_STYLE_CURSOR)
@@ -195,6 +198,44 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
         preferencesManager.inputStyle.collectAsState(
             initial = UserPreferencesManager.INPUT_STYLE_AGENT,
         )
+    val cursorUserBubbleFollowTheme by
+        preferencesManager.cursorUserBubbleFollowTheme.collectAsState(initial = true)
+    val cursorUserBubbleColorValue by
+        preferencesManager.cursorUserBubbleColor.collectAsState(initial = null)
+    val bubbleUserBubbleColorValue by
+        preferencesManager.bubbleUserBubbleColor.collectAsState(initial = null)
+    val bubbleAiBubbleColorValue by
+        preferencesManager.bubbleAiBubbleColor.collectAsState(initial = null)
+    val bubbleUserUseImage by
+        preferencesManager.bubbleUserUseImage.collectAsState(initial = false)
+    val bubbleAiUseImage by
+        preferencesManager.bubbleAiUseImage.collectAsState(initial = false)
+    val bubbleUserImageUri by preferencesManager.bubbleUserImageUri.collectAsState(initial = null)
+    val bubbleAiImageUri by preferencesManager.bubbleAiImageUri.collectAsState(initial = null)
+    val bubbleUserImageCropLeft by
+        preferencesManager.bubbleUserImageCropLeft.collectAsState(initial = 0f)
+    val bubbleUserImageCropTop by
+        preferencesManager.bubbleUserImageCropTop.collectAsState(initial = 0f)
+    val bubbleUserImageCropRight by
+        preferencesManager.bubbleUserImageCropRight.collectAsState(initial = 0f)
+    val bubbleUserImageCropBottom by
+        preferencesManager.bubbleUserImageCropBottom.collectAsState(initial = 0f)
+    val bubbleUserImageRepeatStart by
+        preferencesManager.bubbleUserImageRepeatStart.collectAsState(initial = 0.35f)
+    val bubbleUserImageRepeatEnd by
+        preferencesManager.bubbleUserImageRepeatEnd.collectAsState(initial = 0.65f)
+    val bubbleAiImageCropLeft by
+        preferencesManager.bubbleAiImageCropLeft.collectAsState(initial = 0f)
+    val bubbleAiImageCropTop by
+        preferencesManager.bubbleAiImageCropTop.collectAsState(initial = 0f)
+    val bubbleAiImageCropRight by
+        preferencesManager.bubbleAiImageCropRight.collectAsState(initial = 0f)
+    val bubbleAiImageCropBottom by
+        preferencesManager.bubbleAiImageCropBottom.collectAsState(initial = 0f)
+    val bubbleAiImageRepeatStart by
+        preferencesManager.bubbleAiImageRepeatStart.collectAsState(initial = 0.35f)
+    val bubbleAiImageRepeatEnd by
+        preferencesManager.bubbleAiImageRepeatEnd.collectAsState(initial = 0.65f)
     val hostActivity = remember(context) { context.findActivity() }
 
     // Collect chat area horizontal padding from preferences
@@ -349,15 +390,110 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
 
     // Modern chat UI colors - Cursor风格
     val backgroundColor =
-            if (hasBackgroundImage) Color.Transparent else MaterialTheme.colorScheme.background
-    val userMessageColor = MaterialTheme.colorScheme.primaryContainer
-    val aiMessageColor = MaterialTheme.colorScheme.surface
-    val userTextColor = MaterialTheme.colorScheme.onPrimaryContainer
-    val aiTextColor = MaterialTheme.colorScheme.onSurface
+            if (effectiveHasBackgroundImage) Color.Transparent else MaterialTheme.colorScheme.background
+    val defaultUserMessageColor = MaterialTheme.colorScheme.primaryContainer
+    val defaultAiMessageColor = MaterialTheme.colorScheme.surface
+    val cursorCustomUserMessageColor = cursorUserBubbleColorValue?.let(::Color)
+    val bubbleCustomUserMessageColor = bubbleUserBubbleColorValue?.let(::Color)
+    val bubbleCustomAiMessageColor = bubbleAiBubbleColorValue?.let(::Color)
+
+    val userMessageColor =
+        when (chatStyle) {
+            ChatStyle.CURSOR -> {
+                if (cursorUserBubbleFollowTheme) {
+                    defaultUserMessageColor
+                } else {
+                    cursorCustomUserMessageColor ?: defaultUserMessageColor
+                }
+            }
+
+            ChatStyle.BUBBLE -> bubbleCustomUserMessageColor ?: defaultUserMessageColor
+        }
+    val aiMessageColor =
+        when (chatStyle) {
+            ChatStyle.BUBBLE -> bubbleCustomAiMessageColor ?: defaultAiMessageColor
+            ChatStyle.CURSOR -> defaultAiMessageColor
+        }
+    val userTextColor =
+        when {
+            chatStyle == ChatStyle.CURSOR && cursorUserBubbleFollowTheme ->
+                MaterialTheme.colorScheme.onPrimaryContainer
+            else -> getTextColorForBackground(userMessageColor.copy(alpha = 1f))
+        }
+    val aiTextColor =
+        when {
+            chatStyle == ChatStyle.BUBBLE && bubbleCustomAiMessageColor != null ->
+                getTextColorForBackground(aiMessageColor.copy(alpha = 1f))
+            else -> MaterialTheme.colorScheme.onSurface
+        }
     val systemMessageColor = MaterialTheme.colorScheme.surfaceVariant
     val systemTextColor = MaterialTheme.colorScheme.onSurfaceVariant
     val thinkingBackgroundColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
     val thinkingTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+    val bubbleUserImageStyle =
+        remember(
+            chatStyle,
+            bubbleUserUseImage,
+            bubbleUserImageUri,
+            bubbleUserImageCropLeft,
+            bubbleUserImageCropTop,
+            bubbleUserImageCropRight,
+            bubbleUserImageCropBottom,
+            bubbleUserImageRepeatStart,
+            bubbleUserImageRepeatEnd,
+        ) {
+            val imageUri = bubbleUserImageUri
+            if (
+                chatStyle == ChatStyle.BUBBLE &&
+                    bubbleUserUseImage &&
+                    !imageUri.isNullOrBlank()
+            ) {
+                BubbleImageStyleConfig(
+                    imageUri = imageUri,
+                    cropLeftRatio = bubbleUserImageCropLeft,
+                    cropTopRatio = bubbleUserImageCropTop,
+                    cropRightRatio = bubbleUserImageCropRight,
+                    cropBottomRatio = bubbleUserImageCropBottom,
+                    repeatStartRatio = bubbleUserImageRepeatStart,
+                    repeatEndRatio = bubbleUserImageRepeatEnd,
+                )
+            } else {
+                null
+            }
+        }
+
+    val bubbleAiImageStyle =
+        remember(
+            chatStyle,
+            bubbleAiUseImage,
+            bubbleAiImageUri,
+            bubbleAiImageCropLeft,
+            bubbleAiImageCropTop,
+            bubbleAiImageCropRight,
+            bubbleAiImageCropBottom,
+            bubbleAiImageRepeatStart,
+            bubbleAiImageRepeatEnd,
+        ) {
+            val imageUri = bubbleAiImageUri
+            if (
+                chatStyle == ChatStyle.BUBBLE &&
+                    bubbleAiUseImage &&
+                    !imageUri.isNullOrBlank()
+            ) {
+                BubbleImageStyleConfig(
+                    imageUri = imageUri,
+                    cropLeftRatio = bubbleAiImageCropLeft,
+                    cropTopRatio = bubbleAiImageCropTop,
+                    cropRightRatio = bubbleAiImageCropRight,
+                    cropBottomRatio = bubbleAiImageCropBottom,
+                    repeatStartRatio = bubbleAiImageRepeatStart,
+                    repeatEndRatio = bubbleAiImageRepeatEnd,
+                )
+            } else {
+                null
+            }
+        }
 
     // 滚动状态
     var autoScrollToBottom by remember { mutableStateOf(true) }
@@ -623,7 +759,7 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
     var bottomBarHeightPx by remember { mutableStateOf(0) }
     val inputSurfaceColor = when {
         chatInputTransparent -> colorScheme.surface.copy(alpha = 0f)
-        hasBackgroundImage -> colorScheme.surface.copy(alpha = 0.85f)
+        effectiveHasBackgroundImage -> colorScheme.surface.copy(alpha = 0.85f)
         else -> colorScheme.surface
     }
 
@@ -715,7 +851,7 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
                                         onTakePhoto = { uri ->
                                             actualViewModel.handleTakenPhoto(uri)
                                         },
-                                        hasBackgroundImage = hasBackgroundImage,
+                                        hasBackgroundImage = effectiveHasBackgroundImage,
                                         chatInputTransparent = chatInputTransparent,
                                         externalAttachmentPanelState = attachmentPanelState,
                                         onAttachmentPanelStateChange = { newState ->
@@ -853,7 +989,7 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
                                         onTakePhoto = { uri ->
                                             actualViewModel.handleTakenPhoto(uri)
                                         },
-                                        hasBackgroundImage = hasBackgroundImage,
+                                        hasBackgroundImage = effectiveHasBackgroundImage,
                                         chatInputTransparent = chatInputTransparent,
                                         externalAttachmentPanelState = attachmentPanelState,
                                         onAttachmentPanelStateChange = { newState ->
@@ -966,7 +1102,7 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
                                 systemTextColor = systemTextColor,
                                 thinkingBackgroundColor = thinkingBackgroundColor,
                                 thinkingTextColor = thinkingTextColor,
-                                hasBackgroundImage = hasBackgroundImage,
+                                hasBackgroundImage = effectiveHasBackgroundImage,
                                 editingMessageIndex = editingMessageIndex,
                                 editingMessageContent = editingMessageContent,
                                 chatScreenGestureConsumed = chatScreenGestureConsumed,
@@ -992,6 +1128,8 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
                                     actualViewModel.switchActiveCharacterTarget(target)
                                 },
                                 chatAreaHorizontalPadding = chatAreaHorizontalPadding,
+                                bubbleUserImageStyle = bubbleUserImageStyle,
+                                bubbleAiImageStyle = bubbleAiImageStyle,
                                 showChatFloatingDotsAnimation = showChatFloatingDotsAnimation,
                         )
 
