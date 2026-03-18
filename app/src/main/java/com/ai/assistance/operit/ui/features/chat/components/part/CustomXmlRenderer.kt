@@ -210,25 +210,35 @@ class CustomXmlRenderer(
     /** 从XML内容中提取纯文本内容 */
     private fun extractContentFromXml(content: String, tagName: String? = null): String {
         val rawTagName = extractRawTagName(content) ?: return content
+        val normalizedRawTagName = ChatMarkupRegex.normalizeToolLikeTagName(rawTagName)
         val effectiveTagName =
-            if (tagName != null && ChatMarkupRegex.normalizeToolLikeTagName(rawTagName) != tagName) {
+            if (tagName != null && normalizedRawTagName != tagName) {
                 tagName
             } else {
                 rawTagName
             }
         val startTag = "<$effectiveTagName"
-        val endTag = "</$effectiveTagName>"
-
-        // 找到开始标签的结束位置
-        val startTagEnd = content.indexOf('>', content.indexOf(startTag)) + 1
-        val endIndex = content.lastIndexOf(endTag)
-
-        return if (startTagEnd > 0 && endIndex > startTagEnd) {
-            content.substring(startTagEnd, endIndex).trim()
-        } else {
-            // 如果无法正确提取，返回原始内容
-            content
+        val startTagIndex = content.indexOf(startTag)
+        if (startTagIndex < 0) {
+            return content
         }
+
+        // 起始标签本身必须完整；如果连 '>' 都没有，保留原始内容以等待后续片段。
+        val startTagEnd = content.indexOf('>', startTagIndex)
+        if (startTagEnd < 0) {
+            return content
+        }
+
+        val endTag = "</$effectiveTagName>"
+        val endIndex = content.lastIndexOf(endTag)
+        val contentEndExclusive =
+            if (endIndex > startTagEnd) {
+                endIndex
+            } else {
+                content.length
+            }
+
+        return content.substring(startTagEnd + 1, contentEndExclusive).trim()
     }
 
     /** 从工具调用XML提取参数内容 */

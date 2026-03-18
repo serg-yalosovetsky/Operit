@@ -233,24 +233,50 @@ class MessageProcessingDelegate(
         return chatRuntimes[chatKey(chatId)]?.responseStream
     }
 
+    private fun resolveFinalContent(aiMessage: ChatMessage): String {
+        val sharedStream = aiMessage.contentStream as? SharedStream<String>
+        val replayChunks = sharedStream?.replayCache
+        val eventCarrier = aiMessage.contentStream as? TextStreamEventCarrier
+
+        return if (eventCarrier?.eventChannel?.replayCache?.isNotEmpty() == true) {
+            aiMessage.content
+        } else if (!replayChunks.isNullOrEmpty()) {
+            replayChunks.joinToString(separator = "")
+        } else {
+            aiMessage.content
+        }
+    }
+
+    private suspend fun detachStreamingAiMessage(chatId: String) {
+        val streamingMessage =
+            getChatHistory(chatId).lastOrNull { it.sender == "ai" && it.contentStream != null }
+                ?: return
+        val finalContent = resolveFinalContent(streamingMessage)
+        streamingMessage.content = finalContent
+        val finalMessage = streamingMessage.copy(content = finalContent, contentStream = null)
+        withContext(Dispatchers.Main) {
+            addMessageToChat(chatId, finalMessage)
+        }
+    }
+
     fun cancelMessage(chatId: String) {
         coroutineScope.launch {
-            setChatInputProcessingState(chatId, EnhancedInputProcessingState.Idle)
-
             val chatRuntime = runtimeFor(chatId)
-            chatRuntime.streamCollectionJob?.cancel()
-            chatRuntime.streamCollectionJob = null
             chatRuntime.stateCollectionJob?.cancel()
             chatRuntime.stateCollectionJob = null
-            chatRuntime.isLoading.value = false
-            chatRuntime.responseStream = null
-            updateGlobalLoadingState()
+            chatRuntime.streamCollectionJob?.cancel()
+            chatRuntime.streamCollectionJob = null
             clearCurrentTurnToolInvocationCount(chatId)
 
-            withContext(Dispatchers.IO) {
-                AIMessageManager.cancelOperation(chatId)
-                saveCurrentChat()
-            }
+            AIMessageManager.cancelOperation(chatId)
+            detachStreamingAiMessage(chatId)
+
+            chatRuntime.responseStream = null
+            chatRuntime.isLoading.value = false
+            updateGlobalLoadingState()
+            setChatInputProcessingState(chatId, EnhancedInputProcessingState.Idle)
+
+            withContext(Dispatchers.IO) { saveCurrentChat() }
         }
     }
 
@@ -935,18 +961,8 @@ class MessageProcessingDelegate(
         // 修改为使用 try-catch 来检查变量是否已初始化，而不是使用 ::var.isInitialized
         try {
             val aiMessage = aiMessageProvider()
-            val sharedStream = aiMessage.contentStream as? SharedStream<String>
-            val replayChunks = sharedStream?.replayCache
-            val eventCarrier = aiMessage.contentStream as? TextStreamEventCarrier
             // 优先使用共享流的全量重放缓存重建最终文本，避免完成信号早于收集协程处理尾部字符时丢字。
-            val finalContent =
-                if (eventCarrier?.eventChannel?.replayCache?.isNotEmpty() == true) {
-                    aiMessage.content
-                } else if (!replayChunks.isNullOrEmpty()) {
-                    replayChunks.joinToString(separator = "")
-                } else {
-                    aiMessage.content
-                }
+            val finalContent = resolveFinalContent(aiMessage)
             aiMessage.content = finalContent
 
             var deferTurnCompleteToAsyncJob = false
@@ -1080,7 +1096,7 @@ class MessageProcessingDelegate(
             try {
                 val aiMessage = aiMessageProvider()
                 val finalContent = aiMessage.content
-                val finalMessage = aiMessage.copy(content = finalContent)
+                val finalMessage = aiMessage.copy(content = finalContent, contentStream = null)
                 withContext(Dispatchers.Main) {
                     if (chatId != null) {
                         addMessageToChat(chatId, finalMessage)

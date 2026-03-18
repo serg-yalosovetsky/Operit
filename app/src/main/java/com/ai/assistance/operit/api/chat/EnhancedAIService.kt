@@ -45,6 +45,7 @@ import com.ai.assistance.operit.R
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -346,12 +347,41 @@ class EnhancedAIService private constructor(private val context: Context) {
 
     // Execution context for a single sendMessage call to achieve concurrency
     private data class MessageExecutionContext(
+        val executionId: Int,
         val streamBuffer: StringBuilder = StringBuilder(),
         val roundManager: ConversationRoundManager = ConversationRoundManager(),
         val isConversationActive: AtomicBoolean = AtomicBoolean(true),
         val conversationHistory: MutableList<Pair<String, String>>,
         val eventChannel: MutableSharedStream<TextStreamEvent>,
     )
+
+    private val activeExecutionContexts = ConcurrentHashMap<Int, MessageExecutionContext>()
+    private val nextExecutionContextId = AtomicInteger(0)
+
+    private fun registerExecutionContext(context: MessageExecutionContext) {
+        activeExecutionContexts[context.executionId] = context
+    }
+
+    private fun unregisterExecutionContext(context: MessageExecutionContext) {
+        activeExecutionContexts.remove(context.executionId, context)
+    }
+
+    private fun invalidateExecutionContext(context: MessageExecutionContext, reason: String) {
+        if (context.isConversationActive.compareAndSet(true, false)) {
+            AppLogger.d(TAG, "执行上下文已失效: id=${context.executionId}, reason=$reason")
+        }
+    }
+
+    private fun invalidateAllExecutionContexts(reason: String) {
+        activeExecutionContexts.values.forEach { context ->
+            invalidateExecutionContext(context, reason)
+        }
+    }
+
+    private fun isExecutionContextActive(context: MessageExecutionContext): Boolean {
+        return context.isConversationActive.get() &&
+            activeExecutionContexts[context.executionId] === context
+    }
 
     private suspend fun startAssistantResponseRound(context: MessageExecutionContext) {
         context.roundManager.startNewRound()
@@ -551,9 +581,11 @@ class EnhancedAIService private constructor(private val context: Context) {
         val wrappedStream = stream {
             val execContext =
                 MessageExecutionContext(
+                    executionId = nextExecutionContextId.incrementAndGet(),
                     conversationHistory = chatHistory.toMutableList(),
                     eventChannel = eventChannel
                 )
+            registerExecutionContext(execContext)
             var hadFatalError = false
             try {
                 // 确保所有操作都在IO线程上执行
@@ -808,16 +840,18 @@ class EnhancedAIService private constructor(private val context: Context) {
                             "流收集完成，总计 $totalChars 字符，耗时: ${System.currentTimeMillis() - streamStartTime}ms"
                     )
                 }
+            } catch (e: CancellationException) {
+                invalidateExecutionContext(execContext, "sendMessage.collect.cancelled")
+                AppLogger.d(TAG, "sendMessage流被取消")
+                throw e
             } catch (e: Exception) {
-                // 对于协程取消异常，这是正常流程，应当向上抛出以停止流
-                if (e is kotlinx.coroutines.CancellationException) {
-                    AppLogger.d(TAG, "sendMessage流被取消")
-                    throw e
-                }
-
                 // 用户取消导致的 Socket closed 是预期行为，不应作为错误处理
                 if (e.message?.contains("Socket closed", ignoreCase = true) == true) {
-                    AppLogger.d(TAG, "Stream was cancelled by the user (Socket closed).")
+                    if (isExecutionContextActive(execContext)) {
+                        AppLogger.d(TAG, "Stream was cancelled by the user (Socket closed).")
+                    } else {
+                        AppLogger.d(TAG, "Stream closed after execution context was invalidated.")
+                    }
                 } else {
                     hadFatalError = true
                     // Handle any exceptions
@@ -833,32 +867,41 @@ class EnhancedAIService private constructor(private val context: Context) {
                     if (!isSubTask) stopAiService()
                 }
             } finally {
-                // 确保流处理完成后调用
-                if (!hadFatalError) {
-                    val collector = this
-                    withContext(Dispatchers.IO) {
-                        processStreamCompletion(
-                            execContext,
-                            functionType,
-                            collector,
-                            enableThinking,
-                            enableMemoryQuery,
-                            onNonFatalError,
-                            onTokenLimitExceeded,
-                            maxTokens,
-                            tokenUsageThreshold,
-                            isSubTask,
-                            characterName,
-                            avatarUri,
-                            roleCardId,
-                            chatId,
-                            onToolInvocation,
-                            chatModelConfigIdOverride,
-                            chatModelIndexOverride,
-                            stream,
-                            enableGroupOrchestrationHint
+                try {
+                    // 确保流处理完成后调用；如果本轮已被取消，则不能再继续跑完成逻辑。
+                    if (!hadFatalError && isExecutionContextActive(execContext)) {
+                        val collector = this
+                        withContext(Dispatchers.IO) {
+                            processStreamCompletion(
+                                execContext,
+                                functionType,
+                                collector,
+                                enableThinking,
+                                enableMemoryQuery,
+                                onNonFatalError,
+                                onTokenLimitExceeded,
+                                maxTokens,
+                                tokenUsageThreshold,
+                                isSubTask,
+                                characterName,
+                                avatarUri,
+                                roleCardId,
+                                chatId,
+                                onToolInvocation,
+                                chatModelConfigIdOverride,
+                                chatModelIndexOverride,
+                                stream,
+                                enableGroupOrchestrationHint
+                            )
+                        }
+                    } else if (!hadFatalError) {
+                        AppLogger.d(
+                            TAG,
+                            "跳过流完成处理：执行上下文已失效, id=${execContext.executionId}"
                         )
                     }
+                } finally {
+                    unregisterExecutionContext(execContext)
                 }
             }
         }
@@ -1956,6 +1999,9 @@ class EnhancedAIService private constructor(private val context: Context) {
                     stream,
                     enableGroupOrchestrationHint
                 )
+            } catch (e: CancellationException) {
+                AppLogger.d(TAG, "处理工具执行结果被取消")
+                throw e
             } catch (e: Exception) {
                 AppLogger.e(TAG, "处理工具执行结果时出错", e)
                 withContext(Dispatchers.Main) {
@@ -2156,6 +2202,8 @@ class EnhancedAIService private constructor(private val context: Context) {
 
     /** Cancel the current conversation */
     fun cancelConversation() {
+        invalidateAllExecutionContexts("cancelConversation")
+
         // Set conversation inactive
         // isConversationActive.set(false) // This is now per-context, can't set a global one
 
