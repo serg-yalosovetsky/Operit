@@ -14,7 +14,7 @@ export namespace Memory {
      * @param limit - Optional maximum number of results (>=1, default 20)
      * @param startTime - Optional local-time start time in `YYYY-MM-DD` or `YYYY-MM-DD HH:mm` format, filters memories by createdAt >= startTime
      * @param endTime - Optional local-time end time in `YYYY-MM-DD` or `YYYY-MM-DD HH:mm` format, filters memories by createdAt <= endTime
-     * @param snapshotId - Optional snapshot id. Omit or pass empty to create a new snapshot; reuse it to exclude already returned memories
+     * @param snapshotId - Optional snapshot id. Omit or pass empty to auto-create one; pass any non-empty id to use or create that exact snapshot so follow-up or parallel queries can exclude already returned memories
      * @returns Structured query results
      */
     function query(

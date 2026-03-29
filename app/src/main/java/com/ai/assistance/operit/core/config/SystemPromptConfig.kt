@@ -698,6 +698,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
               - It's recommended to split code into multiple files for better stability and maintainability.
               - For more complex projects, consider creating `js` and `css` folders and organizing files accordingly.
               - Always use relative paths for file references.
+              - When using tools for workspace files, do not use relative paths; always use absolute paths.
               ${if (shouldShowEnv) "- When reading/writing workspace files via tools, pass `environment=\"$envLabel\"` and use absolute paths like `/...`." else ""}
               - Terminal mount note: common mounts include `$externalStoragePath -> /sdcard`, `$externalStoragePath -> $externalStoragePath`, and app sandbox `$appFilesPath -> same path`.
               - If the workspace is under mounted paths, execute workspace files directly in the Linux terminal environment; do not copy files before execution.
@@ -712,6 +713,7 @@ AVAILABLE_TOOLS_SECTION""".trimIndent()
               - 建议将代码拆分到不同文件，以提高稳定性和可维护性。
               - 如果项目较为复杂，可以考虑新建js文件夹和css文件夹并创建多个文件。
               - 文件引用请使用相对路径。
+              - 通过工具读写工作区文件时，不要使用相对路径，必须使用绝对路径。
               ${if (shouldShowEnv) "- 通过工具读写工作区文件时，请带上 `environment=\"$envLabel\"`，并使用 `/...` 形式的绝对路径。" else ""}
               - 终端挂载说明：常见挂载包括 `$externalStoragePath -> /sdcard`、`$externalStoragePath -> $externalStoragePath`，以及应用沙箱 `$appFilesPath -> 同路径`。
               - 若工作区位于已挂载路径中，直接在 Linux 终端环境中执行工作区文件；无需先复制再执行。

@@ -41,8 +41,9 @@ query(
 - `startTime` / `endTime` 是本地时间字符串过滤条件，只支持 `YYYY-MM-DD` 和 `YYYY-MM-DD HH:mm` 两种格式。
 - `startTime` 使用起始边界：按天时会从 `00:00:00.000` 开始，按分钟时会从该分钟的 `00` 秒开始。
 - `endTime` 使用包含式结束边界：按天时会到 `23:59:59.999`，按分钟时会到该分钟的 `59.999` 秒。
-- `snapshotId` 不传或传空时，会创建一个新的查询快照，并在返回值里带回 `snapshotId`。
-- 后续复用这个 `snapshotId` 查询时，会自动排除该快照里已经返回过的记忆，并把本次新返回的记忆继续记入快照。
+- `snapshotId` 不传或传空时，会自动创建一个新的查询快照，并在返回值里带回 `snapshotId`。
+- `snapshotId` 传入任意非空字符串时，会直接使用这个 id；如果该快照还不存在，就按这个 id 创建，而不是要求它必须已经存在。
+- 后续串行或并发复用同一个 `snapshotId` 查询时，会自动排除该快照里已经返回过的记忆，并把本次新返回的记忆继续记入快照。
 - 返回结构体中包含 `memories[]`，每项有 `title`、`content`、`source`、`tags`、`createdAt`，文档型记忆还可能带 `chunkInfo` 与 `chunkIndices`。
 - 返回结构体还包含 `snapshotId`、`snapshotCreated`、`excludedBySnapshotCount`，用于分页式去重检索。
 
@@ -164,6 +165,19 @@ const secondPage = await Tools.Memory.query(
   firstPage.snapshotId || undefined
 );
 console.log(secondPage.excludedBySnapshotCount);
+```
+
+### 自定义快照 id 以支持并发查询
+
+```ts
+const snapshotId = 'network-audit-batch-1';
+
+const [recent, historical] = await Promise.all([
+  Tools.Memory.query('最近关于网络请求的笔记', 'dev/network', 5, '2026-03-20', undefined, snapshotId),
+  Tools.Memory.query('历史上的网络超时案例', 'dev/network', 5, undefined, '2026-03-19 23:59', snapshotId)
+]);
+
+console.log(snapshotId, recent.snapshotCreated, historical.snapshotCreated);
 ```
 
 ### 创建记忆

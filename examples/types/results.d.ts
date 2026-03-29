@@ -1469,9 +1469,9 @@ export interface MemoryQueryResultMemoryInfo {
 export interface MemoryQueryResultData {
     /** Queried memories */
     memories: MemoryQueryResultMemoryInfo[];
-    /** Snapshot id for de-duplicated follow-up queries */
+    /** Snapshot id for de-duplicated follow-up or parallel queries; may be auto-generated or caller-specified */
     snapshotId?: string | null;
-    /** Whether this call created a new snapshot */
+    /** Whether this call created a new snapshot, including when a caller-specified id was created on first use */
     snapshotCreated?: boolean;
     /** Number of matched memories excluded because they were already seen in the snapshot */
     excludedBySnapshotCount?: number;

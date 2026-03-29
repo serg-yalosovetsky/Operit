@@ -135,6 +135,88 @@ const nanobananaDraw = (function () {
             throw e;
         }
     }
+    function isApiSuccessResponse(parsed) {
+        const code = parsed["code"];
+        return code === undefined || code === null || code === 0 || code === "0";
+    }
+    function extractTaskPayload(parsed) {
+        if (!isRecord(parsed)) {
+            return null;
+        }
+        if (isRecord(parsed["data"])) {
+            return parsed["data"];
+        }
+        return parsed;
+    }
+    function extractMessage(parsed, fallback) {
+        const payload = extractTaskPayload(parsed);
+        const candidates = [
+            parsed["msg"],
+            parsed["message"],
+            payload ? payload["failure_reason"] : undefined,
+            payload ? payload["error"] : undefined,
+            payload ? payload["msg"] : undefined,
+            payload ? payload["message"] : undefined
+        ];
+        for (const candidate of candidates) {
+            if ((typeof candidate === "string" || typeof candidate === "number") && String(candidate).trim().length > 0) {
+                return String(candidate).trim();
+            }
+        }
+        return fallback;
+    }
+    function normalizeStatus(status) {
+        return typeof status === "string" ? status.trim().toLowerCase() : "";
+    }
+    function normalizeProgress(progress) {
+        const normalized = typeof progress === "number" ? progress : Number(String(progress));
+        return Number.isFinite(normalized) ? normalized : 0;
+    }
+    function isSuccessStatus(status) {
+        return status === "succeeded" || status === "success" || status === "completed" || status === "done";
+    }
+    function isFailureStatus(status) {
+        return status === "failed" || status === "error" || status === "canceled" || status === "cancelled";
+    }
+    function extractImageUrlFromPayload(payload) {
+        const directCandidates = [
+            payload["url"],
+            payload["image_url"],
+            payload["imageUrl"],
+            payload["file_url"],
+            payload["fileUrl"],
+            payload["result_url"]
+        ];
+        for (const candidate of directCandidates) {
+            if ((typeof candidate === "string" || typeof candidate === "number") && String(candidate).trim().length > 0) {
+                return String(candidate).trim();
+            }
+        }
+        const results = payload["results"];
+        if (!Array.isArray(results) || results.length === 0) {
+            return "";
+        }
+        const first = results[0];
+        if (isRecord(first)) {
+            const nestedCandidates = [
+                first["url"],
+                first["image_url"],
+                first["imageUrl"],
+                first["file_url"],
+                first["fileUrl"],
+                first["result_url"]
+            ];
+            for (const candidate of nestedCandidates) {
+                if ((typeof candidate === "string" || typeof candidate === "number") && String(candidate).trim().length > 0) {
+                    return String(candidate).trim();
+                }
+            }
+        }
+        else if ((typeof first === "string" || typeof first === "number") && String(first).trim().length > 0) {
+            return String(first).trim();
+        }
+        return "";
+    }
     async function uploadImageToBeeimg(filePath) {
         const exists = await Tools.Files.exists(filePath);
         if (!exists.exists) {
@@ -252,10 +334,17 @@ const nanobananaDraw = (function () {
         catch (e) {
             throw new Error(`解析 Nano Banana 响应失败: ${getErrorMessage(e)}`);
         }
-        if (!isRecord(parsed) || !isRecord(parsed["data"]) || typeof parsed["data"]["id"] !== "string") {
+        if (!isRecord(parsed)) {
+            throw new Error("API响应不是合法对象，请检查参数是否正确。响应: " + response.content);
+        }
+        if (!isApiSuccessResponse(parsed)) {
+            throw new Error(`Nano Banana API 返回错误: ${extractMessage(parsed, response.content)}`);
+        }
+        const payload = extractTaskPayload(parsed);
+        if (!payload || typeof payload["id"] !== "string") {
             throw new Error("API响应中未找到任务ID，请检查参数是否正确。响应: " + JSON.stringify(parsed));
         }
-        const taskId = parsed["data"]["id"];
+        const taskId = payload["id"];
         console.log(`任务提交成功! ID: ${taskId}`);
         const pollIntervalMs = params.poll_interval_ms ?? POLL_INTERVAL;
         const maxWaitTimeMs = params.max_wait_time_ms ?? MAX_WAIT_TIME;
@@ -296,31 +385,35 @@ const nanobananaDraw = (function () {
             catch (e) {
                 throw new Error(`解析结果响应失败: ${getErrorMessage(e)}`);
             }
-            if (!isRecord(parsed) || parsed["code"] !== 0 || !isRecord(parsed["data"])) {
+            if (!isRecord(parsed)) {
                 console.warn(`查询响应异常: ${JSON.stringify(parsed)}`);
                 await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
                 continue;
             }
-            const data = parsed["data"];
-            const progress = typeof data["progress"] === "number" ? data["progress"] : 0;
-            const status = typeof data["status"] === "string" ? data["status"] : "unknown";
-            console.log(`当前进度: ${progress}% | 状态: ${status}`);
-            if (status === "succeeded") {
+            if (!isApiSuccessResponse(parsed)) {
+                throw new Error(`查询结果失败: ${extractMessage(parsed, response.content)}`);
+            }
+            const data = extractTaskPayload(parsed);
+            if (!data) {
+                console.warn(`查询响应异常: ${JSON.stringify(parsed)}`);
+                await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
+                continue;
+            }
+            const progress = normalizeProgress(data["progress"]);
+            const status = normalizeStatus(data["status"]);
+            const imageUrl = extractImageUrlFromPayload(data);
+            console.log(`当前进度: ${progress}% | 状态: ${status || "unknown"}`);
+            if (isSuccessStatus(status) || (progress >= 100 && imageUrl.length > 0)) {
                 console.log("✅ 任务完成!");
-                const results = data["results"];
-                const first = Array.isArray(results) && results.length > 0 ? results[0] : null;
-                const url = isRecord(first) ? first["url"] : undefined;
-                if ((typeof url !== "string" && typeof url !== "number") || String(url).trim().length === 0) {
+                if (imageUrl.length === 0) {
                     throw new Error("任务完成但响应中未找到图片URL: " + JSON.stringify(data));
                 }
-                return String(url);
+                return imageUrl;
             }
-            else if (status === "failed") {
-                const reason = typeof data["failure_reason"] === "string" ? data["failure_reason"] : "未知原因";
-                const error = typeof data["error"] === "string" ? data["error"] : "";
-                throw new Error(`任务执行失败: ${reason} - ${error}`);
+            else if (isFailureStatus(status)) {
+                throw new Error(`任务执行失败: ${extractMessage(data, JSON.stringify(data))}`);
             }
-            else if (status === "running" && progress > 0) {
+            else if ((status === "running" || status === "processing") && progress > 0) {
                 console.log(`生成中... 进度: ${progress}%`);
             }
             // 等待后再次查询

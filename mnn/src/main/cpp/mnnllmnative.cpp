@@ -20,8 +20,11 @@
 #include <MNN/expr/Expr.hpp>
 #include <MNN/expr/Module.hpp>
 #include <llm/llm.hpp>
-#ifdef LLM_USE_MINJA
+#if defined(LLM_USE_MINJA) && __has_include("minja/chat_template.hpp")
 #include "minja/chat_template.hpp"
+#define MNN_HAS_MINJA 1
+#else
+#define MNN_HAS_MINJA 0
 #endif
 
 #define TAG "MNNLlmNative"
@@ -206,7 +209,7 @@ ChatMessages parseChatHistory(JNIEnv* env, jobject jhistory) {
     return history;
 }
 
-#ifdef LLM_USE_MINJA
+#if MNN_HAS_MINJA
 std::string readTemplateToken(const rapidjson::Value& value) {
     if (value.IsString()) {
         return value.GetString();
@@ -293,7 +296,7 @@ std::string applyStructuredChatTemplate(Llm* llm, const std::string& messagesJso
 }
 #else
 std::string applyStructuredChatTemplate(Llm* llm, const std::string& messagesJson, const std::string& toolsJson) {
-    LOGE("Structured chat template requires LLM_USE_MINJA");
+    LOGE("Structured chat template requires minja/chat_template.hpp");
     return "";
 }
 #endif
@@ -820,6 +823,241 @@ static jboolean runStreamGenerationWithInputIds(
     }
 }
 
+static jboolean runStreamGenerationWithHistory(
+    JNIEnv* env,
+    jlong llmPtr,
+    const ChatMessages& history,
+    jint maxTokens,
+    jobject callback) {
+
+    if (llmPtr == 0) return JNI_FALSE;
+
+    Llm* llm = reinterpret_cast<Llm*>(llmPtr);
+    jobject callbackGlobalRef = nullptr;
+
+    try {
+        JavaVM* jvm = nullptr;
+        if (env->GetJavaVM(&jvm) != JNI_OK || jvm == nullptr) {
+            LOGE("Failed to get JavaVM");
+            return JNI_FALSE;
+        }
+
+        jclass callbackClass = env->GetObjectClass(callback);
+        jmethodID onTokenMethod = env->GetMethodID(callbackClass, "onToken", "(Ljava/lang/String;)Z");
+        env->DeleteLocalRef(callbackClass);
+
+        if (onTokenMethod == nullptr) {
+            LOGE("Failed to find onToken method in callback");
+            return JNI_FALSE;
+        }
+
+        callbackGlobalRef = env->NewGlobalRef(callback);
+        if (callbackGlobalRef == nullptr) {
+            LOGE("Failed to create global reference for callback");
+            return JNI_FALSE;
+        }
+
+        StreamContext context;
+        context.jvm = jvm;
+        context.callbackGlobalRef = callbackGlobalRef;
+        context.onTokenMethod = onTokenMethod;
+        context.llmPtr = llmPtr;
+
+        setCancelFlag(llmPtr, false);
+
+        class CallbackStream : public std::streambuf {
+        public:
+            CallbackStream(StreamContext* ctx) : mContext(ctx) {}
+
+            void flushToCallback() {
+                if (mContext->buffer.empty() || mContext->shouldStop) {
+                    return;
+                }
+
+                const std::string endMarker = "<eop>";
+                auto pos = mContext->buffer.find(endMarker);
+                std::string payload = mContext->buffer;
+                if (pos != std::string::npos) {
+                    payload = mContext->buffer.substr(0, pos);
+                    mContext->shouldStop = true;
+                }
+
+                if (payload.empty()) {
+                    mContext->buffer.clear();
+                    return;
+                }
+
+                bool needDetach = false;
+                JNIEnv* env = nullptr;
+
+                int getEnvResult = mContext->jvm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6);
+                if (getEnvResult == JNI_EDETACHED) {
+                    if (mContext->jvm->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+                        __android_log_print(ANDROID_LOG_ERROR, TAG, "Failed to attach thread");
+                        return;
+                    }
+                    needDetach = true;
+                } else if (getEnvResult != JNI_OK) {
+                    __android_log_print(ANDROID_LOG_ERROR, TAG, "Failed to get JNIEnv: %d", getEnvResult);
+                    return;
+                }
+
+                try {
+                    jstring jtoken = env->NewStringUTF(payload.c_str());
+                    if (jtoken != nullptr) {
+                        jboolean shouldContinue = env->CallBooleanMethod(
+                            mContext->callbackGlobalRef,
+                            mContext->onTokenMethod,
+                            jtoken
+                        );
+                        env->DeleteLocalRef(jtoken);
+
+                        if (env->ExceptionCheck()) {
+                            env->ExceptionDescribe();
+                            env->ExceptionClear();
+                            mContext->shouldStop = true;
+                        } else if (!shouldContinue) {
+                            mContext->shouldStop = true;
+                            __android_log_print(ANDROID_LOG_DEBUG, TAG, "Stream stopped by callback");
+                        }
+                    } else {
+                        __android_log_print(ANDROID_LOG_ERROR, TAG, "Failed to create jstring");
+                    }
+                } catch (...) {
+                    __android_log_print(ANDROID_LOG_ERROR, TAG, "Exception in callback");
+                    mContext->shouldStop = true;
+                }
+
+                if (needDetach) {
+                    mContext->jvm->DetachCurrentThread();
+                }
+
+                mContext->buffer.clear();
+            }
+
+        protected:
+            virtual std::streamsize xsputn(const char* s, std::streamsize n) override {
+                if (mContext->shouldStop || checkCancelFlag(mContext->llmPtr) || n <= 0) {
+                    if (checkCancelFlag(mContext->llmPtr)) {
+                        __android_log_print(ANDROID_LOG_DEBUG, TAG, "Generation cancelled by user");
+                        mContext->shouldStop = true;
+                    }
+                    return 0;
+                }
+
+                std::string completeChars = extractCompleteUtf8(s, static_cast<size_t>(n));
+                if (completeChars.empty()) {
+                    return n;
+                }
+
+                mContext->buffer.append(completeChars);
+
+                if (shouldFlush(completeChars)) {
+                    flushToCallback();
+                }
+
+                return n;
+            }
+
+        private:
+            static int utf8CharLength(unsigned char byte) {
+                if ((byte & 0x80) == 0) return 1;
+                if ((byte & 0xE0) == 0xC0) return 2;
+                if ((byte & 0xF0) == 0xE0) return 3;
+                if ((byte & 0xF8) == 0xF0) return 4;
+                return 0;
+            }
+
+            static bool containsFlushDelimiter(const std::string& text) {
+                return text.find('\n') != std::string::npos ||
+                       text.find('.') != std::string::npos ||
+                       text.find('!') != std::string::npos ||
+                       text.find('?') != std::string::npos ||
+                       text.find("\xE3\x80\x82") != std::string::npos ||
+                       text.find("\xEF\xBC\x81") != std::string::npos ||
+                       text.find("\xEF\xBC\x9F") != std::string::npos;
+            }
+
+            std::string extractCompleteUtf8(const char* s, size_t n) {
+                mPendingUtf8Bytes.append(s, n);
+
+                size_t i = 0;
+                std::string completeChars;
+                while (i < mPendingUtf8Bytes.size()) {
+                    int length = utf8CharLength(static_cast<unsigned char>(mPendingUtf8Bytes[i]));
+                    if (length == 0 || i + static_cast<size_t>(length) > mPendingUtf8Bytes.size()) {
+                        break;
+                    }
+                    completeChars.append(mPendingUtf8Bytes, i, static_cast<size_t>(length));
+                    i += static_cast<size_t>(length);
+                }
+
+                if (i > 0) {
+                    mPendingUtf8Bytes.erase(0, i);
+                }
+
+                return completeChars;
+            }
+
+            bool shouldFlush(const std::string& completeChars) const {
+                return mContext->buffer.find("<eop>") != std::string::npos ||
+                       mContext->buffer.size() >= 16 ||
+                       containsFlushDelimiter(completeChars);
+            }
+
+            StreamContext* mContext;
+            std::string mPendingUtf8Bytes;
+        };
+
+        CallbackStream callbackBuf(&context);
+        std::ostream outputStream(&callbackBuf);
+
+        llm->reset();
+
+        int maxNewTokens = maxTokens > 0 ? static_cast<int>(maxTokens) : 512;
+        if (maxNewTokens > 8192) {
+            maxNewTokens = 8192;
+        }
+
+        int currentSize = 0;
+
+        llm->response(history, &outputStream, "<eop>", 1);
+        currentSize++;
+
+        while (!context.shouldStop && currentSize < maxNewTokens && !checkCancelFlag(llmPtr)) {
+            llm->generate(1);
+            currentSize++;
+        }
+
+        if (!context.buffer.empty() && !context.shouldStop) {
+            callbackBuf.flushToCallback();
+        }
+
+        if (callbackGlobalRef != nullptr) {
+            env->DeleteGlobalRef(callbackGlobalRef);
+        }
+        clearCancelFlag(llmPtr);
+
+        LOGI("Direct history stream generation completed");
+        return JNI_TRUE;
+
+    } catch (const std::exception& e) {
+        LOGE("Exception in direct history generateStream: %s", e.what());
+        if (callbackGlobalRef != nullptr) {
+            env->DeleteGlobalRef(callbackGlobalRef);
+        }
+        clearCancelFlag(llmPtr);
+        return JNI_FALSE;
+    } catch (...) {
+        LOGE("Unknown exception in direct history generateStream");
+        if (callbackGlobalRef != nullptr) {
+            env->DeleteGlobalRef(callbackGlobalRef);
+        }
+        clearCancelFlag(llmPtr);
+        return JNI_FALSE;
+    }
+}
+
 extern "C" JNIEXPORT jboolean JNICALL
 Java_com_ai_assistance_mnn_MNNLlmNative_nativeGenerateStream(
     JNIEnv* env, jclass clazz,
@@ -830,18 +1068,11 @@ Java_com_ai_assistance_mnn_MNNLlmNative_nativeGenerateStream(
 
     if (llmPtr == 0) return JNI_FALSE;
 
-    Llm* llm = reinterpret_cast<Llm*>(llmPtr);
     ChatMessages history = parseChatHistory(env, jhistory);
     LOGD("Starting stream generation with %zu history messages", history.size());
 
     try {
-        std::string prompt = llm->apply_chat_template(history);
-        if (prompt.empty()) {
-            LOGE("Failed to apply chat template for history");
-            return JNI_FALSE;
-        }
-        std::vector<int> inputTokens = llm->tokenizer_encode(prompt);
-        return runStreamGenerationWithInputIds(env, llmPtr, inputTokens, maxTokens, callback);
+        return runStreamGenerationWithHistory(env, llmPtr, history, maxTokens, callback);
     } catch (const std::exception& e) {
         LOGE("Exception preparing stream generation: %s", e.what());
         return JNI_FALSE;

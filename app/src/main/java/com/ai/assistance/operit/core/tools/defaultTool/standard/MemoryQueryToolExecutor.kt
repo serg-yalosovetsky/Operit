@@ -35,6 +35,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
         private data class QuerySnapshotState(
             val id: String,
             val seenMemoryIds: MutableSet<Long> = ConcurrentHashMap.newKeySet<Long>(),
+            val lock: Any = Any(),
             @Volatile var lastAccessAtMs: Long = System.currentTimeMillis()
         )
 
@@ -65,18 +66,40 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
         return querySnapshotsByProfile.computeIfAbsent(profileId) { ConcurrentHashMap() }
     }
 
-    private fun createQuerySnapshot(profileId: String): QuerySnapshotState {
+    private fun getOrCreateQuerySnapshot(profileId: String, requestedSnapshotId: String?): Pair<QuerySnapshotState, Boolean> {
         val store = getQuerySnapshotStore(profileId)
-        val snapshot = QuerySnapshotState(id = UUID.randomUUID().toString())
-        store[snapshot.id] = snapshot
-        trimOldSnapshots(store)
-        return snapshot
-    }
+        val now = System.currentTimeMillis()
 
-    private fun getQuerySnapshot(profileId: String, snapshotId: String): QuerySnapshotState? {
-        val snapshot = getQuerySnapshotStore(profileId)[snapshotId] ?: return null
-        snapshot.lastAccessAtMs = System.currentTimeMillis()
-        return snapshot
+        if (requestedSnapshotId == null) {
+            while (true) {
+                val generatedSnapshot = QuerySnapshotState(
+                    id = UUID.randomUUID().toString(),
+                    lastAccessAtMs = now
+                )
+                if (store.putIfAbsent(generatedSnapshot.id, generatedSnapshot) == null) {
+                    trimOldSnapshots(store)
+                    return generatedSnapshot to true
+                }
+            }
+        }
+
+        store[requestedSnapshotId]?.let { existingSnapshot ->
+            existingSnapshot.lastAccessAtMs = now
+            return existingSnapshot to false
+        }
+
+        val requestedSnapshot = QuerySnapshotState(
+            id = requestedSnapshotId,
+            lastAccessAtMs = now
+        )
+        val existingSnapshot = store.putIfAbsent(requestedSnapshotId, requestedSnapshot)
+        val resolvedSnapshot = existingSnapshot ?: requestedSnapshot
+        val snapshotCreated = existingSnapshot == null
+        resolvedSnapshot.lastAccessAtMs = now
+        if (snapshotCreated) {
+            trimOldSnapshots(store)
+        }
+        return resolvedSnapshot to snapshotCreated
     }
 
     private fun trimOldSnapshots(store: ConcurrentHashMap<String, QuerySnapshotState>) {
@@ -205,19 +228,7 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
 
         // limit 无上限，但至少为 1
         val validLimit = if (finalLimit < 1) 1 else finalLimit
-        val snapshotState =
-            if (normalizedSnapshotId == null) {
-                createQuerySnapshot(profileId)
-            } else {
-                getQuerySnapshot(profileId, normalizedSnapshotId)
-                    ?: return ToolResult(
-                        toolName = tool.name,
-                        success = false,
-                        result = StringResultData(""),
-                        error = "Unknown snapshot_id: $normalizedSnapshotId"
-                    )
-            }
-        val snapshotCreated = normalizedSnapshotId == null
+        val (snapshotState, snapshotCreated) = getOrCreateQuerySnapshot(profileId, normalizedSnapshotId)
 
         AppLogger.d(
             TAG,
@@ -236,13 +247,17 @@ class MemoryQueryToolExecutor(private val context: Context) : ToolExecutor {
                 createdAtEndMs = endTimeMs
             )
 
-            val excludedBySnapshotCount = results.count { it.id in snapshotState.seenMemoryIds }
-            val unseenResults = results.filterNot { it.id in snapshotState.seenMemoryIds }
-            val returnedMemories = unseenResults.take(validLimit)
-            if (returnedMemories.isNotEmpty()) {
-                snapshotState.seenMemoryIds.addAll(returnedMemories.map { it.id })
+            // Keep de-duplication stable even when multiple calls share the same snapshot in parallel.
+            val (excludedBySnapshotCount, returnedMemories) = synchronized(snapshotState.lock) {
+                val excludedCount = results.count { it.id in snapshotState.seenMemoryIds }
+                val unseenResults = results.filterNot { it.id in snapshotState.seenMemoryIds }
+                val selectedResults = unseenResults.take(validLimit)
+                if (selectedResults.isNotEmpty()) {
+                    snapshotState.seenMemoryIds.addAll(selectedResults.map { it.id })
+                }
+                snapshotState.lastAccessAtMs = System.currentTimeMillis()
+                excludedCount to selectedResults
             }
-            snapshotState.lastAccessAtMs = System.currentTimeMillis()
 
             val formattedResult = buildResultData(
                 memories = returnedMemories,

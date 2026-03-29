@@ -240,6 +240,8 @@
 - `snapshotCreated`
 - `excludedBySnapshotCount`
 
+其中 `snapshotId` 可以是系统自动生成的，也可以是调用方主动传入并首次创建的自定义字符串。
+
 `MemoryLinkQueryResultData` 内部包含 `links[]`，每一项都有：
 
 - `linkId`
