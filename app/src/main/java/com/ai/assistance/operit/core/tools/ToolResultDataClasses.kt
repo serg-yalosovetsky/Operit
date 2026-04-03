@@ -327,6 +327,33 @@ data class FileApplyResultData(
     val syntaxCheckResult: String? = null,
     val diffContent: String? = null
 ) : ToolResultData() {
+    private fun buildRequestContent(): String {
+        val sections = mutableListOf<String>()
+        sections.add(operation.toString())
+
+        extractDiffSummaryLine()?.let { sections.add(it) }
+
+        if (!syntaxCheckResult.isNullOrBlank()) {
+            sections.add("--- Syntax Check ---")
+            sections.add(syntaxCheckResult)
+        }
+
+        return sections.joinToString("\n")
+    }
+
+    private fun extractDiffSummaryLine(): String? {
+        val candidates = listOfNotNull(diffContent, aiDiffInstructions)
+
+        return candidates
+            .asSequence()
+            .flatMap { it.lineSequence() }
+            .map { it.trim() }
+            .firstOrNull {
+                it.startsWith("Changes: +") ||
+                    it.equals("No changes detected (files are identical)", ignoreCase = true)
+            }
+    }
+
     override fun toString(): String {
         val sb = StringBuilder()
         sb.appendLine(operation.toString())
@@ -337,6 +364,11 @@ data class FileApplyResultData(
             sb.append("<file-diff path=\"${operation.path}\" details=\"${operation.details}\">")
             sb.append("<![CDATA[$encodedDiff]]>")
             sb.append("</file-diff>")
+        }
+
+        val requestContent = buildRequestContent()
+        if (requestContent.isNotBlank()) {
+            sb.append("<file-request-content><![CDATA[$requestContent]]></file-request-content>")
         }
 
         if (aiDiffInstructions.isNotEmpty() && !aiDiffInstructions.startsWith("Error")) {

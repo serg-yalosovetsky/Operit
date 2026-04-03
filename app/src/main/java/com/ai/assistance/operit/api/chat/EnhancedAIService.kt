@@ -1802,8 +1802,14 @@ class EnhancedAIService private constructor(private val context: Context) {
         // Add tool result to conversation history
         context.conversationHistory.add(Pair("tool", toolResultMessage))
 
-        // Get current conversation history is now just the context's history
+        val normalizedChatHistory =
+            conversationService.normalizeConversationHistoryForModel(context.conversationHistory)
+        context.conversationHistory.clear()
+        context.conversationHistory.addAll(normalizedChatHistory)
+
+        // Get current conversation history is now just the normalized context history
         val currentChatHistory = context.conversationHistory
+        val modelToolResultMessage = currentChatHistory.lastOrNull()?.second ?: toolResultMessage
 
         // 不再需要，因为结果在调用时已实时输出
         // context.roundManager.appendContent(toolResultMessage)
@@ -1872,7 +1878,7 @@ class EnhancedAIService private constructor(private val context: Context) {
                 val responseStream =
                         serviceForFunction.sendMessage(
                                 context = this@EnhancedAIService.context,
-                                message = toolResultMessage,
+                                message = modelToolResultMessage,
                                 chatHistory = currentChatHistory,
                                 modelParameters = modelParameters,
                                 enableThinking = enableThinking,

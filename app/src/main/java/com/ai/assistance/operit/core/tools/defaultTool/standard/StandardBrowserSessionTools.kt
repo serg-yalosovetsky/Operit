@@ -370,13 +370,13 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             (function() {
                 try {
                     const refValue = ${quoteJs(ref)};
-                    const list = Array.from(document.querySelectorAll('[aria-ref]')).filter((el) => {
-                        return String(el.getAttribute('aria-ref') || '') === refValue;
-                    });
-                    if (!list.length) {
+                    ${browserRefResolverScript()}
+                    const resolved = __operitResolveRef(refValue);
+                    if (!resolved || !resolved.element) {
                         return JSON.stringify({ ok: false, error: "ref_not_found", ref: refValue });
                     }
-                    const target = list[0];
+                    const target = resolved.element;
+                    const targetWindow = resolved.window || window;
                     const anchor = target.closest('a[href]');
                     try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     const rect = target.getBoundingClientRect();
@@ -394,11 +394,12 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
                     function emit(type, detail) {
                         try {
-                            target.dispatchEvent(new MouseEvent(type, {
+                            const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
+                            target.dispatchEvent(new MouseEventCtor(type, {
                                 bubbles: true,
                                 cancelable: true,
                                 composed: true,
-                                view: window,
+                                view: targetWindow,
                                 detail: detail,
                                 clientX: x,
                                 clientY: y,
@@ -473,21 +474,25 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             (function() {
                 try {
                     const refValue = ${quoteJs(ref)};
-                    const target = Array.from(document.querySelectorAll('[aria-ref]')).find((el) => String(el.getAttribute('aria-ref') || '') === refValue);
-                    if (!target) {
+                    ${browserRefResolverScript()}
+                    const resolved = __operitResolveRef(refValue);
+                    if (!resolved || !resolved.element) {
                         return JSON.stringify({ ok: false, error: "ref_not_found" });
                     }
+                    const target = resolved.element;
+                    const targetWindow = resolved.window || window;
                     try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     const rect = target.getBoundingClientRect();
                     const x = rect.left + rect.width / 2;
                     const y = rect.top + rect.height / 2;
                     ["pointerover", "mouseover", "mouseenter", "mousemove"].forEach((type) => {
                         try {
-                            target.dispatchEvent(new MouseEvent(type, {
+                            const MouseEventCtor = targetWindow.MouseEvent || MouseEvent;
+                            target.dispatchEvent(new MouseEventCtor(type, {
                                 bubbles: true,
                                 cancelable: true,
                                 composed: true,
-                                view: window,
+                                view: targetWindow,
                                 clientX: x,
                                 clientY: y
                             }));
@@ -507,27 +512,34 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             """
             (function() {
                 try {
-                    const findByRef = (refValue) => Array.from(document.querySelectorAll('[aria-ref]')).find((el) => String(el.getAttribute('aria-ref') || '') === refValue);
-                    const start = findByRef(${quoteJs(startRef)});
-                    const end = findByRef(${quoteJs(endRef)});
+                    ${browserRefResolverScript()}
+                    const startResolved = __operitResolveRef(${quoteJs(startRef)});
+                    const endResolved = __operitResolveRef(${quoteJs(endRef)});
+                    const start = startResolved && startResolved.element;
+                    const end = endResolved && endResolved.element;
                     if (!start || !end) {
                         return JSON.stringify({ ok: false, error: !start ? "start_ref_not_found" : "end_ref_not_found" });
                     }
+                    const startWindow = (startResolved && startResolved.window) || window;
+                    const endWindow = (endResolved && endResolved.window) || window;
                     try { start.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
                     try { end.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
-                    const dataTransfer = typeof DataTransfer === "function" ? new DataTransfer() : null;
+                    const DataTransferCtor = startWindow.DataTransfer || endWindow.DataTransfer || (typeof DataTransfer === "function" ? DataTransfer : null);
+                    const DragEventCtor = startWindow.DragEvent || endWindow.DragEvent || (typeof DragEvent === "function" ? DragEvent : null);
+                    const EventCtor = startWindow.Event || endWindow.Event || Event;
+                    const dataTransfer = typeof DataTransferCtor === "function" ? new DataTransferCtor() : null;
                     const dispatchDrag = (target, type) => {
                         try {
-                            const event = new DragEvent(type, {
+                            const event = DragEventCtor ? new DragEventCtor(type, {
                                 bubbles: true,
                                 cancelable: true,
                                 composed: true,
                                 dataTransfer
-                            });
+                            }) : new EventCtor(type, { bubbles: true, cancelable: true, composed: true });
                             target.dispatchEvent(event);
                         } catch (_) {
                             try {
-                                const fallback = new Event(type, { bubbles: true, cancelable: true, composed: true });
+                                const fallback = new EventCtor(type, { bubbles: true, cancelable: true, composed: true });
                                 fallback.dataTransfer = dataTransfer;
                                 target.dispatchEvent(fallback);
                             } catch (_) {}
@@ -683,7 +695,12 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
     private fun browserWaitFor(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
-        val timeSeconds = param(tool, "time")?.trim()?.toDoubleOrNull()
+        val timeRaw = param(tool, "time")?.trim()?.takeIf { it.isNotBlank() }
+        val parsedTimeSeconds = timeRaw?.toDoubleOrNull()
+        if (timeRaw != null && parsedTimeSeconds == null) {
+            return error(tool.name, "time must be a number")
+        }
+        val timeSeconds = parsedTimeSeconds?.takeIf { it > 0.0 }
         val text = param(tool, "text")?.takeIf { it.isNotBlank() }
         val textGone = param(tool, "textGone")?.takeIf { it.isNotBlank() }
         if (timeSeconds == null && text == null && textGone == null) {
@@ -693,22 +710,29 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
-        val settlement =
-            settleBrowserAction(
-                initialSession = session,
-                markers = captureActionMarkers(session),
-                policy =
-                    BrowserActionSettlementPolicy(
-                        timeoutMs = ((timeSeconds ?: 10.0) * 1000.0).toLong().coerceAtLeast(200L),
-                        waitForText = text,
-                        waitForTextGone = textGone,
-                        waitForTimeSeconds = timeSeconds,
-                        waitForDocumentReady = true
-                    )
-            )
-        if (settlement.timedOut) {
+        val markers = captureActionMarkers(session)
+        timeSeconds?.let { seconds ->
+            Thread.sleep(((seconds * 1000.0).toLong()).coerceAtLeast(0L).coerceAtMost(30_000L))
+        }
+        if (textGone != null && !waitForTextState(session, textGone = textGone)) {
             return error(tool.name, "Timeout waiting for the requested condition")
         }
+        if (text != null && !waitForTextState(session, text = text)) {
+            return error(tool.name, "Timeout waiting for the requested condition")
+        }
+        val finalSession = sessionById(session.id) ?: session
+        runOnMainSync<Unit> {
+            ensureSessionAttachedOnMain(finalSession.id)
+        }
+        val settlement =
+            BrowserActionSettlement(
+                registry = buildPageRegistry(),
+                session = finalSession,
+                snapshot = latestSnapshot(finalSession),
+                consoleMarker = markers.consoleTimestamp,
+                downloadMarker = markers.downloadTimestamp,
+                timedOut = false
+            )
 
         val summary =
             when {
@@ -730,18 +754,31 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
 
     private fun browserSnapshot(tool: AITool): ToolResult {
         val session = getSession(null) ?: return error(tool.name, "No active browser tab")
+        val selector = param(tool, "selector")?.trim()?.takeIf { it.isNotBlank() }
+        val depthRaw = param(tool, "depth")?.trim()?.takeIf { it.isNotBlank() }
+        val depth =
+            when {
+                depthRaw == null -> null
+                depthRaw.toIntOrNull() == null -> return error(tool.name, "depth must be a non-negative integer")
+                depthRaw.toInt() < 0 -> return error(tool.name, "depth must be a non-negative integer")
+                else -> depthRaw.toInt()
+            }
 
         runOnMainSync<Unit> {
             ensureSessionAttachedOnMain(session.id)
         }
 
-        val snapshot = captureSnapshotText(session)
+        val snapshot = captureSnapshotModel(session, selector = selector, depth = depth)
+        session.lastSnapshot = snapshot
         val filename = param(tool, "filename")?.trim()?.takeIf { it.isNotBlank() }
         val snapshotSection =
             if (filename != null) {
-                "Saved snapshot to ${writeBrowserTextOutput(filename, snapshot, "snapshot", "md")}"
+                formatBrowserFileLink(
+                    "Snapshot",
+                    writeBrowserTextOutput(filename, snapshot.yaml, "page", "yml")
+                )
             } else {
-                snapshot
+                snapshot.yaml
             }
 
         return ok(

@@ -58,6 +58,11 @@ class ConversationService(
 
     companion object {
         private const val TAG = "ConversationService"
+        private const val APPLY_FILE_TOOL_NAME = "apply_file"
+        private val fileRequestContentRegex = Regex(
+            """<file-request-content\b[^>]*><!\[CDATA\[(.*?)\]\]></file-request-content>""",
+            setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
+        )
     }
 
     private val apiPreferences = ApiPreferences.getInstance(context)
@@ -433,6 +438,8 @@ class ConversationService(
                         // Add the message as is
                         preparedHistory.add(message)
                     }
+                } else if (role == "tool") {
+                    preparedHistory.add(Pair(role, normalizeToolResultMarkupForModel(content)))
                 } else {
                     // Add user or system messages as is
                     preparedHistory.add(message)
@@ -457,6 +464,43 @@ class ConversationService(
      */
     fun splitXmlTag(content: String): List<List<String>> {
         return NativeXmlSplitter.splitXmlTag(content)
+    }
+
+    fun normalizeConversationHistoryForModel(
+        chatHistory: List<Pair<String, String>>
+    ): List<Pair<String, String>> {
+        return chatHistory.map { (role, content) ->
+            when (role) {
+                "assistant", "tool" -> Pair(role, normalizeToolResultMarkupForModel(content))
+                else -> Pair(role, content)
+            }
+        }
+    }
+
+    private fun normalizeToolResultMarkupForModel(content: String): String {
+        return ChatMarkupRegex.toolResultTagWithAttrs.replace(content) { matchResult ->
+            val tagName = matchResult.groupValues[1]
+            val attrs = matchResult.groupValues[2]
+            val body = matchResult.groupValues[3]
+            val toolName =
+                ChatMarkupRegex.nameAttr.find(attrs)?.groupValues?.getOrNull(1).orEmpty()
+
+            if (!toolName.equals(APPLY_FILE_TOOL_NAME, ignoreCase = true)) {
+                return@replace matchResult.value
+            }
+
+            val requestContent =
+                extractApplyFileRequestContent(body) ?: return@replace matchResult.value
+            "<$tagName$attrs><content>$requestContent</content></$tagName>"
+        }
+    }
+
+    private fun extractApplyFileRequestContent(toolResultBody: String): String? {
+        val contentBody =
+            ChatMarkupRegex.contentTag.find(toolResultBody)?.groupValues?.getOrNull(1)
+                ?: toolResultBody
+
+        return fileRequestContentRegex.find(contentBody)?.groupValues?.getOrNull(1)?.trim()
     }
 
     /** 处理包含工具结果的聊天消息，并按顺序重新组织消息 任务完成和等待用户响应的status标签算作AI消息，其他status和warning算作用户消息 工具结果为用户消息 */
@@ -506,7 +550,7 @@ class ConversationService(
                     }
                 }
                 "tool_result" -> {
-                    segments.add(Pair("user", tagContent))
+                    segments.add(Pair("user", normalizeToolResultMarkupForModel(tagContent)))
                 }
                 else -> {
                     segments.add(Pair("assistant", tagContent))

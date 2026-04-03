@@ -285,7 +285,9 @@ object SystemToolPromptsInternal {
                             description = "Capture a structured accessibility-style snapshot of the current page.",
                             parametersStructured =
                                 listOf(
-                                    ToolParameterSchema(name = "filename", type = "string", description = "optional output markdown file name", required = false)
+                                    ToolParameterSchema(name = "filename", type = "string", description = "optional output snapshot file name", required = false),
+                                    ToolParameterSchema(name = "selector", type = "string", description = "optional root element selector for a partial snapshot", required = false),
+                                    ToolParameterSchema(name = "depth", type = "integer", description = "optional snapshot tree depth limit", required = false)
                                 )
                         ),
                         ToolPrompt(
@@ -2904,7 +2906,9 @@ object SystemToolPromptsInternal {
                             description = "抓取当前页面的结构化无障碍风格快照。",
                             parametersStructured =
                                 listOf(
-                                    ToolParameterSchema(name = "filename", type = "string", description = "可选，输出 markdown 文件名", required = false)
+                                    ToolParameterSchema(name = "filename", type = "string", description = "可选，输出快照文件名", required = false),
+                                    ToolParameterSchema(name = "selector", type = "string", description = "可选，局部快照的根元素选择器", required = false),
+                                    ToolParameterSchema(name = "depth", type = "integer", description = "可选，快照树深度限制", required = false)
                                 )
                         ),
                         ToolPrompt(

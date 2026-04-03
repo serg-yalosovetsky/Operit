@@ -151,12 +151,12 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                     AppLogger.d(TAG, "Command output collected: '$fullOutput', exitCode: $exitCode")
                     val errorMessage =
                             when {
-                                !hasCompleted -> context.getString(R.string.terminal_error_command_failed)
-                                exitCode != 0 && !didTimeout ->
+                                didTimeout ->
                                         context.getString(
-                                                R.string.terminal_error_command_non_zero_exit,
-                                                exitCode
+                                                R.string.terminal_error_command_timeout,
+                                                timeout
                                         )
+                                !hasCompleted -> context.getString(R.string.terminal_error_command_failed)
                                 else -> null
                             }
 
@@ -240,11 +240,6 @@ class StandardTerminalCommandExecutor(private val context: Context) {
                             context.getString(
                                 R.string.terminal_error_execute_hidden_command,
                                 buildHiddenExecFailureDetail(hiddenResult)
-                            )
-                        hiddenResult.exitCode != 0 ->
-                            context.getString(
-                                R.string.terminal_error_hidden_command_non_zero_exit,
-                                hiddenResult.exitCode
                             )
                         else -> null
                     }

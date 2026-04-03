@@ -493,6 +493,721 @@ internal fun StandardBrowserSessionTools.quoteJsCode(value: String): String {
 internal fun StandardBrowserSessionTools.renderJsArrayCode(values: Collection<String>): String =
     values.joinToString(prefix = "[", postfix = "]", separator = ", ") { quoteJsCode(it) }
 
+private fun playwrightLikeInputRuntimeJs(): String =
+    """
+    const __operitPw = (() => {
+        const setValueInputTypes = new Set(["color", "date", "time", "datetime-local", "month", "range", "week"]);
+        const typeIntoInputTypes = new Set(["", "email", "number", "password", "search", "tel", "text", "url"]);
+
+        function createError(message) {
+            throw new Error(message);
+        }
+
+        function retarget(node, behavior) {
+            let element = node && node.nodeType === Node.ELEMENT_NODE ? node : node && node.parentElement;
+            if (!element) {
+                return null;
+            }
+            if (behavior === "none" || behavior === "no-follow-label") {
+                return element;
+            }
+            if (!element.matches("input, textarea, select") && !element.isContentEditable) {
+                if (behavior === "button-link") {
+                    element = element.closest("button, [role=button], a, [role=link]") || element;
+                } else {
+                    element = element.closest("button, [role=button], [role=checkbox], [role=radio]") || element;
+                }
+            }
+            if (behavior === "follow-label") {
+                if (!element.matches("a, input, textarea, button, select, [role=link], [role=button], [role=checkbox], [role=radio]") && !element.isContentEditable) {
+                    const enclosingLabel = element.closest("label");
+                    if (enclosingLabel && enclosingLabel.control) {
+                        element = enclosingLabel.control;
+                    }
+                }
+            }
+            return element;
+        }
+
+        function isVisible(element) {
+            const style = element.ownerDocument.defaultView.getComputedStyle(element);
+            if (!style || style.visibility === "hidden" || style.visibility === "collapse" || style.display === "none") {
+                return false;
+            }
+            const rect = element.getBoundingClientRect();
+            return !!(rect.width || rect.height || element.getClientRects().length);
+        }
+
+        const ariaCheckedRoles = new Set(["checkbox", "menuitemcheckbox", "option", "radio", "switch", "menuitemradio", "treeitem"]);
+        const ariaDisabledRoles = new Set(["application", "button", "composite", "gridcell", "group", "input", "link", "menuitem", "scrollbar", "separator", "tab", "checkbox", "columnheader", "combobox", "grid", "listbox", "menu", "menubar", "menuitemcheckbox", "menuitemradio", "option", "radio", "radiogroup", "row", "rowheader", "searchbox", "select", "slider", "spinbutton", "switch", "tablist", "textbox", "toolbar", "tree", "treegrid", "treeitem"]);
+        const ariaReadonlyRoles = new Set(["checkbox", "combobox", "grid", "gridcell", "listbox", "radiogroup", "slider", "spinbutton", "textbox", "columnheader", "rowheader", "searchbox", "switch", "treegrid"]);
+
+        function elementTagName(element) {
+            const tagName = element && element.tagName;
+            if (typeof tagName === "string") {
+                return tagName.toUpperCase();
+            }
+            return String(tagName || "").toUpperCase();
+        }
+
+        function ariaRole(element) {
+            return String((element.getAttribute && element.getAttribute("role")) || "");
+        }
+
+        function parentElementOrShadowHost(element) {
+            if (!element) {
+                return null;
+            }
+            if (element.parentElement) {
+                return element.parentElement;
+            }
+            const parentNode = element.parentNode;
+            return parentNode && parentNode.host ? parentNode.host : null;
+        }
+
+        function belongsToDisabledOptGroup(element) {
+            return elementTagName(element) === "OPTION" && !!element.closest("OPTGROUP[DISABLED]");
+        }
+
+        function belongsToDisabledFieldSet(element) {
+            const fieldSetElement = element && element.closest ? element.closest("FIELDSET[DISABLED]") : null;
+            if (!fieldSetElement) {
+                return false;
+            }
+            const legendElement = fieldSetElement.querySelector(":scope > LEGEND");
+            return !legendElement || !legendElement.contains(element);
+        }
+
+        function isNativelyDisabled(element) {
+            const isNativeFormControl = ["BUTTON", "INPUT", "SELECT", "TEXTAREA", "OPTION", "OPTGROUP"].includes(elementTagName(element));
+            return isNativeFormControl && (element.hasAttribute("disabled") || belongsToDisabledOptGroup(element) || belongsToDisabledFieldSet(element));
+        }
+
+        function hasExplicitAriaDisabled(element, isAncestor) {
+            if (!element) {
+                return false;
+            }
+            if (isAncestor || ariaDisabledRoles.has(ariaRole(element))) {
+                const attribute = String((element.getAttribute("aria-disabled") || "")).toLowerCase();
+                if (attribute === "true") {
+                    return true;
+                }
+                if (attribute === "false") {
+                    return false;
+                }
+                return hasExplicitAriaDisabled(parentElementOrShadowHost(element), true);
+            }
+            return false;
+        }
+
+        function getAriaDisabled(element) {
+            return isNativelyDisabled(element) || hasExplicitAriaDisabled(element, false);
+        }
+
+        function getChecked(element, allowMixed) {
+            const tagName = elementTagName(element);
+            if (allowMixed && tagName === "INPUT" && element.indeterminate) {
+                return "mixed";
+            }
+            if (tagName === "INPUT" && ["checkbox", "radio"].includes(String(element.type || "").toLowerCase())) {
+                return !!element.checked;
+            }
+            if (ariaCheckedRoles.has(ariaRole(element))) {
+                const checked = element.getAttribute("aria-checked");
+                if (checked === "true") {
+                    return true;
+                }
+                if (allowMixed && checked === "mixed") {
+                    return "mixed";
+                }
+                return false;
+            }
+            return "error";
+        }
+
+        function getCheckedAllowMixed(element) {
+            return getChecked(element, true);
+        }
+
+        function getCheckedWithoutMixed(element) {
+            return getChecked(element, false);
+        }
+
+        function getReadonly(element) {
+            const tagName = elementTagName(element);
+            if (["INPUT", "TEXTAREA", "SELECT"].includes(tagName)) {
+                return element.hasAttribute("readonly");
+            }
+            if (ariaReadonlyRoles.has(ariaRole(element))) {
+                return element.getAttribute("aria-readonly") === "true";
+            }
+            if (element.isContentEditable) {
+                return false;
+            }
+            return "error";
+        }
+
+        function elementState(node, state) {
+            const element = retarget(node, state === "visible" || state === "hidden" ? "none" : "follow-label");
+            if (!element || !element.isConnected) {
+                if (state === "hidden") {
+                    return { matches: true, received: "hidden" };
+                }
+                return { matches: false, received: "error:notconnected" };
+            }
+            if (state === "visible" || state === "hidden") {
+                const visible = isVisible(element);
+                return {
+                    matches: state === "visible" ? visible : !visible,
+                    received: visible ? "visible" : "hidden"
+                };
+            }
+            if (state === "enabled" || state === "disabled") {
+                const disabled = getAriaDisabled(element);
+                return {
+                    matches: state === "disabled" ? disabled : !disabled,
+                    received: disabled ? "disabled" : "enabled"
+                };
+            }
+            if (state === "editable") {
+                const disabled = getAriaDisabled(element);
+                const readonly = getReadonly(element);
+                if (readonly === "error") {
+                    createError("Element is not an <input>, <textarea>, <select> or [contenteditable] element");
+                }
+                return {
+                    matches: !disabled && !readonly,
+                    received: disabled ? "disabled" : readonly ? "readOnly" : "editable"
+                };
+            }
+            if (state === "checked" || state === "unchecked") {
+                const checked = getCheckedWithoutMixed(element);
+                if (checked === "error") {
+                    createError("Not a checkbox or radio button");
+                }
+                return {
+                    matches: state === "checked" ? checked : !checked,
+                    received: checked ? "checked" : "unchecked",
+                    isRadio: elementTagName(element) === "INPUT" && String(element.type || "").toLowerCase() === "radio"
+                };
+            }
+            if (state === "indeterminate") {
+                const checked = getCheckedAllowMixed(element);
+                if (checked === "error") {
+                    createError("Not a checkbox or radio button");
+                }
+                return {
+                    matches: checked === "mixed",
+                    received: checked === true ? "checked" : checked === false ? "unchecked" : "mixed"
+                };
+            }
+            createError("Unsupported element state: " + state);
+        }
+
+        function checkElementStates(node, states) {
+            for (const state of states) {
+                const result = elementState(node, state);
+                if (result.received === "error:notconnected") {
+                    return "error:notconnected";
+                }
+                if (!result.matches) {
+                    return { missingState: state };
+                }
+            }
+            return null;
+        }
+
+        function ensureStatesOrThrow(node, states) {
+            const result = checkElementStates(node, states);
+            if (result === "error:notconnected") {
+                createError("Element is not connected");
+            }
+            if (result) {
+                createError("Element is not " + result.missingState);
+            }
+        }
+
+        function selectText(node) {
+            const element = retarget(node, "follow-label");
+            if (!element) {
+                return "error:notconnected";
+            }
+            if (element.nodeName.toLowerCase() === "input") {
+                element.select();
+                element.focus();
+                return "done";
+            }
+            if (element.nodeName.toLowerCase() === "textarea") {
+                element.selectionStart = 0;
+                element.selectionEnd = element.value.length;
+                element.focus();
+                return "done";
+            }
+            element.focus();
+            const range = element.ownerDocument.createRange();
+            range.selectNodeContents(element);
+            const selection = element.ownerDocument.defaultView.getSelection();
+            if (selection) {
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            return "done";
+        }
+
+        function activelyFocused(node) {
+            const activeElement = node.getRootNode().activeElement;
+            const isFocused = activeElement === node && !!node.ownerDocument && node.ownerDocument.hasFocus();
+            return { activeElement, isFocused };
+        }
+
+        function focusNode(node, resetSelectionIfNotFocused) {
+            if (!node.isConnected) {
+                return "error:notconnected";
+            }
+            if (node.nodeType !== Node.ELEMENT_NODE) {
+                createError("Node is not an element");
+            }
+            const state = activelyFocused(node);
+            if (node.isContentEditable && !state.isFocused && state.activeElement && state.activeElement.blur) {
+                state.activeElement.blur();
+            }
+            node.focus();
+            node.focus();
+            if (resetSelectionIfNotFocused && !state.isFocused && node.nodeName.toLowerCase() === "input") {
+                try {
+                    node.setSelectionRange(0, 0);
+                } catch (_) {
+                }
+            }
+            return "done";
+        }
+
+        function setControlValue(element, value) {
+            const prototype = element.nodeName.toLowerCase() === "textarea" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+            const descriptor = Object.getOwnPropertyDescriptor(prototype, "value");
+            if (!descriptor || !descriptor.set) {
+                createError("Cannot access value setter");
+            }
+            descriptor.set.call(element, value);
+        }
+
+        function dispatchSimpleInput(element) {
+            element.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+        }
+
+        function dispatchChange(element) {
+            element.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+
+        function dispatchBeforeInput(element, inputType, data) {
+            return element.dispatchEvent(new InputEvent("beforeinput", {
+                bubbles: true,
+                cancelable: true,
+                composed: true,
+                inputType: inputType,
+                data: data
+            }));
+        }
+
+        function dispatchInput(element, inputType, data) {
+            element.dispatchEvent(new InputEvent("input", {
+                bubbles: true,
+                composed: true,
+                inputType: inputType,
+                data: data
+            }));
+        }
+
+        function replaceSelectionWithText(element, text) {
+            if (element.matches("input, textarea")) {
+                const currentValue = String(element.value || "");
+                const start = typeof element.selectionStart === "number" ? element.selectionStart : 0;
+                const end = typeof element.selectionEnd === "number" ? element.selectionEnd : currentValue.length;
+                const nextValue = currentValue.slice(0, start) + text + currentValue.slice(end);
+                setControlValue(element, nextValue);
+                if (typeof element.setSelectionRange === "function") {
+                    const caret = start + text.length;
+                    try {
+                        element.setSelectionRange(caret, caret);
+                    } catch (_) {
+                    }
+                }
+                return;
+            }
+            const selection = element.ownerDocument.defaultView.getSelection();
+            if (!selection) {
+                createError("Selection is not available");
+            }
+            if (!selection.rangeCount || !element.contains(selection.anchorNode)) {
+                const resetRange = element.ownerDocument.createRange();
+                resetRange.selectNodeContents(element);
+                resetRange.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(resetRange);
+            }
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            if (text) {
+                const textNode = element.ownerDocument.createTextNode(text);
+                range.insertNode(textNode);
+                range.setStartAfter(textNode);
+            }
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
+        function insertTextWithoutKeyboard(element, text) {
+            const stringValue = text == null ? "" : String(text);
+            if (!dispatchBeforeInput(element, "insertText", stringValue)) {
+                return "done";
+            }
+            replaceSelectionWithText(element, stringValue);
+            dispatchInput(element, "insertText", stringValue);
+            return "done";
+        }
+
+        function deleteSelectionOrCharacter(element, direction) {
+            if (element.matches("input, textarea")) {
+                const currentValue = String(element.value || "");
+                const start = typeof element.selectionStart === "number" ? element.selectionStart : currentValue.length;
+                const end = typeof element.selectionEnd === "number" ? element.selectionEnd : start;
+                let from = start;
+                let to = end;
+                if (from === to) {
+                    if (direction === "backward" && from > 0) {
+                        from -= 1;
+                    }
+                    if (direction === "forward" && to < currentValue.length) {
+                        to += 1;
+                    }
+                }
+                setControlValue(element, currentValue.slice(0, from) + currentValue.slice(to));
+                if (typeof element.setSelectionRange === "function") {
+                    try {
+                        element.setSelectionRange(from, from);
+                    } catch (_) {
+                    }
+                }
+                return;
+            }
+            const selection = element.ownerDocument.defaultView.getSelection();
+            if (!selection) {
+                createError("Selection is not available");
+            }
+            if (!selection.rangeCount || !element.contains(selection.anchorNode)) {
+                const range = element.ownerDocument.createRange();
+                range.selectNodeContents(element);
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            const range = selection.getRangeAt(0);
+            if (range.collapsed) {
+                const container = range.startContainer;
+                const offset = range.startOffset;
+                if (container.nodeType === Node.TEXT_NODE) {
+                    const length = String(container.textContent || "").length;
+                    if (direction === "backward" && offset > 0) {
+                        range.setStart(container, offset - 1);
+                    } else if (direction === "forward" && offset < length) {
+                        range.setEnd(container, offset + 1);
+                    } else {
+                        return;
+                    }
+                } else {
+                    const childNodes = container.childNodes || [];
+                    const targetNode = direction === "backward" ? childNodes[offset - 1] : childNodes[offset];
+                    if (!targetNode) {
+                        return;
+                    }
+                    if (targetNode.nodeType === Node.TEXT_NODE) {
+                        const textLength = String(targetNode.textContent || "").length;
+                        if (direction === "backward") {
+                            range.setStart(targetNode, Math.max(0, textLength - 1));
+                            range.setEnd(targetNode, textLength);
+                        } else {
+                            range.setStart(targetNode, 0);
+                            range.setEnd(targetNode, Math.min(1, textLength));
+                        }
+                    } else {
+                        range.selectNode(targetNode);
+                    }
+                }
+            }
+            range.deleteContents();
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
+        function deleteTextWithoutKeyboard(element, direction) {
+            const inputType = direction === "forward" ? "deleteContentForward" : "deleteContentBackward";
+            if (!dispatchBeforeInput(element, inputType, null)) {
+                return "done";
+            }
+            deleteSelectionOrCharacter(element, direction);
+            dispatchInput(element, inputType, null);
+            return "done";
+        }
+
+        function dispatchKeyEvent(element, type, key) {
+            return element.dispatchEvent(new KeyboardEvent(type, {
+                key: key,
+                bubbles: true,
+                cancelable: true,
+                composed: true
+            }));
+        }
+
+        function fillElement(node, value) {
+            const element = retarget(node, "follow-label");
+            if (!element) {
+                return "error:notconnected";
+            }
+            ensureStatesOrThrow(element, ["visible", "enabled", "editable"]);
+            if (element.nodeName.toLowerCase() === "input") {
+                const input = element;
+                const type = String(input.type || "").toLowerCase();
+                if (!typeIntoInputTypes.has(type) && !setValueInputTypes.has(type)) {
+                    createError('Input of type "' + type + '" cannot be filled');
+                }
+                let normalizedValue = String(value);
+                if (type === "number") {
+                    normalizedValue = normalizedValue.trim();
+                    if (isNaN(Number(normalizedValue))) {
+                        createError("Cannot type text into input[type=number]");
+                    }
+                }
+                if (type === "color") {
+                    normalizedValue = normalizedValue.toLowerCase();
+                }
+                if (setValueInputTypes.has(type)) {
+                    normalizedValue = normalizedValue.trim();
+                    input.focus();
+                    setControlValue(input, normalizedValue);
+                    if (input.value !== normalizedValue) {
+                        createError("Malformed value");
+                    }
+                    dispatchSimpleInput(input);
+                    dispatchChange(input);
+                    return "done";
+                }
+                selectText(input);
+                return "needsinput";
+            }
+            if (element.nodeName.toLowerCase() === "textarea") {
+                selectText(element);
+                return "needsinput";
+            }
+            if (!element.isContentEditable) {
+                createError("Element is not an <input>, <textarea> or [contenteditable] element");
+            }
+            selectText(element);
+            return "needsinput";
+        }
+
+        function completeFill(node, value) {
+            const stringValue = value == null ? "" : String(value);
+            const result = fillElement(node, stringValue);
+            if (result === "needsinput") {
+                return stringValue ? insertTextWithoutKeyboard(retarget(node, "follow-label"), stringValue) : deleteTextWithoutKeyboard(retarget(node, "follow-label"), "forward");
+            }
+            return result;
+        }
+
+        async function typeCharacter(element, ch) {
+            const isPrintableAscii = /^[\u0020-\u007e]$/.test(ch);
+            if (isPrintableAscii) {
+                return pressKey(element, ch);
+            }
+            return insertTextWithoutKeyboard(element, ch);
+        }
+
+        async function typeElement(node, text, delayMs) {
+            const element = retarget(node, "follow-label");
+            if (!element) {
+                return "error:notconnected";
+            }
+            const focusResult = focusNode(element, true);
+            if (focusResult !== "done") {
+                return focusResult;
+            }
+            for (const rawCh of String(text)) {
+                if (rawCh === "\r") {
+                    continue;
+                }
+                if (rawCh === "\n") {
+                    const enterResult = pressEnter(element);
+                    if (enterResult !== "done") {
+                        return enterResult;
+                    }
+                } else {
+                    const typeResult = await typeCharacter(element, rawCh);
+                    if (typeResult !== "done") {
+                        return typeResult;
+                    }
+                }
+                if (delayMs > 0) {
+                    await new Promise((resolve) => setTimeout(resolve, delayMs));
+                }
+            }
+            return "done";
+        }
+
+        function pressEnter(node) {
+            const element = retarget(node, "follow-label");
+            if (!element) {
+                return "error:notconnected";
+            }
+            const keydownAccepted = dispatchKeyEvent(element, "keydown", "Enter");
+            if (keydownAccepted) {
+                dispatchKeyEvent(element, "keypress", "Enter");
+                if (element.nodeName.toLowerCase() === "textarea" || element.isContentEditable) {
+                    if (dispatchBeforeInput(element, "insertLineBreak", "\n")) {
+                        replaceSelectionWithText(element, "\n");
+                        dispatchInput(element, "insertLineBreak", "\n");
+                    }
+                } else {
+                    const form = element.form || (element.closest && element.closest("form"));
+                    if (form && typeof form.requestSubmit === "function") {
+                        form.requestSubmit();
+                    }
+                }
+            }
+            dispatchKeyEvent(element, "keyup", "Enter");
+            return "done";
+        }
+
+        function pressKey(node, key) {
+            const element = retarget(node, "follow-label");
+            if (!element) {
+                return "error:notconnected";
+            }
+            const keyValue = String(key);
+            const editable = element.matches("input, textarea") || element.isContentEditable;
+            if (keyValue === "Enter") {
+                return pressEnter(element);
+            }
+            const keydownAccepted = dispatchKeyEvent(element, "keydown", keyValue);
+            if (keydownAccepted) {
+                if (keyValue.length === 1) {
+                    const keypressAccepted = dispatchKeyEvent(element, "keypress", keyValue);
+                    if (keypressAccepted && editable) {
+                        insertTextWithoutKeyboard(element, keyValue);
+                    }
+                } else if (keyValue === "Backspace" && editable) {
+                    deleteTextWithoutKeyboard(element, "backward");
+                } else if (keyValue === "Delete" && editable) {
+                    deleteTextWithoutKeyboard(element, "forward");
+                }
+            }
+            dispatchKeyEvent(element, "keyup", keyValue);
+            return "done";
+        }
+
+        function setChecked(node, desiredState) {
+            const element = retarget(node, "follow-label");
+            if (!element) {
+                return "error:notconnected";
+            }
+            ensureStatesOrThrow(element, ["visible", "enabled"]);
+            const currentState = elementState(element, "checked");
+            if (currentState.received === "error:notconnected") {
+                return "error:notconnected";
+            }
+            if (currentState.matches === desiredState) {
+                return "done";
+            }
+            if (!desiredState && currentState.isRadio) {
+                createError("Cannot uncheck radio button. Radio buttons can only be unchecked by selecting another radio button in the same group.");
+            }
+            if (typeof element.click !== "function") {
+                createError("Element is not clickable");
+            }
+            element.click();
+            const finalState = elementState(element, "checked");
+            if (finalState.received === "error:notconnected") {
+                return "error:notconnected";
+            }
+            if (finalState.matches !== desiredState) {
+                createError("Clicking the checkbox did not change its state");
+            }
+            return "done";
+        }
+
+        function selectOptions(node, optionsToSelect) {
+            const element = retarget(node, "follow-label");
+            if (!element) {
+                return "error:notconnected";
+            }
+            ensureStatesOrThrow(element, ["visible", "enabled"]);
+            if (element.nodeName.toLowerCase() !== "select") {
+                createError("Element is not a <select> element");
+            }
+            const select = element;
+            const options = Array.from(select.options || []);
+            const selectedOptions = [];
+            let remaining = optionsToSelect.slice();
+            for (let index = 0; index < options.length; index += 1) {
+                const option = options[index];
+                const filter = (optionToSelect) => {
+                    if (optionToSelect instanceof Node) {
+                        return option === optionToSelect;
+                    }
+                    let matches = true;
+                    if (optionToSelect.valueOrLabel !== undefined) {
+                        matches = matches && (String(optionToSelect.valueOrLabel) === String(option.value) || String(optionToSelect.valueOrLabel) === String(option.label));
+                    }
+                    if (optionToSelect.value !== undefined) {
+                        matches = matches && String(optionToSelect.value) === String(option.value);
+                    }
+                    if (optionToSelect.label !== undefined) {
+                        matches = matches && String(optionToSelect.label) === String(option.label);
+                    }
+                    if (optionToSelect.index !== undefined) {
+                        matches = matches && Number(optionToSelect.index) === index;
+                    }
+                    return matches;
+                };
+                if (!remaining.some(filter)) {
+                    continue;
+                }
+                if (!elementState(option, "enabled").matches) {
+                    return "error:optionnotenabled";
+                }
+                selectedOptions.push(option);
+                if (select.multiple) {
+                    remaining = remaining.filter((candidate) => !filter(candidate));
+                } else {
+                    remaining = [];
+                    break;
+                }
+            }
+            if (remaining.length) {
+                return "error:optionsnotfound";
+            }
+            select.value = void 0;
+            selectedOptions.forEach((option) => {
+                option.selected = true;
+            });
+            dispatchSimpleInput(select);
+            dispatchChange(select);
+            return selectedOptions.map((option) => String(option.value));
+        }
+
+        return {
+            fillElement: fillElement,
+            completeFill: completeFill,
+            typeElement: typeElement,
+            pressKey: pressKey,
+            pressEnter: pressEnter,
+            setChecked: setChecked,
+            selectOptions: selectOptions
+        };
+    })();
+    """.trimIndent()
+
 internal fun StandardBrowserSessionTools.ensureOverlayPermission(toolName: String): ToolResult? {
     val appContext = context.applicationContext
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(appContext)) {
@@ -563,7 +1278,7 @@ internal fun StandardBrowserSessionTools.pageError(
 internal fun StandardBrowserSessionTools.buildSettledBrowserResponse(
     settlement: StandardBrowserSessionTools.BrowserActionSettlement,
     code: String? = null,
-    snapshot: String? = settlement.snapshot.markdown,
+    snapshot: String? = settlement.snapshot.yaml,
     consoleMessages: String? = renderNewConsoleMessages(settlement.session, settlement.consoleMarker),
     modalState: String? = renderModalState(settlement.session),
     downloads: String? = renderDownloads(settlement.session, settlement.downloadMarker),
@@ -701,10 +1416,11 @@ internal fun StandardBrowserSessionTools.evaluatePageFunction(
     val expression =
         """
         (async function() {
+            ${browserRefResolverScript()}
             const refValue = ${quoteJs(ref.orEmpty())};
             const target =
                 refValue
-                    ? Array.from(document.querySelectorAll('[aria-ref]')).find((el) => String(el.getAttribute('aria-ref') || '') === refValue)
+                    ? (__operitResolveRef(refValue) || {}).element
                     : undefined;
             if (refValue && !target) {
                 throw new Error("ref_not_found");
@@ -736,12 +1452,17 @@ internal fun StandardBrowserSessionTools.fillFormFields(
     webView: WebView,
     rawFields: String
 ): String {
-    val script =
+    val expression =
         """
-        (function() {
+        (async function() {
+            ${playwrightLikeInputRuntimeJs()}
+            ${browserRefResolverScript()}
             const fields = $rawFields;
             const results = [];
-            const findByRef = (refValue) => Array.from(document.querySelectorAll('[aria-ref]')).find((el) => String(el.getAttribute('aria-ref') || '') === String(refValue || ''));
+            const findByRef = (refValue) => {
+                const resolved = __operitResolveRef(String(refValue || ''));
+                return resolved ? resolved.element : null;
+            };
             fields.forEach((field, index) => {
                 const target =
                     field.ref ? findByRef(field.ref) :
@@ -751,73 +1472,61 @@ internal fun StandardBrowserSessionTools.fillFormFields(
                     throw new Error("field_not_found:" + (field.name || index));
                 }
                 const type = String(field.type || target.type || target.tagName || "").toLowerCase();
-                const value = field.value;
-                try { target.focus(); } catch (_) {}
-                if (type === "checkbox") {
-                    target.checked = String(value).toLowerCase() === "true";
-                    target.dispatchEvent(new Event("input", { bubbles: true }));
-                    target.dispatchEvent(new Event("change", { bubbles: true }));
-                } else if (type === "combobox" || target.tagName === "SELECT") {
-                    const options = Array.from(target.options || []);
-                    const match = options.find((option) => String(option.text) === String(value) || String(option.value) === String(value));
-                    if (!match) {
-                        throw new Error("option_not_found:" + String(value));
-                    }
-                    target.value = match.value;
-                    target.dispatchEvent(new Event("input", { bubbles: true }));
-                    target.dispatchEvent(new Event("change", { bubbles: true }));
+                const value = String(field.value ?? "");
+                let result = "done";
+                if (type === "textbox" || type === "slider") {
+                    result = __operitPw.completeFill(target, value);
+                } else if (type === "checkbox" || type === "radio") {
+                    result = __operitPw.setChecked(target, value.toLowerCase() === "true");
+                } else if (type === "combobox" || String(target.tagName || "").toLowerCase() === "select") {
+                    result = __operitPw.selectOptions(target, [{ valueOrLabel: value }]);
                 } else {
-                    target.value = String(value ?? "");
-                    target.dispatchEvent(new Event("input", { bubbles: true }));
-                    target.dispatchEvent(new Event("change", { bubbles: true }));
+                    result = __operitPw.completeFill(target, value);
+                }
+                if (result !== "done" && !Array.isArray(result)) {
+                    throw new Error(String(result));
                 }
                 results.push(String(field.name || ("field_" + (index + 1))) + " => " + type);
             });
             return results.join("\n");
-        })();
+        })()
         """.trimIndent()
-    return decodeJsResult(evaluateJavascriptSync(webView, script, StandardBrowserSessionTools.DEFAULT_TIMEOUT_MS))
+    return extractAsyncJsValue(
+        evaluateJavascriptAsync(
+            webView,
+            expression,
+            StandardBrowserSessionTools.DEFAULT_TIMEOUT_MS.coerceAtLeast(12_000L)
+        )
+    )
 }
 
 internal fun StandardBrowserSessionTools.pressKeyOnPage(
     webView: WebView,
     key: String
 ): String {
-    val script =
+    val expression =
         """
-        (function() {
+        (async function() {
+            ${playwrightLikeInputRuntimeJs()}
             const keyValue = ${quoteJs(key)};
             const target = document.activeElement || document.body || document.documentElement;
             if (!target) {
-                return "No focus target available.";
+                throw new Error("No focus target available.");
             }
-            const dispatch = (type) => target.dispatchEvent(new KeyboardEvent(type, { key: keyValue, bubbles: true, cancelable: true }));
-            dispatch("keydown");
-            if (keyValue.length === 1 && target && ("value" in target)) {
-                const start = typeof target.selectionStart === "number" ? target.selectionStart : String(target.value || "").length;
-                const end = typeof target.selectionEnd === "number" ? target.selectionEnd : start;
-                const current = String(target.value || "");
-                target.value = current.slice(0, start) + keyValue + current.slice(end);
-                target.selectionStart = target.selectionEnd = start + keyValue.length;
-                target.dispatchEvent(new Event("input", { bubbles: true }));
-            } else if (keyValue === "Backspace" && target && ("value" in target)) {
-                const current = String(target.value || "");
-                target.value = current.slice(0, Math.max(0, current.length - 1));
-                target.dispatchEvent(new Event("input", { bubbles: true }));
-            } else if (keyValue === "Enter") {
-                try {
-                    const form = target.form || target.closest && target.closest("form");
-                    if (form && typeof form.requestSubmit === "function") {
-                        form.requestSubmit();
-                    }
-                } catch (_) {}
-                target.dispatchEvent(new Event("change", { bubbles: true }));
+            const result = __operitPw.pressKey(target, keyValue);
+            if (result !== "done") {
+                throw new Error(String(result));
             }
-            dispatch("keyup");
             return "Pressed " + keyValue;
-        })();
+        })()
         """.trimIndent()
-    return decodeJsResult(evaluateJavascriptSync(webView, script, StandardBrowserSessionTools.DEFAULT_TIMEOUT_MS))
+    return extractAsyncJsValue(
+        evaluateJavascriptAsync(
+            webView,
+            expression,
+            StandardBrowserSessionTools.DEFAULT_TIMEOUT_MS.coerceAtLeast(12_000L)
+        )
+    )
 }
 
 internal fun StandardBrowserSessionTools.selectOptionsByRef(
@@ -825,32 +1534,32 @@ internal fun StandardBrowserSessionTools.selectOptionsByRef(
     ref: String,
     values: List<String>
 ): String {
-    val script =
+    val expression =
         """
-        (function() {
+        (async function() {
+            ${playwrightLikeInputRuntimeJs()}
+            ${browserRefResolverScript()}
             const refValue = ${quoteJs(ref)};
-            const target = Array.from(document.querySelectorAll('[aria-ref]')).find((el) => String(el.getAttribute('aria-ref') || '') === refValue);
+            const resolved = __operitResolveRef(refValue);
+            const target = resolved ? resolved.element : null;
             if (!target) {
                 throw new Error("ref_not_found");
             }
-            const values = ${JSONArray(values).toString()};
-            if (!target.options) {
-                throw new Error("target_is_not_select");
+            const values = ${JSONArray(values).toString()}.map((value) => ({ valueOrLabel: value }));
+            const result = __operitPw.selectOptions(target, values);
+            if (!Array.isArray(result)) {
+                throw new Error(String(result));
             }
-            const matched = [];
-            Array.from(target.options).forEach((option) => {
-                const shouldSelect = values.includes(String(option.value)) || values.includes(String(option.text));
-                option.selected = shouldSelect;
-                if (shouldSelect) {
-                    matched.push(String(option.text || option.value || ""));
-                }
-            });
-            target.dispatchEvent(new Event("input", { bubbles: true }));
-            target.dispatchEvent(new Event("change", { bubbles: true }));
-            return "Selected " + matched.join(", ");
-        })();
+            return "Selected " + result.join(", ");
+        })()
         """.trimIndent()
-    return decodeJsResult(evaluateJavascriptSync(webView, script, StandardBrowserSessionTools.DEFAULT_TIMEOUT_MS))
+    return extractAsyncJsValue(
+        evaluateJavascriptAsync(
+            webView,
+            expression,
+            StandardBrowserSessionTools.DEFAULT_TIMEOUT_MS.coerceAtLeast(12_000L)
+        )
+    )
 }
 
 internal fun StandardBrowserSessionTools.typeIntoElementByRef(
@@ -863,43 +1572,33 @@ internal fun StandardBrowserSessionTools.typeIntoElementByRef(
     val expression =
         """
         (async function() {
+            ${playwrightLikeInputRuntimeJs()}
+            ${browserRefResolverScript()}
             const refValue = ${quoteJs(ref)};
-            const target = Array.from(document.querySelectorAll('[aria-ref]')).find((el) => String(el.getAttribute('aria-ref') || '') === refValue);
+            const resolved = __operitResolveRef(refValue);
+            const target = resolved ? resolved.element : null;
             if (!target) {
                 throw new Error("ref_not_found");
             }
             const textValue = ${quoteJs(text)};
             const submitValue = ${if (submit) "true" else "false"};
             const slowValue = ${if (slowly) "true" else "false"};
-            try { target.focus(); } catch (_) {}
-            const applyValue = (value) => {
-                if ("value" in target) {
-                    target.value = value;
-                } else if (target.isContentEditable) {
-                    target.textContent = value;
-                }
-                target.dispatchEvent(new Event("input", { bubbles: true }));
-            };
             if (slowValue) {
-                let current = "";
-                for (const ch of textValue) {
-                    current += ch;
-                    applyValue(current);
-                    await new Promise((resolve) => setTimeout(resolve, 35));
+                const typeResult = await __operitPw.typeElement(target, textValue, 35);
+                if (typeResult !== "done") {
+                    throw new Error(String(typeResult));
                 }
             } else {
-                applyValue(String(textValue));
+                const fillResult = __operitPw.completeFill(target, textValue);
+                if (fillResult !== "done") {
+                    throw new Error(String(fillResult));
+                }
             }
-            target.dispatchEvent(new Event("change", { bubbles: true }));
             if (submitValue) {
-                target.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
-                target.dispatchEvent(new KeyboardEvent("keyup", { key: "Enter", bubbles: true, cancelable: true }));
-                try {
-                    const form = target.form || target.closest && target.closest("form");
-                    if (form && typeof form.requestSubmit === "function") {
-                        form.requestSubmit();
-                    }
-                } catch (_) {}
+                const submitResult = __operitPw.pressEnter(target);
+                if (submitResult !== "done") {
+                    throw new Error(String(submitResult));
+                }
             }
             return "Typed " + textValue.length + " character(s).";
         })()
@@ -1066,13 +1765,40 @@ internal fun StandardBrowserSessionTools.resolveElementRect(
     val script =
         """
         (function() {
+            ${browserRefResolverScript()}
             const refValue = ${quoteJs(ref)};
-            const target = Array.from(document.querySelectorAll('[aria-ref]')).find((el) => String(el.getAttribute('aria-ref') || '') === refValue);
+            const resolved = __operitResolveRef(refValue);
+            const target = resolved ? resolved.element : null;
+            const targetWindow = resolved ? (resolved.window || window) : window;
             if (!target) {
                 return JSON.stringify({ ok: false, error: "ref_not_found" });
             }
             try { target.scrollIntoView({ block: "center", inline: "center" }); } catch (_) {}
-            const rect = target.getBoundingClientRect();
+            let rect = target.getBoundingClientRect();
+            let currentWindow = targetWindow;
+            while (currentWindow && currentWindow !== window) {
+                let frameElement = null;
+                try {
+                    frameElement = currentWindow.frameElement;
+                } catch (_) {
+                    frameElement = null;
+                }
+                if (!frameElement) {
+                    break;
+                }
+                const frameRect = frameElement.getBoundingClientRect();
+                rect = {
+                    left: rect.left + frameRect.left,
+                    top: rect.top + frameRect.top,
+                    right: rect.right + frameRect.left,
+                    bottom: rect.bottom + frameRect.top
+                };
+                try {
+                    currentWindow = frameElement.ownerDocument.defaultView;
+                } catch (_) {
+                    break;
+                }
+            }
             return JSON.stringify({
                 ok: true,
                 left: Math.max(0, Math.floor(rect.left)),

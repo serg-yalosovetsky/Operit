@@ -416,6 +416,16 @@ fun getJsToolsDefinition(): String {
                     if (params.filename !== undefined && params.filename !== null) {
                         params.filename = String(params.filename);
                     }
+                    if (params.selector !== undefined && params.selector !== null) {
+                        params.selector = String(params.selector);
+                    }
+                    if (params.depth !== undefined && params.depth !== null) {
+                        const depth = Number(params.depth);
+                        if (!Number.isInteger(depth) || depth < 0) {
+                            throw new Error("browserSnapshot depth must be a non-negative integer");
+                        }
+                        params.depth = depth;
+                    }
                     return toolCall("browser_snapshot", params);
                 },
                 browserTabs: (options) => {

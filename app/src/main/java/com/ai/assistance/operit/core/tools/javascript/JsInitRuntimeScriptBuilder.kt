@@ -359,10 +359,39 @@ private fun buildRuntimeToolCallScript(): String {
                 };
             }
 
+            function stringifyToolResultDetail(detail) {
+                if (detail == null) {
+                    return '';
+                }
+                if (typeof detail === 'string') {
+                    return detail.trim();
+                }
+                try {
+                    return JSON.stringify(detail);
+                } catch (_error) {
+                    return asString(detail).trim();
+                }
+            }
+
+            function buildToolError(result, fallbackMessage) {
+                var message = asString((result && result.error) || fallbackMessage || 'Unknown error');
+                if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
+                    var detailText = stringifyToolResultDetail(result.data);
+                    if (detailText) {
+                        message += '\n\nTool output:\n' + detailText;
+                    }
+                }
+                var error = new Error(message);
+                if (result && typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'data')) {
+                    error.data = result.data;
+                }
+                return error;
+            }
+
             function parseToolResult(result, isError) {
                 if (isError) {
                     if (result && typeof result === 'object' && result.success === false) {
-                        throw new Error(asString(result.error || 'Unknown error'));
+                        throw buildToolError(result, 'Unknown error');
                     }
                     throw new Error(typeof result === 'string' ? result : JSON.stringify(result));
                 }
@@ -370,7 +399,7 @@ private fun buildRuntimeToolCallScript(): String {
                     if (result.success) {
                         return result.data;
                     }
-                    throw new Error(asString(result.error || 'Unknown error'));
+                    throw buildToolError(result, 'Unknown error');
                 }
                 if (typeof result === 'string' && result.length > 1) {
                     var first = result.charAt(0);

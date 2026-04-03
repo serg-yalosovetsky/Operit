@@ -15,6 +15,7 @@ import com.ai.assistance.operit.core.tools.BinaryResultData
 import com.ai.assistance.operit.core.tools.BooleanResultData
 import com.ai.assistance.operit.core.tools.IntResultData
 import com.ai.assistance.operit.core.tools.StringResultData
+import com.ai.assistance.operit.core.tools.ToolResultData
 import com.ai.assistance.operit.core.tools.packTool.PackageManager
 import com.ai.assistance.operit.data.model.AITool
 import com.ai.assistance.operit.data.model.ToolParameter
@@ -46,6 +47,11 @@ internal object JsNativeInterfaceDelegates {
         val params: Map<String, String>,
         val fullToolName: String,
         val aiTool: AITool
+    )
+
+    private data class SerializedToolResultData(
+        val data: JsonElement,
+        val dataType: String? = null
     )
 
     private fun buildToolErrorJson(message: String): String {
@@ -96,41 +102,64 @@ internal object JsNativeInterfaceDelegates {
         binaryHandlePrefix: String,
         binaryDataThreshold: Int
     ): String {
-        if (!result.success) {
-            return buildToolErrorJson(result.error ?: "Unknown error")
-        }
+        val serializedData =
+            serializeToolResultData(
+                resultData = result.result,
+                binaryDataRegistry = binaryDataRegistry,
+                binaryHandlePrefix = binaryHandlePrefix,
+                binaryDataThreshold = binaryDataThreshold
+            )
 
         return Json.encodeToString(
             JsonElement.serializer(),
             buildJsonObject {
-                put("success", JsonPrimitive(true))
-
-                when (val resultData = result.result) {
-                    is BinaryResultData -> {
-                        if (resultData.value.size > binaryDataThreshold) {
-                            val handle = UUID.randomUUID().toString()
-                            binaryDataRegistry[handle] = resultData.value
-                            AppLogger.d(TAG, "Stored large binary data with handle: $handle")
-                            put("data", JsonPrimitive("$binaryHandlePrefix$handle"))
-                        } else {
-                            put("data", JsonPrimitive(Base64.encodeToString(resultData.value, Base64.NO_WRAP)))
-                        }
-                        put("dataType", JsonPrimitive("base64"))
-                    }
-                    is StringResultData -> put("data", JsonPrimitive(resultData.value))
-                    is BooleanResultData -> put("data", JsonPrimitive(resultData.value))
-                    is IntResultData -> put("data", JsonPrimitive(resultData.value))
-                    else -> {
-                        val jsonString = resultData.toJson()
-                        try {
-                            put("data", Json.parseToJsonElement(jsonString))
-                        } catch (_e: Exception) {
-                            put("data", JsonPrimitive(jsonString))
-                        }
-                    }
+                put("success", JsonPrimitive(result.success))
+                if (!result.success) {
+                    put("error", JsonPrimitive(result.error ?: "Unknown error"))
                 }
+                put("data", serializedData.data)
+                serializedData.dataType?.let { put("dataType", JsonPrimitive(it)) }
             }
         )
+    }
+
+    private fun serializeToolResultData(
+        resultData: ToolResultData,
+        binaryDataRegistry: ConcurrentHashMap<String, ByteArray>,
+        binaryHandlePrefix: String,
+        binaryDataThreshold: Int
+    ): SerializedToolResultData {
+        return when (resultData) {
+            is BinaryResultData -> {
+                if (resultData.value.size > binaryDataThreshold) {
+                    val handle = UUID.randomUUID().toString()
+                    binaryDataRegistry[handle] = resultData.value
+                    AppLogger.d(TAG, "Stored large binary data with handle: $handle")
+                    SerializedToolResultData(
+                        data = JsonPrimitive("$binaryHandlePrefix$handle"),
+                        dataType = "base64"
+                    )
+                } else {
+                    SerializedToolResultData(
+                        data = JsonPrimitive(Base64.encodeToString(resultData.value, Base64.NO_WRAP)),
+                        dataType = "base64"
+                    )
+                }
+            }
+            is StringResultData -> SerializedToolResultData(data = JsonPrimitive(resultData.value))
+            is BooleanResultData -> SerializedToolResultData(data = JsonPrimitive(resultData.value))
+            is IntResultData -> SerializedToolResultData(data = JsonPrimitive(resultData.value))
+            else -> {
+                val jsonString = resultData.toJson()
+                val jsonData =
+                    try {
+                        Json.parseToJsonElement(jsonString)
+                    } catch (_e: Exception) {
+                        JsonPrimitive(jsonString)
+                    }
+                SerializedToolResultData(data = jsonData)
+            }
+        }
     }
 
     private inline fun <T> guard(

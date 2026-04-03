@@ -19,8 +19,7 @@ internal data class BrowserPageRegistry(
 internal data class BrowserSnapshot(
     val sessionId: String,
     val generation: Long,
-    val title: String,
-    val markdown: String,
+    val yaml: String,
     val nodesByRef: Map<String, BrowserSnapshotNode>,
     val createdAt: Long = System.currentTimeMillis()
 )
@@ -28,10 +27,7 @@ internal data class BrowserSnapshot(
 internal data class BrowserSnapshotNode(
     val ref: String,
     val role: String,
-    val name: String,
-    val value: String?,
-    val isActive: Boolean,
-    val lineText: String
+    val name: String
 )
 
 internal data class BrowserConsoleEntry(
@@ -120,10 +116,10 @@ internal fun buildBrowserResponse(
         sections += "### Open tabs\n${openTabs.trim()}"
     }
     if (!pageState.isNullOrBlank()) {
-        sections += "### Page state\n${pageState.trim()}"
+        sections += "### Page\n${pageState.trim()}"
     }
-    if (!snapshot.isNullOrBlank()) {
-        sections += "### Snapshot\n${snapshot.trim()}"
+    if (snapshot != null) {
+        sections += "### Snapshot\n${formatSnapshotSection(snapshot)}"
     }
     if (!consoleMessages.isNullOrBlank()) {
         sections += "### New console messages\n${consoleMessages.trim()}"
@@ -141,6 +137,15 @@ internal fun buildBrowserResponse(
         sections += "### Error\n${error.trim()}"
     }
     return sections.joinToString("\n\n")
+}
+
+private fun formatSnapshotSection(snapshot: String): String {
+    val trimmed = snapshot.trim()
+    return when {
+        trimmed.startsWith("- [Snapshot](") -> trimmed
+        trimmed.startsWith("```yaml") -> trimmed
+        else -> "```yaml\n$trimmed\n```"
+    }
 }
 
 internal typealias BrowserToolSession = StandardBrowserSessionTools.WebSession
@@ -347,13 +352,33 @@ internal fun StandardBrowserSessionTools.buildWaitForCode(
     text: String?,
     textGone: String?
 ): String =
-    when {
-        text != null && textGone != null ->
-            "await page.waitFor({ text: ${quoteJsCode(text)}, textGone: ${quoteJsCode(textGone)} });"
-        text != null -> "await page.waitFor({ text: ${quoteJsCode(text)} });"
-        textGone != null -> "await page.waitFor({ textGone: ${quoteJsCode(textGone)} });"
-        else -> "await page.waitFor({ time: ${timeSeconds ?: 0.0} });"
+    buildString {
+        timeSeconds?.let { seconds ->
+            appendLine("await new Promise(f => setTimeout(f, ${seconds} * 1000));")
+        }
+        textGone?.let { gone ->
+            appendLine("await page.getByText(${quoteJsCode(gone)}).first().waitFor({ state: 'hidden' });")
+        }
+        text?.let { visible ->
+            append("await page.getByText(${quoteJsCode(visible)}).first().waitFor({ state: 'visible' });")
+        }
+    }.trim()
+
+internal fun StandardBrowserSessionTools.waitForTextState(
+    session: BrowserToolSession,
+    text: String? = null,
+    textGone: String? = null,
+    timeoutMs: Long = StandardBrowserSessionTools.DEFAULT_TIMEOUT_MS
+): Boolean {
+    val deadline = System.currentTimeMillis() + timeoutMs.coerceAtLeast(200L)
+    while (System.currentTimeMillis() < deadline) {
+        if (matchesTextState(session, text = text, textGone = textGone)) {
+            return true
+        }
+        Thread.sleep(120L)
     }
+    return matchesTextState(session, text = text, textGone = textGone)
+}
 
 internal fun StandardBrowserSessionTools.buildClickCode(
     session: BrowserToolSession,
@@ -542,7 +567,7 @@ private fun formatDownloadEvent(event: WebDownloadEvent): String =
     }
 
 internal fun StandardBrowserSessionTools.captureSnapshotText(session: BrowserSnapshotSession): String =
-    latestSnapshot(session).markdown
+    latestSnapshot(session).yaml
 
 internal fun StandardBrowserSessionTools.snapshotNode(
     session: BrowserSnapshotSession,
@@ -553,147 +578,492 @@ internal fun StandardBrowserSessionTools.snapshotNode(
 }
 
 internal fun StandardBrowserSessionTools.captureSnapshotModel(
-    session: BrowserSnapshotSession
+    session: BrowserSnapshotSession,
+    selector: String? = null,
+    depth: Int? = null
 ): BrowserSnapshot {
+    val selectorLiteral = selector?.let(JSONObject::quote) ?: "null"
+    val depthLiteral = depth?.toString() ?: "null"
     val script =
         """
         (function() {
+            const selector = $selectorLiteral;
+            const depthLimit = $depthLiteral;
+            const normalize = (value) => String(value == null ? "" : value).replace(/\s+/g, " ").trim();
+            const escapeQuoted = (value) => String(value == null ? "" : value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+            const yamlScalar = (value) => {
+                const text = normalize(value);
+                if (!text) {
+                    return "";
+                }
+                if (/^[A-Za-z0-9 _.,!?/+-]+$/.test(text) && !text.includes(": ")) {
+                    return text;
+                }
+                return '"' + escapeQuoted(text) + '"';
+            };
+            const quotedName = (value) => '"' + escapeQuoted(normalize(value)) + '"';
+            const collectWindows = () => {
+                const queue = [window];
+                const visited = new Set();
+                const result = [];
+                while (queue.length) {
+                    const currentWindow = queue.shift();
+                    if (!currentWindow || visited.has(currentWindow)) {
+                        continue;
+                    }
+                    visited.add(currentWindow);
+                    let currentDocument;
+                    try {
+                        currentDocument = currentWindow.document;
+                    } catch (_) {
+                        continue;
+                    }
+                    if (!currentDocument) {
+                        continue;
+                    }
+                    result.push(currentWindow);
+                    Array.from(currentDocument.querySelectorAll("iframe, frame")).forEach((frameElement) => {
+                        try {
+                            if (frameElement.contentWindow) {
+                                queue.push(frameElement.contentWindow);
+                            }
+                        } catch (_) {}
+                    });
+                }
+                return result;
+            };
             try {
-                const normalize = (value) => String(value || "").replace(/\s+/g, " ").trim();
-                const isVisible = (el) => {
-                    if (!el || el.nodeType !== 1) return false;
-                    const style = window.getComputedStyle(el);
-                    if (!style || style.visibility === "hidden" || style.display === "none") return false;
-                    const rect = el.getBoundingClientRect();
-                    return rect.width > 0 || rect.height > 0;
-                };
-                const ensureRef = (el, nextRefState) => {
-                    let ref = String(el.getAttribute("aria-ref") || "");
-                    if (!ref) {
-                        ref = "e" + nextRefState.value++;
-                        try { el.setAttribute("aria-ref", ref); } catch (_) {}
+                const isVisible = (element) => {
+                    if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+                        return false;
                     }
-                    return ref;
-                };
-                const roleFor = (el) => {
-                    const explicit = normalize(el.getAttribute("role"));
-                    if (explicit) return explicit;
-                    const tag = String(el.tagName || "").toLowerCase();
-                    if (tag === "a") return "link";
-                    if (tag === "button") return "button";
-                    if (tag === "select") return "combobox";
-                    if (tag === "textarea") return "textbox";
-                    if (tag === "img") return "img";
-                    if (tag === "input") {
-                        const type = normalize(el.getAttribute("type")).toLowerCase();
-                        if (type === "checkbox") return "checkbox";
-                        if (type === "radio") return "radio";
-                        if (type === "submit" || type === "button" || type === "reset") return "button";
-                        return "textbox";
+                    const tagName = String(element.tagName || "").toLowerCase();
+                    if (tagName === "body" || tagName === "html") {
+                        return true;
                     }
-                    return "generic";
+                    const currentWindow = element.ownerDocument && element.ownerDocument.defaultView;
+                    if (!currentWindow) {
+                        return false;
+                    }
+                    const style = currentWindow.getComputedStyle(element);
+                    if (!style || style.visibility === "hidden" || style.display === "none") {
+                        return false;
+                    }
+                    const rect = element.getBoundingClientRect();
+                    return rect.width > 0 || rect.height > 0 || element.getClientRects().length > 0;
                 };
-                const nameFor = (el) => normalize(
-                    el.getAttribute("aria-label") ||
-                    el.getAttribute("title") ||
-                    el.getAttribute("placeholder") ||
-                    el.getAttribute("alt") ||
-                    el.getAttribute("value") ||
-                    el.innerText ||
-                    el.textContent
-                );
-                const valueFor = (el, role, name) => {
-                    if (role !== "textbox") return null;
-                    const value = normalize(el.value || "");
-                    return value && value !== name ? value : null;
-                };
-                const body = document.body || document.documentElement;
-                const title = normalize(document.title) || "untitled";
-                const nextRefState = { value: 1 };
-                const existingRefNumbers = Array.from(document.querySelectorAll("[aria-ref]"))
-                    .map((el) => {
-                        const match = /^e(\d+)$/.exec(String(el.getAttribute("aria-ref") || ""));
+                const existingRefElements = [];
+                collectWindows().forEach((currentWindow) => {
+                    try {
+                        Array.from(currentWindow.document.querySelectorAll("[aria-ref]")).forEach((element) => {
+                            existingRefElements.push(element);
+                        });
+                    } catch (_) {}
+                });
+                const existingRefNumbers = existingRefElements
+                    .map((element) => {
+                        const match = /^e(\d+)$/.exec(String(element.getAttribute("aria-ref") || ""));
                         return match ? parseInt(match[1], 10) : 0;
                     })
                     .filter((value) => Number.isFinite(value) && value > 0);
-                if (existingRefNumbers.length) {
-                    nextRefState.value = Math.max.apply(null, existingRefNumbers) + 1;
-                }
-
-                const lines = [];
+                let nextRef = existingRefNumbers.length ? Math.max.apply(null, existingRefNumbers) + 1 : 1;
+                const ensureRef = (element) => {
+                    let ref = normalize(element.getAttribute("aria-ref"));
+                    if (!ref) {
+                        ref = "e" + nextRef++;
+                        element.setAttribute("aria-ref", ref);
+                    }
+                    return ref;
+                };
+                const resolveLabelledBy = (element) => {
+                    const ids = normalize(element.getAttribute("aria-labelledby")).split(" ").filter(Boolean);
+                    if (!ids.length) {
+                        return "";
+                    }
+                    return normalize(
+                        ids.map((id) => {
+                            const labelElement = element.ownerDocument.getElementById(id);
+                            return labelElement ? normalize(labelElement.innerText || labelElement.textContent) : "";
+                        }).filter(Boolean).join(" ")
+                    );
+                };
+                const associatedLabel = (element) => {
+                    try {
+                        if (element.labels && element.labels.length) {
+                            return normalize(
+                                Array.from(element.labels)
+                                    .map((label) => normalize(label.innerText || label.textContent))
+                                    .join(" ")
+                            );
+                        }
+                    } catch (_) {}
+                    return "";
+                };
                 const nodes = [];
-                lines.push('- document "' + title + '"');
-
-                if (body) {
-                    const bodyText = normalize((body.innerText || "").slice(0, 400));
-                    const bodyRef = ensureRef(body, nextRefState);
-                    const bodyIsActive = !document.activeElement || document.activeElement === body || document.activeElement === document.documentElement;
-                    const bodyActiveSuffix = bodyIsActive ? " [active]" : "";
-                    const bodyLine = '  - generic' + bodyActiveSuffix + ' [ref=' + bodyRef + ']' + (bodyText ? ': ' + bodyText : "");
-                    lines.push(bodyLine);
-                    nodes.push({
-                        ref: bodyRef,
-                        role: "generic",
-                        name: "",
-                        value: null,
-                        active: bodyIsActive,
-                        lineText: bodyLine
+                const inlineLeafText = (element) => {
+                    const tagName = String(element.tagName || "").toLowerCase();
+                    if (tagName === "input" || tagName === "textarea" || tagName === "select") {
+                        return "";
+                    }
+                    return normalize(element.innerText || element.textContent);
+                };
+                const hasAccessibleLabelHint = (element) => {
+                    return !!(
+                        normalize(element.getAttribute("aria-label")) ||
+                        resolveLabelledBy(element) ||
+                        normalize(element.getAttribute("title"))
+                    );
+                };
+                const roleFor = (element) => {
+                    const explicitRole = normalize(element.getAttribute("role")).toLowerCase();
+                    if (explicitRole && explicitRole !== "presentation" && explicitRole !== "none") {
+                        return explicitRole;
+                    }
+                    const tagName = String(element.tagName || "").toLowerCase();
+                    switch (tagName) {
+                        case "a":
+                            return element.hasAttribute("href") ? "link" : null;
+                        case "button":
+                            return "button";
+                        case "textarea":
+                            return "textbox";
+                        case "select":
+                            return element.multiple || Number(element.size || 0) > 1 ? "listbox" : "combobox";
+                        case "img":
+                            return "img";
+                        case "iframe":
+                        case "frame":
+                            return "iframe";
+                        case "ul":
+                        case "ol":
+                            return "list";
+                        case "li":
+                            return "listitem";
+                        case "main":
+                            return "main";
+                        case "nav":
+                            return "navigation";
+                        case "header":
+                            return "banner";
+                        case "footer":
+                            return "contentinfo";
+                        case "article":
+                            return "article";
+                        case "form":
+                            return "form";
+                        case "dialog":
+                            return "dialog";
+                        case "details":
+                            return "group";
+                        case "fieldset":
+                            return "group";
+                        case "p":
+                            return "paragraph";
+                        case "section":
+                            return hasAccessibleLabelHint(element) ? "region" : null;
+                        case "summary":
+                            return "button";
+                        case "table":
+                            return "table";
+                        case "tr":
+                            return "row";
+                        case "td":
+                            return "cell";
+                        case "th":
+                            return element.getAttribute("scope") === "row" ? "rowheader" : "columnheader";
+                        case "option":
+                            return "option";
+                        case "h1":
+                        case "h2":
+                        case "h3":
+                        case "h4":
+                        case "h5":
+                        case "h6":
+                            return "heading";
+                        case "input": {
+                            const type = normalize(element.getAttribute("type") || "text").toLowerCase();
+                            switch (type) {
+                                case "button":
+                                case "submit":
+                                case "reset":
+                                    return "button";
+                                case "checkbox":
+                                    return "checkbox";
+                                case "radio":
+                                    return "radio";
+                                case "range":
+                                    return "slider";
+                                case "search":
+                                case "email":
+                                case "number":
+                                case "password":
+                                case "tel":
+                                case "text":
+                                case "url":
+                                case "":
+                                    return "textbox";
+                                default:
+                                    return element.tabIndex >= 0 ? "generic" : null;
+                            }
+                        }
+                        default:
+                            return element.tabIndex >= 0 || element.isContentEditable ? "generic" : null;
+                    }
+                };
+                const nameFor = (element, role) => {
+                    const labelledBy = resolveLabelledBy(element);
+                    if (labelledBy) {
+                        return labelledBy;
+                    }
+                    const ariaLabel = normalize(element.getAttribute("aria-label"));
+                    if (ariaLabel) {
+                        return ariaLabel;
+                    }
+                    const title = normalize(element.getAttribute("title"));
+                    const placeholder = normalize(element.getAttribute("placeholder"));
+                    const alt = normalize(element.getAttribute("alt"));
+                    if (role === "textbox" || role === "checkbox" || role === "radio" || role === "combobox" || role === "listbox" || role === "slider") {
+                        return associatedLabel(element) || placeholder || title || alt;
+                    }
+                    if (role === "button") {
+                        return normalize(element.getAttribute("value")) || inlineLeafText(element) || title;
+                    }
+                    if (role === "img") {
+                        return alt || title;
+                    }
+                    if (role === "iframe") {
+                        return normalize(element.getAttribute("name")) || title;
+                    }
+                    if (role === "option") {
+                        return normalize(element.getAttribute("label")) || inlineLeafText(element) || title;
+                    }
+                    if (role === "heading" || role === "link") {
+                        return inlineLeafText(element) || title;
+                    }
+                    if (role === "dialog" || role === "main" || role === "navigation" || role === "banner" || role === "contentinfo" || role === "article" || role === "form" || role === "region" || role === "list" || role === "table" || role === "group") {
+                        return title;
+                    }
+                    return "";
+                };
+                const needsRef = (element, role) => {
+                    if (!role) {
+                        return false;
+                    }
+                    if (role === "iframe") {
+                        return true;
+                    }
+                    if (role === "generic") {
+                        return element.tabIndex >= 0 || element.isContentEditable;
+                    }
+                    return role === "link" ||
+                        role === "button" ||
+                        role === "checkbox" ||
+                        role === "radio" ||
+                        role === "textbox" ||
+                        role === "combobox" ||
+                        role === "listbox" ||
+                        role === "slider";
+                };
+                const stateTokens = (element, role) => {
+                    const tokens = [];
+                    const checked = normalize(element.getAttribute("aria-checked"));
+                    if (role === "checkbox" || role === "radio") {
+                        if (checked) {
+                            tokens.push(checked === "true" ? "checked" : "checked=" + checked);
+                        } else if (typeof element.checked === "boolean") {
+                            tokens.push(element.checked ? "checked" : "checked=false");
+                        }
+                    }
+                    const pressed = normalize(element.getAttribute("aria-pressed"));
+                    if (pressed) {
+                        tokens.push("pressed=" + pressed);
+                    }
+                    const selected = normalize(element.getAttribute("aria-selected"));
+                    if (selected) {
+                        tokens.push(selected === "true" ? "selected" : "selected=" + selected);
+                    }
+                    const expanded = normalize(element.getAttribute("aria-expanded"));
+                    if (expanded) {
+                        tokens.push("expanded=" + expanded);
+                    }
+                    if (element.disabled || normalize(element.getAttribute("aria-disabled")) === "true") {
+                        tokens.push("disabled");
+                    }
+                    const level = role === "heading"
+                        ? (normalize(element.getAttribute("aria-level")) || ((/^h([1-6])$/.exec(String(element.tagName || "").toLowerCase()) || [])[1] || ""))
+                        : "";
+                    if (level) {
+                        tokens.push("level=" + level);
+                    }
+                    return tokens;
+                };
+                const directTextEntries = (element) => {
+                    const entries = [];
+                    let buffer = [];
+                    const flush = () => {
+                        const text = normalize(buffer.join(" "));
+                        if (text) {
+                            entries.push({ kind: "text", text: text });
+                        }
+                        buffer = [];
+                    };
+                    Array.from(element.childNodes).forEach((node) => {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            buffer.push(node.textContent || "");
+                            return;
+                        }
+                        if (node.nodeType === Node.ELEMENT_NODE && String(node.tagName || "").toLowerCase() === "br") {
+                            buffer.push(" ");
+                            return;
+                        }
+                        flush();
                     });
-                }
-
-                const interactive = Array.from(document.querySelectorAll("a[href],button,input,select,textarea,summary,[role],[tabindex]"))
-                    .filter((el) => isVisible(el))
-                    .slice(0, 200);
-                interactive.forEach((el) => {
-                    const ref = ensureRef(el, nextRefState);
-                    const role = roleFor(el);
-                    const name = nameFor(el);
-                    const value = valueFor(el, role, name);
-                    const active = document.activeElement === el;
-                    const activeSuffix = active ? " [active]" : "";
-                    const namePart = name ? ' "' + name + '"' : "";
-                    const valuePart = value ? ': ' + value : "";
-                    const line = '  - ' + role + namePart + activeSuffix + ' [ref=' + ref + ']' + valuePart;
+                    flush();
+                    return entries;
+                };
+                const shouldEmitElement = (element, role, name) => {
+                    if (!role) {
+                        return false;
+                    }
+                    if (role === "generic") {
+                        return needsRef(element, role);
+                    }
+                    return (role !== "form" && role !== "region") || !!name;
+                };
+                const inlineTextRoles = new Set(["paragraph", "listitem", "group", "cell", "rowheader", "columnheader"]);
+                const namedRoles = new Set(["heading", "link", "button", "checkbox", "radio", "textbox", "combobox", "listbox", "slider", "img", "dialog", "iframe", "list", "main", "navigation", "banner", "contentinfo", "article", "form", "region", "table", "group", "option"]);
+                const textEquivalentNameRoles = new Set(["heading", "link", "button", "option"]);
+                const collapseTextEntries = (entries) => {
+                    if (!entries.length || entries.some((entry) => entry.kind !== "text")) {
+                        return null;
+                    }
+                    return normalize(entries.map((entry) => entry.text).join(" "));
+                };
+                const collectEntries = (element, remainingDepth) => {
+                    if (!element || element.nodeType !== Node.ELEMENT_NODE || !isVisible(element) || (remainingDepth != null && remainingDepth < 0)) {
+                        return [];
+                    }
+                    const role = roleFor(element);
+                    const name = role ? nameFor(element, role) : "";
+                    const includeSelf = shouldEmitElement(element, role, name);
+                    if (role === "iframe") {
+                        const ref = ensureRef(element);
+                        const attributes = stateTokens(element, role);
+                        attributes.push("ref=" + ref);
+                        nodes.push({ ref: ref, role: role, name: name });
+                        let children = [];
+                        if (remainingDepth == null || remainingDepth > 0) {
+                            try {
+                                const frameDocument = element.contentDocument;
+                                const frameRoot = frameDocument && (frameDocument.body || frameDocument.documentElement);
+                                if (frameRoot) {
+                                    children = collectEntries(frameRoot, remainingDepth == null ? null : remainingDepth - 1);
+                                }
+                            } catch (_) {}
+                        }
+                        return [{ kind: "element", role: role, name: name, attributes: attributes, inlineText: "", children: children }];
+                    }
+                    const childDepth = includeSelf && remainingDepth != null ? remainingDepth - 1 : remainingDepth;
+                    const allowChildTraversal = childDepth == null || childDepth >= 0;
+                    const textEntries = directTextEntries(element);
+                    const combinedChildren = [];
+                    let textIndex = 0;
+                    Array.from(element.childNodes).forEach((childNode) => {
+                        if (childNode.nodeType === Node.TEXT_NODE || (childNode.nodeType === Node.ELEMENT_NODE && String(childNode.tagName || "").toLowerCase() === "br")) {
+                            const nextText = textEntries[textIndex];
+                            if (nextText) {
+                                combinedChildren.push(nextText);
+                                textIndex++;
+                            }
+                            return;
+                        }
+                        if (childNode.nodeType === Node.ELEMENT_NODE && allowChildTraversal) {
+                            collectEntries(childNode, childDepth).forEach((entry) => {
+                                combinedChildren.push(entry);
+                            });
+                        }
+                    });
+                    if (!includeSelf) {
+                        if (combinedChildren.length) {
+                            return combinedChildren;
+                        }
+                        const text = inlineLeafText(element);
+                        return text ? [{ kind: "text", text: text }] : [];
+                    }
+                    const collapsedText = collapseTextEntries(combinedChildren);
+                    const attributes = stateTokens(element, role);
+                    if (needsRef(element, role)) {
+                        const ref = ensureRef(element);
+                        attributes.push("ref=" + ref);
+                        nodes.push({ ref: ref, role: role, name: name });
+                    }
+                    let inlineText = "";
+                    let children = combinedChildren;
+                    if (role === "textbox") {
+                        const value = normalize(element.value);
+                        if (value && value !== name) {
+                            inlineText = value;
+                            children = [];
+                        }
+                    } else if (inlineTextRoles.has(role)) {
+                        const textValue = collapsedText || (!allowChildTraversal ? inlineLeafText(element) : "");
+                        if (textValue) {
+                            inlineText = textValue;
+                            children = [];
+                        }
+                    } else if (textEquivalentNameRoles.has(role) && name && collapsedText) {
+                        children = [];
+                    } else if (collapsedText) {
+                        inlineText = collapsedText;
+                        children = [];
+                    }
+                    return [{ kind: "element", role: role, name: name, attributes: attributes, inlineText: inlineText, children: children }];
+                };
+                const renderEntry = (entry, indent, lines) => {
+                    const prefix = "  ".repeat(indent) + "- ";
+                    if (entry.kind === "text") {
+                        lines.push(prefix + "text: " + yamlScalar(entry.text));
+                        return;
+                    }
+                    let line = prefix + entry.role;
+                    if (entry.name && namedRoles.has(entry.role)) {
+                        line += " " + quotedName(entry.name);
+                    }
+                    entry.attributes.forEach((token) => {
+                        line += " [" + token + "]";
+                    });
+                    if (entry.inlineText) {
+                        line += ": " + yamlScalar(entry.inlineText);
+                    } else if (entry.children.length) {
+                        line += ":";
+                    }
                     lines.push(line);
-                    nodes.push({
-                        ref,
-                        role,
-                        name,
-                        value,
-                        active,
-                        lineText: line
-                    });
-                });
-
+                    entry.children.forEach((child) => renderEntry(child, indent + 1, lines));
+                };
+                const root = selector ? document.querySelector(selector) : (document.body || document.documentElement);
+                if (!root) {
+                    throw new Error(selector ? '"' + selector + '" does not match any elements.' : "No root element available.");
+                }
+                const entries = collectEntries(root, depthLimit);
+                const lines = [];
+                entries.forEach((entry) => renderEntry(entry, 0, lines));
                 return JSON.stringify({
                     ok: true,
-                    title,
-                    markdown: lines.join("\n"),
+                    yaml: lines.join("\n"),
                     nodes
                 });
             } catch (e) {
                 return JSON.stringify({
                     ok: false,
-                    title: "untitled",
-                    markdown: '- generic [active] [ref=e1]: Snapshot error: ' + String(e),
-                    nodes: [
-                        {
-                            ref: "e1",
-                            role: "generic",
-                            name: "Snapshot error",
-                            value: String(e),
-                            active: true,
-                            lineText: '- generic [active] [ref=e1]: Snapshot error: ' + String(e)
-                        }
-                    ],
-                    error: String(e)
+                    error: String(e && e.message ? e.message : e)
                 });
             }
         })();
         """.trimIndent()
     val json = runJsonScript(session.webView, script, "snapshot_capture_error")
-    val markdown = json?.optString("markdown").orEmpty().ifBlank { "- generic [active] [ref=e1]: Snapshot capture error" }
-    val title = json?.optString("title").orEmpty().ifBlank { session.pageTitle.ifBlank { "untitled" } }
+    if (json?.optBoolean("ok", false) != true) {
+        throw RuntimeException(json?.optString("error").orEmpty().ifBlank { "snapshot_capture_error" })
+    }
     val nodes = mutableMapOf<String, BrowserSnapshotNode>()
     val array = json?.optJSONArray("nodes") ?: JSONArray()
     for (index in 0 until array.length()) {
@@ -706,17 +1076,13 @@ internal fun StandardBrowserSessionTools.captureSnapshotModel(
             BrowserSnapshotNode(
                 ref = ref,
                 role = node.optString("role", "generic"),
-                name = node.optString("name"),
-                value = node.optString("value").takeIf { it.isNotBlank() },
-                isActive = node.optBoolean("active", false),
-                lineText = node.optString("lineText").ifBlank { ref }
+                name = node.optString("name")
             )
     }
     return BrowserSnapshot(
         sessionId = session.id,
         generation = nextSnapshotGeneration(),
-        title = title,
-        markdown = markdown.trim(),
+        yaml = json.optString("yaml").trim(),
         nodesByRef = nodes
     )
 }
@@ -737,3 +1103,45 @@ internal fun StandardBrowserSessionTools.locatorExpressionForRef(
         else -> "page.getByRole(${quoteJsCode(role)})"
     }
 }
+
+internal fun formatBrowserFileLink(title: String, path: String): String =
+    "- [$title](${path.replace('\\', '/')})"
+
+internal fun browserRefResolverScript(functionName: String = "__operitResolveRef"): String =
+    """
+    const $functionName = (refValue) => {
+        const wantedRef = String(refValue || "");
+        const queue = [window];
+        const visited = new Set();
+        while (queue.length) {
+            const currentWindow = queue.shift();
+            if (!currentWindow || visited.has(currentWindow)) {
+                continue;
+            }
+            visited.add(currentWindow);
+            let currentDocument;
+            try {
+                currentDocument = currentWindow.document;
+            } catch (_) {
+                continue;
+            }
+            if (!currentDocument) {
+                continue;
+            }
+            const target = Array.from(currentDocument.querySelectorAll("[aria-ref]")).find((element) => {
+                return String(element.getAttribute("aria-ref") || "") === wantedRef;
+            });
+            if (target) {
+                return { element: target, window: currentWindow };
+            }
+            Array.from(currentDocument.querySelectorAll("iframe, frame")).forEach((frameElement) => {
+                try {
+                    if (frameElement.contentWindow && !visited.has(frameElement.contentWindow)) {
+                        queue.push(frameElement.contentWindow);
+                    }
+                } catch (_) {}
+            });
+        }
+        return null;
+    };
+    """.trimIndent()
