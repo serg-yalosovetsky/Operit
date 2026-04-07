@@ -70,6 +70,7 @@ class MessageProcessingDelegate(
     companion object {
         private const val TAG = "MessageProcessingDelegate"
         private const val STREAM_SCROLL_THROTTLE_MS = 200L
+        private const val STREAM_PERSIST_INTERVAL_MS = 1000L
     }
 
     // 角色卡管理器
@@ -158,9 +159,20 @@ class MessageProcessingDelegate(
         _isLoading.value = anyLoading
     }
 
+    private fun isTerminalInputState(state: EnhancedInputProcessingState): Boolean {
+        return state is EnhancedInputProcessingState.Idle ||
+            state is EnhancedInputProcessingState.Completed
+    }
+
     private fun setChatInputProcessingState(chatId: String?, state: EnhancedInputProcessingState) {
+        if (chatId != null &&
+            runtimeFor(chatId).isLoading.value &&
+            isTerminalInputState(state)
+        ) {
+            return
+        }
         if (chatId != null && suppressIdleCompletedStateByChatId.containsKey(chatId)) {
-            if (state is EnhancedInputProcessingState.Idle || state is EnhancedInputProcessingState.Completed) {
+            if (isTerminalInputState(state)) {
                 return
             }
         }
@@ -527,6 +539,7 @@ class MessageProcessingDelegate(
             val activeChatId = chatId
             var serviceForTurnComplete: EnhancedAIService? = null
             var shouldNotifyTurnComplete = false
+            var finalInputStateAfterSend: EnhancedInputProcessingState? = null
             var isWaifuModeEnabled = false
             var didStreamAutoRead = false
             val effectiveRoleCardId = roleCardId
@@ -753,6 +766,7 @@ class MessageProcessingDelegate(
                     coroutineScope.launch(Dispatchers.IO) {
                         try {
                             var hasLoggedFirstChunk = false
+                            var lastStreamingPersistAt = 0L
                             val revisionTracker = TextStreamRevisionTracker()
                             val revisionMutex = Mutex()
                             val autoReadBuffer = StringBuilder()
@@ -795,6 +809,20 @@ class MessageProcessingDelegate(
                                 }
                             }
 
+                            suspend fun persistStreamingSnapshot(
+                                contentSnapshot: String,
+                                force: Boolean = false
+                            ) {
+                                if (isWaifuModeEnabled || chatId == null) return
+                                val now = messageTimingNow()
+                                if (!force && now - lastStreamingPersistAt < STREAM_PERSIST_INTERVAL_MS) {
+                                    return
+                                }
+
+                                addMessageToChat(chatId, aiMessage.copy(content = contentSnapshot))
+                                lastStreamingPersistAt = now
+                            }
+
                             val autoReadJob = launch {
                                 autoReadStream.collect { char ->
                                     autoReadBuffer.append(char)
@@ -822,12 +850,7 @@ class MessageProcessingDelegate(
                                                     aiMessage.content = snapshot
 
                                                     if (!isWaifuModeEnabled) {
-                                                        if (chatId != null) {
-                                                            addMessageToChat(
-                                                                chatId,
-                                                                aiMessage.copy(content = snapshot)
-                                                            )
-                                                        }
+                                                        persistStreamingSnapshot(snapshot)
                                                         tryEmitScrollToBottomThrottled(chatId)
                                                     }
                                                 }
@@ -849,15 +872,12 @@ class MessageProcessingDelegate(
                                     revisionMutex.withLock {
                                         revisionTracker.append(chunk)
                                     }
-                                val updatedMessage = aiMessage.copy(content = content)
                                 // 防止后续读取不到
                                 aiMessage.content = content
                                 
-                                // 只有在非waifu模式下才显示流式更新
+                                // 流式内容由 contentStream 实时渲染，这里仅按固定间隔同步快照，避免碎片 chunk 导致高频持久化。
+                                persistStreamingSnapshot(content)
                                 if (!isWaifuModeEnabled) {
-                                    if (chatId != null) {
-                                        addMessageToChat(chatId, updatedMessage)
-                                    }
                                     tryEmitScrollToBottomThrottled(chatId)
                                 }
                             }
@@ -892,16 +912,16 @@ class MessageProcessingDelegate(
                 val stateAfterStream =
                     _inputProcessingStateByChatId.value[chatKey(chatId)]
                 if (stateAfterStream !is EnhancedInputProcessingState.Error) {
-                    setChatInputProcessingState(chatId, EnhancedInputProcessingState.Completed)
                     shouldNotifyTurnComplete = true
+                    finalInputStateAfterSend = EnhancedInputProcessingState.Completed
                 }
 
                 if (pendingAsyncSummaryUiByChatId.containsKey(chatId)) {
                     setSuppressIdleCompletedStateForChat(chatId, true)
-                    setChatInputProcessingState(
-                        chatId,
-                        EnhancedInputProcessingState.Summarizing(context.getString(R.string.message_summarizing))
-                    )
+                    finalInputStateAfterSend =
+                        EnhancedInputProcessingState.Summarizing(
+                            context.getString(R.string.message_summarizing)
+                        )
                 }
 
                 logMessageTiming(
@@ -912,7 +932,7 @@ class MessageProcessingDelegate(
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) {
                     AppLogger.d(TAG, "消息发送被取消")
-                    setChatInputProcessingState(chatId, EnhancedInputProcessingState.Idle)
+                    finalInputStateAfterSend = EnhancedInputProcessingState.Idle
                     shouldNotifyTurnComplete = false
                     throw e
                 }
@@ -962,6 +982,12 @@ class MessageProcessingDelegate(
                     startTimeMs = cleanupRuntimeStartTime,
                     details = "chatId=$activeChatId"
                 )
+
+                if (!deferTurnCompleteToAsyncJob) {
+                    finalInputStateAfterSend?.let { terminalState ->
+                        setChatInputProcessingState(chatId, terminalState)
+                    }
+                }
 
                 if (shouldNotifyTurnComplete && !deferTurnCompleteToAsyncJob) {
                     val service = serviceForTurnComplete
@@ -1106,6 +1132,21 @@ class MessageProcessingDelegate(
                         }
 
                         AppLogger.d(TAG, "Waifu独立消息创建完成")
+
+                        val terminalState =
+                            if (chatId != null && pendingAsyncSummaryUiByChatId.containsKey(chatId)) {
+                                setSuppressIdleCompletedStateForChat(chatId, true)
+                                EnhancedInputProcessingState.Summarizing(
+                                    context.getString(R.string.message_summarizing)
+                                )
+                            } else if (shouldNotifyTurnComplete) {
+                                EnhancedInputProcessingState.Completed
+                            } else {
+                                null
+                            }
+                        terminalState?.let {
+                            setChatInputProcessingState(chatId, it)
+                        }
 
                         if (shouldNotifyTurnComplete) {
                             val service = serviceForTurnComplete
