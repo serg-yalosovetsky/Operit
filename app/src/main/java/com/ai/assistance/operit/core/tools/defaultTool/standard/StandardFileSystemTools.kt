@@ -4233,6 +4233,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                             result =
                                 FileOperationData(
                                     operation = "create",
+                                    env = environment.orEmpty().trim().ifBlank { "android" },
                                     path = path,
                                     successful = false,
                                     details = "Parameter 'new' is required for type=create"
@@ -4272,6 +4273,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                                     operation =
                                         FileOperationData(
                                             operation = "create",
+                                            env = environment.orEmpty().trim().ifBlank { "android" },
                                             path = path,
                                             successful = true,
                                             details = "Successfully created new file: $path"
@@ -4290,6 +4292,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                             result =
                                 FileOperationData(
                                     operation = "create",
+                                    env = environment.orEmpty().trim().ifBlank { "android" },
                                     path = path,
                                     successful = false,
                                     details = "Failed to create new file: ${writeResult.error}"
@@ -4311,6 +4314,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                         result =
                             FileOperationData(
                                 operation = "apply",
+                                env = environment.orEmpty().trim().ifBlank { "android" },
                                 path = path,
                                 successful = false,
                                 details = errorMsg
@@ -4340,6 +4344,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                         result =
                         FileOperationData(
                             operation = "apply",
+                            env = environment.orEmpty().trim().ifBlank { "android" },
                             path = path,
                             successful = false,
                             details =
@@ -4366,6 +4371,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                                     result =
                                         FileOperationData(
                                             operation = "apply",
+                                            env = environment.orEmpty().trim().ifBlank { "android" },
                                             path = path,
                                             successful = false,
                                             details = "Both 'old' and 'new' are required for type=replace"
@@ -4393,6 +4399,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                                     result =
                                         FileOperationData(
                                             operation = "apply",
+                                            env = environment.orEmpty().trim().ifBlank { "android" },
                                             path = path,
                                             successful = false,
                                             details = "Parameter 'old' is required for type=delete"
@@ -4417,6 +4424,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                                 result =
                                     FileOperationData(
                                         operation = "apply",
+                                        env = environment.orEmpty().trim().ifBlank { "android" },
                                         path = path,
                                         successful = false,
                                         details = "Unsupported type: $operationType (expected replace | delete | create)"
@@ -4452,6 +4460,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                         result =
                         FileOperationData(
                             operation = "apply",
+                            env = environment.orEmpty().trim().ifBlank { "android" },
                             path = path,
                             successful = false,
                             details = "File binding failed: $aiInstructions"
@@ -4485,6 +4494,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                         result =
                         FileOperationData(
                             operation = "apply",
+                            env = environment.orEmpty().trim().ifBlank { "android" },
                             path = path,
                             successful = false,
                             details =
@@ -4499,6 +4509,7 @@ open class StandardFileSystemTools(protected val context: Context) {
             val operationData =
                 FileOperationData(
                     operation = "apply",
+                    env = environment.orEmpty().trim().ifBlank { "android" },
                     path = path,
                     successful = true,
                     details = "Successfully applied AI code to file: $path"
@@ -4539,6 +4550,7 @@ open class StandardFileSystemTools(protected val context: Context) {
                     result =
                     FileOperationData(
                         operation = "apply",
+                        env = tool.parameters.find { it.name == "environment" }?.value.orEmpty().trim().ifBlank { "android" },
                         path = path,
                         successful = false,
                         details = "Error applying file binding: ${e.message}"

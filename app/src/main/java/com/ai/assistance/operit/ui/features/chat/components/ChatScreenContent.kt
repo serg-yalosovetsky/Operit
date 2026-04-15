@@ -114,9 +114,11 @@ fun ChatScreenContent(
         chatHeaderHistoryIconColor: Int?,
           chatHeaderPipIconColor: Int?,
           chatHeaderOverlayMode: Boolean,
-          chatStyle: ChatStyle, // Add chatStyle parameter
+        chatStyle: ChatStyle, // Add chatStyle parameter
         cursorUserBubbleLiquidGlass: Boolean = false,
         cursorUserBubbleWaterGlass: Boolean = false,
+        bubbleUserBubbleLiquidGlass: Boolean = false,
+        bubbleUserBubbleWaterGlass: Boolean = false,
         historyListState: LazyListState,
         showCharacterSelector: Boolean,
         onShowCharacterSelectorChange: (Boolean) -> Unit,
@@ -234,6 +236,8 @@ fun ChatScreenContent(
                         chatStyle = chatStyle, // Pass chat style
                         cursorUserBubbleLiquidGlass = cursorUserBubbleLiquidGlass,
                         cursorUserBubbleWaterGlass = cursorUserBubbleWaterGlass,
+                        bubbleUserBubbleLiquidGlass = bubbleUserBubbleLiquidGlass,
+                        bubbleUserBubbleWaterGlass = bubbleUserBubbleWaterGlass,
                         isMultiSelectMode = isMultiSelectMode,
                         selectedMessageIndices = selectedMessageIndices,
                         onToggleMultiSelectMode = { initialIndex ->
@@ -320,6 +324,8 @@ fun ChatScreenContent(
                         chatStyle = chatStyle, // Pass chat style
                         cursorUserBubbleLiquidGlass = cursorUserBubbleLiquidGlass,
                         cursorUserBubbleWaterGlass = cursorUserBubbleWaterGlass,
+                        bubbleUserBubbleLiquidGlass = bubbleUserBubbleLiquidGlass,
+                        bubbleUserBubbleWaterGlass = bubbleUserBubbleWaterGlass,
                         isMultiSelectMode = isMultiSelectMode,
                         selectedMessageIndices = selectedMessageIndices,
                         horizontalPadding = chatAreaHorizontalPadding.dp,

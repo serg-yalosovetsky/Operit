@@ -169,6 +169,7 @@ private fun resolveNestedInlineText(node: MarkdownNodeStable): String {
     return when (node.type) {
         MarkdownProcessorType.LINK -> extractLinkText(node.content)
         MarkdownProcessorType.UNDERLINE -> stripUnderlineDelimiters(node.content)
+        MarkdownProcessorType.HTML_BREAK -> "\n"
         else -> node.content
     }
 }
@@ -320,6 +321,10 @@ private fun appendInlineNode(
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
+        }
+
+        MarkdownProcessorType.HTML_BREAK -> {
+            builder.append('\n')
         }
 
         else -> {

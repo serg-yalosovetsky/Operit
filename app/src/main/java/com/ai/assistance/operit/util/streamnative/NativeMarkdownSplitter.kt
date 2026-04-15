@@ -21,10 +21,16 @@ private fun IntArray.toInlineStableNodes(content: String): List<MarkdownNodeStab
         }
 
         val type = typeOrdinal.toMarkdownTypeOrNull() ?: MarkdownProcessorType.PLAIN_TEXT
+        val nodeContent =
+            if (type == MarkdownProcessorType.HTML_BREAK) {
+                "\n"
+            } else {
+                content.substring(start, end)
+            }
         nodes +=
             MarkdownNodeStable(
                 type = type,
-                content = content.substring(start, end),
+                content = nodeContent,
                 children = emptyList()
             )
     }

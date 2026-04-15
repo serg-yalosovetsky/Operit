@@ -273,6 +273,7 @@ internal fun StandardBrowserSessionTools.configureWebView(
                 session.pageTitle = view.title ?: ""
                 session.pageLoaded = true
                 session.isLoading = false
+                applyViewportOverride(session)
                 refreshNavigationStateFromWebView(view, session)
                 injectDownloadHelper(view)
                 ioScope.launch {
@@ -718,6 +719,7 @@ internal fun StandardBrowserSessionTools.syncProjectedBrowserStateOnMain() {
     val activeSession = resolvedActiveId?.let(::sessionById)
     StandardBrowserSessionTools.activeSessionId = resolvedActiveId
     StandardBrowserSessionTools.browserHost?.attachActiveWebView(activeSession?.webView)
+    activeSession?.let(::applyViewportOverride)
     userscriptManager.updateVisibleSession(
         sessionId = resolvedActiveId,
         pageUrl = activeSession?.currentUrl
@@ -871,7 +873,45 @@ internal fun StandardBrowserSessionTools.applySessionUserAgent(
     with(session.webView.settings) {
         userAgentString = userAgent
         useWideViewPort = StandardBrowserSessionTools.desktopModeEnabled
-        loadWithOverviewMode = StandardBrowserSessionTools.desktopModeEnabled
+        loadWithOverviewMode =
+            StandardBrowserSessionTools.desktopModeEnabled && session.viewportWidthPx == null
+    }
+}
+
+internal fun StandardBrowserSessionTools.applyViewportOverride(session: BrowserToolSession) {
+    val requestedWidth = session.viewportWidthPx
+    val requestedHeight = session.viewportHeightPx
+    val browserAreaWidth =
+        StandardBrowserSessionTools.browserHost?.currentBrowserAreaSize()?.first
+            ?.takeIf { it > 0 }
+            ?: session.webView.width.takeIf { it > 0 }
+            ?: context.resources.displayMetrics.widthPixels
+
+    session.webView.settings.loadWithOverviewMode =
+        StandardBrowserSessionTools.desktopModeEnabled && requestedWidth == null
+
+    val desiredScaleFactor =
+        if (requestedWidth == null || requestedHeight == null || browserAreaWidth <= 0) {
+            1f
+        } else {
+            (browserAreaWidth.toFloat() / requestedWidth.toFloat()).coerceIn(0.25f, 5f)
+        }
+
+    val currentScaleFactor = session.appliedViewportScaleFactor.takeIf { it > 0f } ?: 1f
+    val relativeScaleFactor = (desiredScaleFactor / currentScaleFactor).coerceIn(0.25f, 5f)
+
+    session.webView.post {
+        runCatching {
+            if (relativeScaleFactor != 1f) {
+                session.webView.zoomBy(relativeScaleFactor)
+            }
+            session.appliedViewportScaleFactor = desiredScaleFactor
+        }.onFailure {
+            AppLogger.w(
+                WEBVIEW_SUPPORT_TAG,
+                "Failed to apply viewport override for session=${session.id}: ${it.message}"
+            )
+        }
     }
 }
 

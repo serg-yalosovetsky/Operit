@@ -101,7 +101,10 @@ internal data class WebSessionBrowserHostState(
     val externalOpenPrompt: ExternalOpenPromptState? = null,
     val downloadUiState: BrowserDownloadUiState = BrowserDownloadUiState(),
     val viewportWidthPx: Int? = null,
-    val viewportHeightPx: Int? = null
+    val viewportHeightPx: Int? = null,
+    val chromeHeightPx: Int = 0,
+    val browserAreaWidthPx: Int = 0,
+    val browserAreaHeightPx: Int = 0
 )
 
 @Serializable

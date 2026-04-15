@@ -758,7 +758,7 @@
     <string name="theme_chat_input_liquid_glass">磨砂玻璃输入框</string>
     <string name="theme_chat_input_liquid_glass_desc">开启后，透明输入框会显示 iOS 风格磨砂玻璃效果</string>
     <string name="theme_chat_input_water_glass">水玻璃输入框</string>
-    <string name="theme_chat_input_water_glass_desc">开启后，透明输入框会显示水玻璃效果，并与磨砂玻璃互斥</string>
+    <string name="theme_chat_input_water_glass_desc">开启后，透明输入框会显示水玻璃效果</string>
     
     <!-- Floating Window -->
     <string name="floating_chat_window">聊天悬浮窗</string>
@@ -3057,6 +3057,17 @@
     <string name="workspace_click_buttons_below">点击下方按钮执行命令</string>
     <string name="workspace_no_commands_configured">暂无配置命令\n\n可以在 .operit/config.json 中添加命令按钮配置</string>
     <string name="workspace_path_label">工作区路径</string>
+    <string name="workspace_rename_action">重命名工作区</string>
+    <string name="workspace_rename_title">重命名工作区</string>
+    <string name="workspace_rename_hint">会同步修改当前聊天标题和工作区文件夹名称，新名称在应用工作区内必须唯一。</string>
+    <string name="workspace_rename_name_empty">名称不能为空</string>
+    <string name="workspace_rename_name_invalid">名称不能包含 / 或 \\，也不能是 . 或 ..</string>
+    <string name="workspace_rename_name_exists">该工作区名称已存在，请换一个</string>
+    <string name="workspace_rename_only_managed_supported">当前只支持重命名应用内部创建的工作区</string>
+    <string name="workspace_rename_chat_missing">当前聊天不存在，无法重命名工作区</string>
+    <string name="workspace_rename_failed">重命名工作区失败</string>
+    <string name="workspace_rename_success">工作区已重命名为 %1$s</string>
+    <string name="workspace_rename_save_first">请先保存当前已修改的文件，再重命名工作区</string>
 
     <!-- Workspace Commands (命令标签) -->
     <string name="workspace_preview_button_label_browser">浏览器预览</string>
@@ -3506,7 +3517,11 @@
     <string name="chat_style_cursor_user_bubble_liquid_glass">命令式用户消息磨砂玻璃背景</string>
     <string name="chat_style_cursor_user_bubble_liquid_glass_desc">开启后，命令式用户消息背景会显示 iOS 风格磨砂玻璃效果</string>
     <string name="chat_style_cursor_user_bubble_water_glass">命令式用户消息水玻璃背景</string>
-    <string name="chat_style_cursor_user_bubble_water_glass_desc">开启后，命令式用户消息背景会显示水玻璃效果，并与磨砂玻璃互斥</string>
+    <string name="chat_style_cursor_user_bubble_water_glass_desc">开启后，命令式用户消息背景会显示水玻璃效果</string>
+    <string name="chat_style_bubble_user_bubble_liquid_glass">气泡式用户消息磨砂玻璃背景</string>
+    <string name="chat_style_bubble_user_bubble_liquid_glass_desc">开启后，气泡式用户消息背景会显示 iOS 风格磨砂玻璃效果</string>
+    <string name="chat_style_bubble_user_bubble_water_glass">气泡式用户消息水玻璃背景</string>
+    <string name="chat_style_bubble_user_bubble_water_glass_desc">开启后，气泡式用户消息背景会显示水玻璃效果</string>
     <string name="chat_style_cursor_user_bubble_color">命令式用户消息框</string>
     <string name="chat_style_bubble_color_title">对话式气泡颜色</string>
     <string name="chat_style_bubble_user_color">用户气泡</string>

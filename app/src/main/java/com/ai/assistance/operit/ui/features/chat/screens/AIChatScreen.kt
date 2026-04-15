@@ -196,6 +196,12 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
     val cursorUserBubbleWaterGlass by
         preferencesManager.cursorUserBubbleWaterGlass.collectAsState(initial = false)
     val cursorUserBubbleLiquidGlass = cursorUserBubbleLiquidGlassRaw && !cursorUserBubbleWaterGlass
+    val bubbleUserBubbleLiquidGlassRaw by
+        preferencesManager.bubbleUserBubbleLiquidGlass.collectAsState(initial = false)
+    val bubbleUserBubbleWaterGlass by
+        preferencesManager.bubbleUserBubbleWaterGlass.collectAsState(initial = false)
+    val bubbleUserBubbleLiquidGlass =
+        bubbleUserBubbleLiquidGlassRaw && !bubbleUserBubbleWaterGlass
     val cursorUserBubbleColorValue by
         preferencesManager.cursorUserBubbleColor.collectAsState(initial = null)
     val bubbleUserBubbleColorValue by
@@ -551,6 +557,8 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
     val bubbleUserImageStyle =
         remember(
             chatStyle,
+            bubbleUserBubbleLiquidGlass,
+            bubbleUserBubbleWaterGlass,
             bubbleUserUseImage,
             bubbleUserImageUri,
             bubbleUserImageCropLeft,
@@ -567,6 +575,8 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
             val imageUri = bubbleUserImageUri
             if (
                 chatStyle == ChatStyle.BUBBLE &&
+                    !bubbleUserBubbleLiquidGlass &&
+                    !bubbleUserBubbleWaterGlass &&
                     bubbleUserUseImage &&
                     !imageUri.isNullOrBlank()
             ) {
@@ -958,6 +968,8 @@ val actualViewModel: ChatViewModel = viewModel ?: viewModel { ChatViewModel(cont
                                 chatStyle = chatStyle, // Pass chat style
                                 cursorUserBubbleLiquidGlass = cursorUserBubbleLiquidGlass,
                                 cursorUserBubbleWaterGlass = cursorUserBubbleWaterGlass,
+                                bubbleUserBubbleLiquidGlass = bubbleUserBubbleLiquidGlass,
+                                bubbleUserBubbleWaterGlass = bubbleUserBubbleWaterGlass,
                                 historyListState = historyListState,
                                 showCharacterSelector = showCharacterSelector,
                                 onShowCharacterSelectorChange = { showCharacterSelector = it },

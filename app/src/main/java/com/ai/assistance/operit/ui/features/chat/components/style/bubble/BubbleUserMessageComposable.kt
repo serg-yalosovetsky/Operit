@@ -57,7 +57,11 @@ import com.ai.assistance.operit.util.ImageBitmapLimiter
 import com.ai.assistance.operit.util.ImagePoolManager
 import com.ai.assistance.operit.util.ChatMarkupRegex
 import com.ai.assistance.operit.ui.theme.applyFontFamilyToTypography
+import com.ai.assistance.operit.ui.theme.isLiquidGlassSupported
+import com.ai.assistance.operit.ui.theme.isWaterGlassSupported
+import com.ai.assistance.operit.ui.theme.liquidGlass
 import com.ai.assistance.operit.ui.theme.resolveConfiguredFontFamily
+import com.ai.assistance.operit.ui.theme.waterGlass
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,6 +75,8 @@ fun BubbleUserMessageComposable(
     message: ChatMessage,
     backgroundColor: Color,
     textColor: Color,
+    enableLiquidGlass: Boolean = false,
+    enableWaterGlass: Boolean = false,
     bubbleImageStyle: BubbleImageStyleConfig? = null,
     bubbleRoundedCornersEnabled: Boolean = true,
     bubbleContentPaddingLeft: Float = 12f,
@@ -180,6 +186,15 @@ fun BubbleUserMessageComposable(
                         customFontPath = bubbleUserCustomFontPath,
                     ),
             )
+        }
+    val waterGlassEnabled = enableWaterGlass && isWaterGlassSupported()
+    val liquidGlassEnabled =
+        !waterGlassEnabled && enableLiquidGlass && isLiquidGlassSupported()
+    val effectiveBubbleImageStyle =
+        if (liquidGlassEnabled || waterGlassEnabled) {
+            null
+        } else {
+            bubbleImageStyle
         }
 
     MaterialTheme(typography = bubbleTypography) {
@@ -382,9 +397,9 @@ fun BubbleUserMessageComposable(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    if (bubbleImageStyle != null) {
+                    if (effectiveBubbleImageStyle != null) {
                         BubbleImageBackgroundSurface(
-                            imageStyle = bubbleImageStyle,
+                            imageStyle = effectiveBubbleImageStyle,
                             shape = bubbleShape,
                             modifier = bubbleModifier,
                             contentPadding =
@@ -403,10 +418,39 @@ fun BubbleUserMessageComposable(
                         }
                     } else {
                         Surface(
-                            modifier = bubbleModifier,
+                            modifier =
+                                bubbleModifier
+                                    .waterGlass(
+                                        enabled = waterGlassEnabled,
+                                        shape = bubbleShape,
+                                        containerColor = backgroundColor,
+                                        shadowElevation = 10.dp,
+                                        borderWidth = 0.7.dp,
+                                        overlayAlphaBoost = 0.08f,
+                                    )
+                                    .liquidGlass(
+                                        enabled = liquidGlassEnabled,
+                                        shape = bubbleShape,
+                                        containerColor = backgroundColor,
+                                        shadowElevation = 10.dp,
+                                        borderWidth = 0.28.dp,
+                                        blurRadius = 28.dp,
+                                        overlayAlphaBoost = 0.10f,
+                                        enableLens = false,
+                                    ),
                             shape = bubbleShape,
-                            color = backgroundColor,
-                            tonalElevation = 2.dp,
+                            color =
+                                if (liquidGlassEnabled || waterGlassEnabled) {
+                                    Color.Transparent
+                                } else {
+                                    backgroundColor
+                                },
+                            tonalElevation =
+                                if (liquidGlassEnabled || waterGlassEnabled) {
+                                    0.dp
+                                } else {
+                                    2.dp
+                                },
                         ) {
                             Text(
                                 text = textContent,
@@ -470,9 +514,9 @@ fun BubbleUserMessageComposable(
                             .widthIn(max = maxBubbleWidth)
                             .defaultMinSize(minHeight = 44.dp)
 
-                    if (bubbleImageStyle != null) {
+                    if (effectiveBubbleImageStyle != null) {
                         BubbleImageBackgroundSurface(
-                            imageStyle = bubbleImageStyle,
+                            imageStyle = effectiveBubbleImageStyle,
                             shape = bubbleShape,
                             modifier = bubbleModifier,
                             contentPadding =
@@ -491,10 +535,39 @@ fun BubbleUserMessageComposable(
                         }
                     } else {
                         Surface(
-                            modifier = bubbleModifier,
+                            modifier =
+                                bubbleModifier
+                                    .waterGlass(
+                                        enabled = waterGlassEnabled,
+                                        shape = bubbleShape,
+                                        containerColor = backgroundColor,
+                                        shadowElevation = 10.dp,
+                                        borderWidth = 0.7.dp,
+                                        overlayAlphaBoost = 0.08f,
+                                    )
+                                    .liquidGlass(
+                                        enabled = liquidGlassEnabled,
+                                        shape = bubbleShape,
+                                        containerColor = backgroundColor,
+                                        shadowElevation = 10.dp,
+                                        borderWidth = 0.28.dp,
+                                        blurRadius = 28.dp,
+                                        overlayAlphaBoost = 0.10f,
+                                        enableLens = false,
+                                    ),
                             shape = bubbleShape,
-                            color = backgroundColor,
-                            tonalElevation = 2.dp
+                            color =
+                                if (liquidGlassEnabled || waterGlassEnabled) {
+                                    Color.Transparent
+                                } else {
+                                    backgroundColor
+                                },
+                            tonalElevation =
+                                if (liquidGlassEnabled || waterGlassEnabled) {
+                                    0.dp
+                                } else {
+                                    2.dp
+                                }
                         ) {
                             Text(
                                 text = textContent,

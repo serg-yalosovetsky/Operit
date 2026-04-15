@@ -30,6 +30,8 @@ constexpr int MD_STRIKETHROUGH = 14;
 constexpr int MD_UNDERLINE = 15;
 constexpr int MD_INLINE_LATEX = 16;
 constexpr int MD_PLAIN_TEXT = 17;
+// Dedicated HTML break classification, matched before XML handling.
+constexpr int MD_HTML_BREAK = 18;
 
 // Segment type used only as a boundary marker between groups.
 // Kotlin side must treat this as "close current group" and not map it to MarkdownProcessorType.
@@ -66,6 +68,61 @@ inline void flushRun(std::vector<Segment>& out, int& runTag, int& runStart, int&
 inline void emitBreak(std::vector<Segment>& out, int pos, int& runTag, int& runStart, int& runEnd) {
     flushRun(out, runTag, runStart, runEnd);
     out.push_back({SEG_BREAK, pos, pos});
+}
+
+inline char16_t toAsciiLower(char16_t c) {
+    if (c >= u'A' && c <= u'Z') {
+        return static_cast<char16_t>(c - u'A' + u'a');
+    }
+    return c;
+}
+
+template <size_t N>
+bool matchesCaseInsensitivePrefix(
+        const std::vector<char16_t>& buffer,
+        const char16_t (&pattern)[N]) {
+    const size_t patternLen = N - 1;
+    if (buffer.size() > patternLen) {
+        return false;
+    }
+
+    for (size_t i = 0; i < buffer.size(); i++) {
+        if (toAsciiLower(buffer[i]) != toAsciiLower(pattern[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template <size_t N>
+bool matchesCaseInsensitiveFull(
+        const std::vector<char16_t>& buffer,
+        const char16_t (&pattern)[N]) {
+    const size_t patternLen = N - 1;
+    if (buffer.size() != patternLen) {
+        return false;
+    }
+
+    for (size_t i = 0; i < patternLen; i++) {
+        if (toAsciiLower(buffer[i]) != toAsciiLower(pattern[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+inline bool isHtmlBreakPrefix(const std::vector<char16_t>& buffer) {
+    return matchesCaseInsensitivePrefix(buffer, u"<br>") ||
+           matchesCaseInsensitivePrefix(buffer, u"<br/>") ||
+           matchesCaseInsensitivePrefix(buffer, u"<br />") ||
+           matchesCaseInsensitivePrefix(buffer, u"<br >");
+}
+
+inline bool isHtmlBreakFullMatch(const std::vector<char16_t>& buffer) {
+    return matchesCaseInsensitiveFull(buffer, u"<br>") ||
+           matchesCaseInsensitiveFull(buffer, u"<br/>") ||
+           matchesCaseInsensitiveFull(buffer, u"<br />") ||
+           matchesCaseInsensitiveFull(buffer, u"<br >");
 }
 
 } // namespace
@@ -185,6 +242,19 @@ public:
                 }
             }
 
+            if (isHtmlBreakFullMatch(evaluationBuffer_)) {
+                for (int bi = 0; bi < static_cast<int>(evaluationBuffer_.size()); bi++) {
+                    emitIndex(out, MD_HTML_BREAK, evalStartGlobal_ + bi, runTag, runStart, runEnd);
+                }
+                evaluationBuffer_.clear();
+                evaluationEmitMask_.clear();
+                evalStartGlobal_ = -1;
+                for (auto& e : plugins_) {
+                    e.plugin->reset();
+                }
+                return;
+            }
+
             if (successful != -1) {
                 // Flush buffered as plugin group
                 activeIndex_ = successful;
@@ -212,6 +282,10 @@ public:
                     }
                 }
 
+                return;
+            }
+
+            if (isHtmlBreakPrefix(evaluationBuffer_)) {
                 return;
             }
 

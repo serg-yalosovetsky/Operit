@@ -498,6 +498,17 @@ private fun renderNodeContent(
                 isLastNode = isLastNode
             )
         }
+
+        MarkdownProcessorType.HTML_BREAK -> {
+            SingleTextCanvas(
+                text = "\n",
+                textColor = textColor,
+                fontSize = fontSizes.bodyMedium,
+                fontWeight = FontWeight.Normal,
+                density = density,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         
         // ========== 代码块：保留原组件 ==========
         MarkdownProcessorType.CODE_BLOCK -> {

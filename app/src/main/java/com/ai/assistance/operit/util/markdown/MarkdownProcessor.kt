@@ -44,7 +44,8 @@ enum class MarkdownProcessorType {
     INLINE_LATEX, // LaTeX行内公式
 
     // 纯文本
-    PLAIN_TEXT
+    PLAIN_TEXT,
+    HTML_BREAK
 }
 
 /** 

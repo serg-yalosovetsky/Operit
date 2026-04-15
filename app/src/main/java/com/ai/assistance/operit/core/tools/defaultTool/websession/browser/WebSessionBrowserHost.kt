@@ -134,7 +134,7 @@ internal class WebSessionBrowserHost(
                             userscriptUiState = userscriptUiState,
                             webViewHost = webViewHost,
                             onHostStateChange = { transform ->
-                                hostState = transform(hostState)
+                                updateHostState(transform)
                             },
                             onNavigate = callbacks::onNavigate,
                             onBack = callbacks::onBack,
@@ -242,15 +242,16 @@ internal class WebSessionBrowserHost(
     fun isExpanded(): Boolean = isExpanded
 
     fun setViewportSize(width: Int, height: Int) {
-        hostState =
-            hostState.copy(
+        updateHostState {
+            it.copy(
                 viewportWidthPx = width.coerceAtLeast(dp(240)),
                 viewportHeightPx = height.coerceAtLeast(dp(320))
             )
+        }
     }
 
     fun clearViewportSizeOverride() {
-        hostState = hostState.copy(viewportWidthPx = null, viewportHeightPx = null)
+        updateHostState { it.copy(viewportWidthPx = null, viewportHeightPx = null) }
     }
 
     fun currentViewportSize(): Pair<Int, Int> {
@@ -259,6 +260,9 @@ internal class WebSessionBrowserHost(
         val height = hostState.viewportHeightPx ?: metrics.heightPixels
         return width to height
     }
+
+    fun currentBrowserAreaSize(): Pair<Int, Int> =
+        hostState.browserAreaWidthPx.coerceAtLeast(0) to hostState.browserAreaHeightPx.coerceAtLeast(0)
 
     fun setExpanded(expanded: Boolean) {
         val params = overlayParams ?: return
@@ -332,7 +336,26 @@ internal class WebSessionBrowserHost(
     }
 
     fun showSheet(route: WebSessionBrowserSheetRoute) {
-        hostState = hostState.copy(sheetRoute = route)
+        updateHostState { it.copy(sheetRoute = route) }
+    }
+
+    private fun updateHostState(transform: (WebSessionBrowserHostState) -> WebSessionBrowserHostState) {
+        val updated = transform(hostState)
+        if (updated == hostState) {
+            return
+        }
+        hostState = updated
+        if (isExpanded) {
+            rootView?.let { root ->
+                overlayParams?.let { params ->
+                    applyExpandedLayoutParams(params)
+                    overlayParams = params
+                    if (root.windowToken != null) {
+                        windowManager.updateViewLayout(root, params)
+                    }
+                }
+            }
+        }
     }
 
     fun syncIndicatorWithMinimizedWindow() {

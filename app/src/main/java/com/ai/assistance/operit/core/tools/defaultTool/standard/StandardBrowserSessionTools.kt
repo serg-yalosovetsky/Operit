@@ -162,6 +162,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
         @Volatile var pendingDialog: PendingDialog? = null
         @Volatile var viewportWidthPx: Int? = null
         @Volatile var viewportHeightPx: Int? = null
+        @Volatile var appliedViewportScaleFactor: Float = 1f
         @Volatile var lastSnapshot: BrowserSnapshot? = null
         val consoleEntries: MutableList<BrowserConsoleEntry> = mutableListOf()
         val networkEntries: MutableList<BrowserNetworkRequestEntry> = mutableListOf()
@@ -1175,6 +1176,7 @@ class StandardBrowserSessionTools(internal val context: Context) : ToolExecutor 
             browserHost?.setViewportSize(width, height)
             session.viewportWidthPx = width
             session.viewportHeightPx = height
+            applyViewportOverride(session)
             refreshSessionUiOnMain(session.id)
         }
         Thread.sleep(100)

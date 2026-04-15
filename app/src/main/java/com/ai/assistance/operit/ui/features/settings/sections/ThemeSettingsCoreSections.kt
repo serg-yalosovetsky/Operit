@@ -260,6 +260,10 @@ internal fun ThemeSettingsChatStyleSection(
     onCursorUserBubbleLiquidGlassInputChange: (Boolean) -> Unit,
     cursorUserBubbleWaterGlassInput: Boolean,
     onCursorUserBubbleWaterGlassInputChange: (Boolean) -> Unit,
+    bubbleUserBubbleLiquidGlassInput: Boolean,
+    onBubbleUserBubbleLiquidGlassInputChange: (Boolean) -> Unit,
+    bubbleUserBubbleWaterGlassInput: Boolean,
+    onBubbleUserBubbleWaterGlassInputChange: (Boolean) -> Unit,
     cursorUserBubbleColorInput: Int,
     bubbleUserBubbleColorInput: Int,
     bubbleAiBubbleColorInput: Int,
@@ -571,6 +575,8 @@ internal fun ThemeSettingsChatStyleSection(
 
             val previewUserImageStyle =
                 remember(
+                    bubbleUserBubbleLiquidGlassInput,
+                    bubbleUserBubbleWaterGlassInput,
                     bubbleUserUseImageInput,
                     bubbleUserImageUriInput,
                     bubbleUserImageCropLeftInput,
@@ -585,7 +591,12 @@ internal fun ThemeSettingsChatStyleSection(
                     bubbleImageRenderModeInput,
                 ) {
                     val imageUri = bubbleUserImageUriInput
-                    if (bubbleUserUseImageInput && !imageUri.isNullOrBlank()) {
+                    if (
+                        !bubbleUserBubbleLiquidGlassInput &&
+                            !bubbleUserBubbleWaterGlassInput &&
+                            bubbleUserUseImageInput &&
+                            !imageUri.isNullOrBlank()
+                    ) {
                         BubbleImageStyleConfig(
                             imageUri = imageUri,
                             cropLeftRatio = bubbleUserImageCropLeftInput,
@@ -726,6 +737,92 @@ internal fun ThemeSettingsChatStyleSection(
                             saveThemeSettingsWithCharacterCard {
                                 preferencesManager.saveThemeSettings(
                                     bubbleWideLayoutEnabled = it,
+                                )
+                            }
+                        },
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text =
+                                stringResource(
+                                    id = R.string.chat_style_bubble_user_bubble_liquid_glass,
+                                ),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Text(
+                            text =
+                                stringResource(
+                                    id = R.string.chat_style_bubble_user_bubble_liquid_glass_desc,
+                                ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(
+                        checked = bubbleUserBubbleLiquidGlassInput,
+                        onCheckedChange = {
+                            onBubbleUserBubbleLiquidGlassInputChange(it)
+                            if (it) {
+                                onBubbleUserBubbleWaterGlassInputChange(false)
+                                onBubbleUserUseImageInputChange(false)
+                            }
+                            saveThemeSettingsWithCharacterCard {
+                                preferencesManager.saveThemeSettings(
+                                    bubbleUserBubbleLiquidGlass = it,
+                                    bubbleUserBubbleWaterGlass = if (it) false else null,
+                                    bubbleUserUseImage = if (it) false else null,
+                                )
+                            }
+                        },
+                    )
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text =
+                                stringResource(
+                                    id = R.string.chat_style_bubble_user_bubble_water_glass,
+                                ),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Text(
+                            text =
+                                stringResource(
+                                    id = R.string.chat_style_bubble_user_bubble_water_glass_desc,
+                                ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(
+                        checked = bubbleUserBubbleWaterGlassInput,
+                        onCheckedChange = {
+                            onBubbleUserBubbleWaterGlassInputChange(it)
+                            if (it) {
+                                onBubbleUserBubbleLiquidGlassInputChange(false)
+                                onBubbleUserUseImageInputChange(false)
+                            }
+                            saveThemeSettingsWithCharacterCard {
+                                preferencesManager.saveThemeSettings(
+                                    bubbleUserBubbleWaterGlass = it,
+                                    bubbleUserBubbleLiquidGlass = if (it) false else null,
+                                    bubbleUserUseImage = if (it) false else null,
                                 )
                             }
                         },
@@ -977,7 +1074,13 @@ internal fun ThemeSettingsChatStyleSection(
 
                 BubbleImageStyleEditor(
                     title = stringResource(id = R.string.chat_style_bubble_user_image_title),
-                    enabled = bubbleUserUseImageInput,
+                    enabled =
+                        !bubbleUserBubbleLiquidGlassInput &&
+                            !bubbleUserBubbleWaterGlassInput &&
+                            bubbleUserUseImageInput,
+                    switchEnabled =
+                        !bubbleUserBubbleLiquidGlassInput && !bubbleUserBubbleWaterGlassInput,
+                    description = stringResource(id = R.string.chat_style_bubble_image_desc),
                     onEnabledChange = {
                         onBubbleUserUseImageInputChange(it)
                         saveThemeSettingsWithCharacterCard {
@@ -1115,6 +1218,7 @@ internal fun ThemeSettingsChatStyleSection(
                 BubbleImageStyleEditor(
                     title = stringResource(id = R.string.chat_style_bubble_ai_image_title),
                     enabled = bubbleAiUseImageInput,
+                    description = stringResource(id = R.string.chat_style_bubble_image_desc),
                     onEnabledChange = {
                         onBubbleAiUseImageInputChange(it)
                         saveThemeSettingsWithCharacterCard {
@@ -1434,6 +1538,8 @@ private fun BubbleFontStyleEditor(
 private fun BubbleImageStyleEditor(
     title: String,
     enabled: Boolean,
+    switchEnabled: Boolean = true,
+    description: String,
     onEnabledChange: (Boolean) -> Unit,
     imageUri: String?,
     onPickImage: () -> Unit,
@@ -1491,12 +1597,16 @@ private fun BubbleImageStyleEditor(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
-                        text = stringResource(id = R.string.chat_style_bubble_image_desc),
+                        text = description,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Switch(checked = enabled, onCheckedChange = onEnabledChange)
+                Switch(
+                    checked = enabled,
+                    enabled = switchEnabled,
+                    onCheckedChange = onEnabledChange,
+                )
             }
 
             if (enabled) {

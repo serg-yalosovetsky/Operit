@@ -172,7 +172,7 @@ object SystemToolPrompts {
     - `new`: required for `replace` / `create`
 
   - **CRITICAL RULES**:
-    1. **If you need to rewrite a whole existing file**: do **NOT** use apply_file to overwrite it. Instead, call `delete_file` first, then `write_file`.
+    1. **If you need to rewrite a whole existing file**: do **NOT** use apply_file to overwrite it. Instead, call `delete_file` first, then use `apply_file` with `type=create`.
     2. **If you need to modify an existing file**: you **MUST** use `type=replace` (or `type=delete`) and provide `old` / `new`. Do **NOT** delete the whole file and rewrite it.
 """
             ),
@@ -328,7 +328,7 @@ object SystemToolPrompts {
     - `new`: `replace` / `create` 必填
 
   - **关键规则**:
-    1. **如果需要重写整个已存在文件**：不要用 apply_file 直接覆盖。请先 `delete_file`，再 `write_file`。
+    1. **如果需要重写整个已存在文件**：不要用 apply_file 直接覆盖。请先 `delete_file`，再使用 `apply_file` 且 `type=create`。
     2. **如果需要修改已存在文件**：必须用 `type=replace`（或 `type=delete`）并提供 `old/new`（或 `old`）。不要删除整个文件再重写。
 """
             ),

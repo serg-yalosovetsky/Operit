@@ -115,6 +115,18 @@ private fun appendInlineChunk(
     return pendingNewline
 }
 
+private fun canMergeWithHtmlBreak(node: MarkdownNode?): Boolean {
+    return node?.type == MarkdownProcessorType.PLAIN_TEXT
+}
+
+private fun appendHtmlBreakNode(nodes: SnapshotStateList<MarkdownNode>) {
+    nodes.add(MarkdownNode(type = MarkdownProcessorType.HTML_BREAK, initialContent = "\n"))
+}
+
+private fun appendHtmlBreakNode(nodes: MutableList<MarkdownNode>) {
+    nodes.add(MarkdownNode(type = MarkdownProcessorType.HTML_BREAK, initialContent = "\n"))
+}
+
 /**
  * Converts a mutable [MarkdownNode] to an immutable, stable [MarkdownNodeStable].
  * This function is recursive and converts the entire node tree.
@@ -368,11 +380,25 @@ fun StreamMarkdownRenderer(
         rendererState.streamParsingCompletedSuccessfully = false
 
         try {
+            var pendingHtmlBreak = false
             interceptedStream.nativeMarkdownSplitByBlock(flushIntervalMs = RENDER_INTERVAL_MS).collect { blockGroup ->
                 val blockType = blockGroup.tag ?: MarkdownProcessorType.PLAIN_TEXT
 
+                if (blockType == MarkdownProcessorType.HTML_BREAK) {
+                    if (canMergeWithHtmlBreak(nodes.lastOrNull())) {
+                        pendingHtmlBreak = true
+                    } else {
+                        appendHtmlBreakNode(nodes)
+                    }
+                    return@collect
+                }
+
                 if (blockType == MarkdownProcessorType.HORIZONTAL_RULE) {
+                    if (pendingHtmlBreak) {
+                        appendHtmlBreakNode(nodes)
+                    }
                     nodes.add(MarkdownNode(type = blockType, initialContent = "---"))
+                    pendingHtmlBreak = false
                     return@collect
                 }
 
@@ -386,8 +412,22 @@ fun StreamMarkdownRenderer(
                         tempBlockType != MarkdownProcessorType.TABLE &&
                         tempBlockType != MarkdownProcessorType.XML_BLOCK
 
-                val newNode = MarkdownNode(type = tempBlockType)
-                nodes.add(newNode)
+                val mergeWithPrevious =
+                    pendingHtmlBreak &&
+                        tempBlockType == MarkdownProcessorType.PLAIN_TEXT &&
+                        canMergeWithHtmlBreak(nodes.lastOrNull())
+
+                if (pendingHtmlBreak && !mergeWithPrevious) {
+                    appendHtmlBreakNode(nodes)
+                    pendingHtmlBreak = false
+                }
+
+                val newNode =
+                    if (mergeWithPrevious) {
+                        nodes.last()
+                    } else {
+                        MarkdownNode(type = tempBlockType).also { nodes.add(it) }
+                    }
                 val nodeIndex = nodes.lastIndex
                 val blockStream: Stream<String> =
                     if (tempBlockType == MarkdownProcessorType.XML_BLOCK) {
@@ -401,7 +441,7 @@ fun StreamMarkdownRenderer(
                 }
 
                 if (isInlineContainer) {
-                    var lastCharWasNewline = false
+                    var lastCharWasNewline = pendingHtmlBreak
 
                     blockStream.nativeMarkdownSplitByInline(flushIntervalMs = RENDER_INTERVAL_MS).collect { inlineGroup ->
                         val originalInlineType = inlineGroup.tag ?: MarkdownProcessorType.PLAIN_TEXT
@@ -416,10 +456,19 @@ fun StreamMarkdownRenderer(
                                 appendInlineChunk(
                                     parentNode = newNode,
                                     getOrCreateChildNode = {
-                                        childNode ?: MarkdownNode(type = tempInlineType).also {
-                                            childNode = it
-                                            newNode.children.add(it)
-                                        }
+                                        childNode
+                                            ?: if (
+                                                mergeWithPrevious &&
+                                                    tempInlineType == MarkdownProcessorType.PLAIN_TEXT &&
+                                                    newNode.children.lastOrNull()?.type == MarkdownProcessorType.PLAIN_TEXT
+                                            ) {
+                                                newNode.children.last().also { childNode = it }
+                                            } else {
+                                                MarkdownNode(type = tempInlineType).also {
+                                                    childNode = it
+                                                    newNode.children.add(it)
+                                                }
+                                            }
                                     },
                                     chunk = chunk,
                                     lastCharWasNewline = lastCharWasNewline,
@@ -458,6 +507,8 @@ fun StreamMarkdownRenderer(
                         MarkdownNode(type = MarkdownProcessorType.BLOCK_LATEX, initialContent = latexContent)
                     nodes[nodeIndex] = latexNode
                 }
+
+                pendingHtmlBreak = false
             }
             rendererState.streamParsingCompletedSuccessfully = true
         } catch (e: CancellationException) {
@@ -630,11 +681,25 @@ fun StreamMarkdownRenderer(
         launch(Dispatchers.IO) {
             try {
                 val parsedNodes = mutableListOf<MarkdownNode>()
+                var pendingHtmlBreak = false
                 stream { emit(content) }.nativeMarkdownSplitByBlock().collect { blockGroup ->
                     val blockType = blockGroup.tag ?: MarkdownProcessorType.PLAIN_TEXT
 
+                    if (blockType == MarkdownProcessorType.HTML_BREAK) {
+                        if (canMergeWithHtmlBreak(parsedNodes.lastOrNull())) {
+                            pendingHtmlBreak = true
+                        } else {
+                            appendHtmlBreakNode(parsedNodes)
+                        }
+                        return@collect
+                    }
+
                     if (blockType == MarkdownProcessorType.HORIZONTAL_RULE) {
+                        if (pendingHtmlBreak) {
+                            appendHtmlBreakNode(parsedNodes)
+                        }
                         parsedNodes.add(MarkdownNode(type = blockType, initialContent = "---"))
+                        pendingHtmlBreak = false
                         return@collect
                     }
 
@@ -648,8 +713,22 @@ fun StreamMarkdownRenderer(
                             tempBlockType != MarkdownProcessorType.TABLE &&
                             tempBlockType != MarkdownProcessorType.XML_BLOCK
 
-                    val newNode = MarkdownNode(type = tempBlockType)
-                    parsedNodes.add(newNode)
+                    val mergeWithPrevious =
+                        pendingHtmlBreak &&
+                            tempBlockType == MarkdownProcessorType.PLAIN_TEXT &&
+                            canMergeWithHtmlBreak(parsedNodes.lastOrNull())
+
+                    if (pendingHtmlBreak && !mergeWithPrevious) {
+                        appendHtmlBreakNode(parsedNodes)
+                        pendingHtmlBreak = false
+                    }
+
+                    val newNode =
+                        if (mergeWithPrevious) {
+                            parsedNodes.last()
+                        } else {
+                            MarkdownNode(type = tempBlockType).also { parsedNodes.add(it) }
+                        }
                     val nodeIndex = parsedNodes.lastIndex
 
                     if (isInlineContainer) {
@@ -659,7 +738,7 @@ fun StreamMarkdownRenderer(
                         }
                         val blockText = blockTextBuilder.toString()
 
-                        var lastCharWasNewline = false
+                        var lastCharWasNewline = pendingHtmlBreak
 
                         stream { emit(blockText) }.nativeMarkdownSplitByInline().collect { inlineGroup ->
                             val originalInlineType = inlineGroup.tag ?: MarkdownProcessorType.PLAIN_TEXT
@@ -674,10 +753,19 @@ fun StreamMarkdownRenderer(
                                     appendInlineChunk(
                                         parentNode = newNode,
                                         getOrCreateChildNode = {
-                                            childNode ?: MarkdownNode(type = tempInlineType).also {
-                                                childNode = it
-                                                newNode.children.add(it)
-                                            }
+                                            childNode
+                                                ?: if (
+                                                    mergeWithPrevious &&
+                                                        tempInlineType == MarkdownProcessorType.PLAIN_TEXT &&
+                                                        newNode.children.lastOrNull()?.type == MarkdownProcessorType.PLAIN_TEXT
+                                                ) {
+                                                    newNode.children.last().also { childNode = it }
+                                                } else {
+                                                    MarkdownNode(type = tempInlineType).also {
+                                                        childNode = it
+                                                        newNode.children.add(it)
+                                                    }
+                                                }
                                         },
                                         chunk = chunk,
                                         lastCharWasNewline = lastCharWasNewline,
@@ -716,6 +804,8 @@ fun StreamMarkdownRenderer(
                             MarkdownNode(type = MarkdownProcessorType.BLOCK_LATEX, initialContent = latexContent)
                         parsedNodes[nodeIndex] = latexNode
                     }
+
+                    pendingHtmlBreak = false
                 }
 
                 // 将解析完成的节点添加到节点列表，并更新动画状态

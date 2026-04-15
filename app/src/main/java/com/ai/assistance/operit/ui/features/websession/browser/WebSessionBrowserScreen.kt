@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Language
@@ -27,11 +25,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -90,15 +92,29 @@ internal fun WebSessionBrowserScreen(
     modifier: Modifier = Modifier
 ) {
     val browserState = hostState.browserState
-    val density = LocalDensity.current
-    val viewportWidthModifier =
-        hostState.viewportWidthPx?.let { widthPx ->
-            Modifier.width(with(density) { widthPx.toDp() })
-        } ?: Modifier.fillMaxWidth()
-    val viewportHeightModifier =
-        hostState.viewportHeightPx?.let { heightPx ->
-            Modifier.height(with(density) { heightPx.toDp() })
-        } ?: Modifier.fillMaxHeight()
+    var totalHeightPx by remember { mutableIntStateOf(0) }
+    var browserAreaHeightPx by remember { mutableIntStateOf(0) }
+    LaunchedEffect(totalHeightPx, browserAreaHeightPx) {
+        val chromeHeightPx = (totalHeightPx - browserAreaHeightPx).coerceAtLeast(0)
+        if (
+            chromeHeightPx != hostState.chromeHeightPx ||
+                browserAreaHeightPx != hostState.browserAreaHeightPx
+        ) {
+            onHostStateChange { current ->
+                if (
+                    current.chromeHeightPx == chromeHeightPx &&
+                        current.browserAreaHeightPx == browserAreaHeightPx
+                ) {
+                    current
+                } else {
+                    current.copy(
+                        chromeHeightPx = chromeHeightPx,
+                        browserAreaHeightPx = browserAreaHeightPx
+                    )
+                }
+            }
+        }
+    }
     val currentTabNumber =
         browserState.tabs.indexOfFirst { it.isActive }
             .takeIf { it >= 0 }
@@ -123,6 +139,12 @@ internal fun WebSessionBrowserScreen(
                 .background(MaterialTheme.colorScheme.background)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .onSizeChanged { totalHeightPx = it.height }
+            ) {
             WebSessionTopUrlBar(
                 url = browserState.currentUrl.ifBlank { "about:blank" },
                 pageTitle = browserState.pageTitle,
@@ -203,6 +225,18 @@ internal fun WebSessionBrowserScreen(
                     Modifier
                         .weight(1f)
                         .fillMaxWidth()
+                        .onSizeChanged {
+                            browserAreaHeightPx = it.height
+                            if (it.width != hostState.browserAreaWidthPx) {
+                                onHostStateChange { current ->
+                                    if (current.browserAreaWidthPx == it.width) {
+                                        current
+                                    } else {
+                                        current.copy(browserAreaWidthPx = it.width)
+                                    }
+                                }
+                            }
+                        }
                         .background(MaterialTheme.colorScheme.background)
             ) {
                 if (browserState.activeSessionId == null) {
@@ -256,7 +290,7 @@ internal fun WebSessionBrowserScreen(
                             update = { container ->
                                 webViewHost.attachContainer(container)
                             },
-                            modifier = viewportWidthModifier.then(viewportHeightModifier)
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
@@ -289,6 +323,7 @@ internal fun WebSessionBrowserScreen(
                 },
                 modifier = Modifier.navigationBarsPadding()
             )
+            }
         }
 
         if (activeSheetRoute != WebSessionBrowserSheetRoute.NONE) {

@@ -141,6 +141,10 @@ class UserPreferencesManager private constructor(private val context: Context) {
         private val CURSOR_USER_BUBBLE_WATER_GLASS =
             booleanPreferencesKey("cursor_user_bubble_water_glass")
         private val CURSOR_USER_BUBBLE_COLOR = intPreferencesKey("cursor_user_bubble_color")
+        private val BUBBLE_USER_BUBBLE_LIQUID_GLASS =
+            booleanPreferencesKey("bubble_user_bubble_liquid_glass")
+        private val BUBBLE_USER_BUBBLE_WATER_GLASS =
+            booleanPreferencesKey("bubble_user_bubble_water_glass")
         private val BUBBLE_USER_BUBBLE_COLOR = intPreferencesKey("bubble_user_bubble_color")
         private val BUBBLE_AI_BUBBLE_COLOR = intPreferencesKey("bubble_ai_bubble_color")
         private val BUBBLE_USER_TEXT_COLOR = intPreferencesKey("bubble_user_text_color")
@@ -540,6 +544,16 @@ class UserPreferencesManager private constructor(private val context: Context) {
     val cursorUserBubbleColor: Flow<Int?> =
         context.userPreferencesDataStore.data.map { preferences ->
             preferences[CURSOR_USER_BUBBLE_COLOR]
+        }
+
+    val bubbleUserBubbleLiquidGlass: Flow<Boolean> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_BUBBLE_LIQUID_GLASS] ?: false
+        }
+
+    val bubbleUserBubbleWaterGlass: Flow<Boolean> =
+        context.userPreferencesDataStore.data.map { preferences ->
+            preferences[BUBBLE_USER_BUBBLE_WATER_GLASS] ?: false
         }
 
     val bubbleUserBubbleColor: Flow<Int?> =
@@ -1030,6 +1044,8 @@ class UserPreferencesManager private constructor(private val context: Context) {
             cursorUserBubbleLiquidGlass: Boolean? = null,
             cursorUserBubbleWaterGlass: Boolean? = null,
             cursorUserBubbleColor: Int? = null,
+            bubbleUserBubbleLiquidGlass: Boolean? = null,
+            bubbleUserBubbleWaterGlass: Boolean? = null,
             bubbleUserBubbleColor: Int? = null,
             bubbleAiBubbleColor: Int? = null,
             bubbleUserTextColor: Int? = null,
@@ -1150,6 +1166,20 @@ class UserPreferencesManager private constructor(private val context: Context) {
                 }
             }
             cursorUserBubbleColor?.let { preferences[CURSOR_USER_BUBBLE_COLOR] = it }
+            bubbleUserBubbleLiquidGlass?.let {
+                preferences[BUBBLE_USER_BUBBLE_LIQUID_GLASS] = it
+                if (it) {
+                    preferences[BUBBLE_USER_BUBBLE_WATER_GLASS] = false
+                    preferences[BUBBLE_USER_USE_IMAGE] = false
+                }
+            }
+            bubbleUserBubbleWaterGlass?.let {
+                preferences[BUBBLE_USER_BUBBLE_WATER_GLASS] = it
+                if (it) {
+                    preferences[BUBBLE_USER_BUBBLE_LIQUID_GLASS] = false
+                    preferences[BUBBLE_USER_USE_IMAGE] = false
+                }
+            }
             bubbleUserBubbleColor?.let { preferences[BUBBLE_USER_BUBBLE_COLOR] = it }
             bubbleAiBubbleColor?.let { preferences[BUBBLE_AI_BUBBLE_COLOR] = it }
             bubbleUserTextColor?.let { preferences[BUBBLE_USER_TEXT_COLOR] = it }
@@ -1250,6 +1280,8 @@ class UserPreferencesManager private constructor(private val context: Context) {
             preferences.remove(CURSOR_USER_BUBBLE_LIQUID_GLASS)
             preferences.remove(CURSOR_USER_BUBBLE_WATER_GLASS)
             preferences.remove(CURSOR_USER_BUBBLE_COLOR)
+            preferences.remove(BUBBLE_USER_BUBBLE_LIQUID_GLASS)
+            preferences.remove(BUBBLE_USER_BUBBLE_WATER_GLASS)
             preferences.remove(BUBBLE_USER_BUBBLE_COLOR)
             preferences.remove(BUBBLE_AI_BUBBLE_COLOR)
             preferences.remove(BUBBLE_USER_TEXT_COLOR)

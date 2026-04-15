@@ -295,6 +295,12 @@ fun ThemeSettingsScreen() {
         preferencesManager.cursorUserBubbleWaterGlass.collectAsState(initial = false).value
     val cursorUserBubbleLiquidGlass =
         cursorUserBubbleLiquidGlassRaw && !cursorUserBubbleWaterGlass
+    val bubbleUserBubbleLiquidGlassRaw =
+        preferencesManager.bubbleUserBubbleLiquidGlass.collectAsState(initial = false).value
+    val bubbleUserBubbleWaterGlass =
+        preferencesManager.bubbleUserBubbleWaterGlass.collectAsState(initial = false).value
+    val bubbleUserBubbleLiquidGlass =
+        bubbleUserBubbleLiquidGlassRaw && !bubbleUserBubbleWaterGlass
     val cursorUserBubbleColor =
         preferencesManager.cursorUserBubbleColor.collectAsState(initial = null).value
     val bubbleUserBubbleColor =
@@ -522,6 +528,10 @@ fun ThemeSettingsScreen() {
         remember { mutableStateOf(cursorUserBubbleLiquidGlass) }
     var cursorUserBubbleWaterGlassInput by
         remember { mutableStateOf(cursorUserBubbleWaterGlass) }
+    var bubbleUserBubbleLiquidGlassInput by
+        remember { mutableStateOf(bubbleUserBubbleLiquidGlass) }
+    var bubbleUserBubbleWaterGlassInput by
+        remember { mutableStateOf(bubbleUserBubbleWaterGlass) }
     var cursorUserBubbleColorInput by
         remember { mutableStateOf(cursorUserBubbleColor ?: defaultCursorUserBubbleColor) }
     var bubbleUserBubbleColorInput by
@@ -926,11 +936,15 @@ fun ThemeSettingsScreen() {
                                 }
                             } else {
                                 bubbleUserImageUriInput = internalUri.toString()
-                                bubbleUserUseImageInput = true
+                                bubbleUserUseImageInput =
+                                    !bubbleUserBubbleLiquidGlassInput &&
+                                        !bubbleUserBubbleWaterGlassInput
                                 saveThemeSettingsWithCharacterCard {
                                     preferencesManager.saveThemeSettings(
                                         bubbleUserImageUri = internalUri.toString(),
-                                        bubbleUserUseImage = true,
+                                        bubbleUserUseImage =
+                                            !bubbleUserBubbleLiquidGlassInput &&
+                                                !bubbleUserBubbleWaterGlassInput,
                                     )
                                 }
                             }
@@ -1050,7 +1064,9 @@ fun ThemeSettingsScreen() {
                         }
                     } else {
                         bubbleUserImageUriInput = internalUriString
-                        bubbleUserUseImageInput = true
+                        bubbleUserUseImageInput =
+                            !bubbleUserBubbleLiquidGlassInput &&
+                                !bubbleUserBubbleWaterGlassInput
                         bubbleUserImageCropLeftInput = autoParams.cropLeftRatio
                         bubbleUserImageCropTopInput = autoParams.cropTopRatio
                         bubbleUserImageCropRightInput = autoParams.cropRightRatio
@@ -1063,7 +1079,9 @@ fun ThemeSettingsScreen() {
                         saveThemeSettingsWithCharacterCard {
                             preferencesManager.saveThemeSettings(
                                 bubbleUserImageUri = internalUriString,
-                                bubbleUserUseImage = true,
+                                bubbleUserUseImage =
+                                    !bubbleUserBubbleLiquidGlassInput &&
+                                        !bubbleUserBubbleWaterGlassInput,
                                 bubbleUserImageCropLeft = autoParams.cropLeftRatio,
                                 bubbleUserImageCropTop = autoParams.cropTopRatio,
                                 bubbleUserImageCropRight = autoParams.cropRightRatio,
@@ -1160,6 +1178,8 @@ fun ThemeSettingsScreen() {
             cursorUserBubbleFollowTheme,
             cursorUserBubbleLiquidGlass,
             cursorUserBubbleWaterGlass,
+            bubbleUserBubbleLiquidGlass,
+            bubbleUserBubbleWaterGlass,
             cursorUserBubbleColor,
             bubbleUserBubbleColor,
             bubbleAiBubbleColor,
@@ -1257,6 +1277,8 @@ fun ThemeSettingsScreen() {
         cursorUserBubbleFollowThemeInput = cursorUserBubbleFollowTheme
         cursorUserBubbleLiquidGlassInput = cursorUserBubbleLiquidGlass
         cursorUserBubbleWaterGlassInput = cursorUserBubbleWaterGlass
+        bubbleUserBubbleLiquidGlassInput = bubbleUserBubbleLiquidGlass
+        bubbleUserBubbleWaterGlassInput = bubbleUserBubbleWaterGlass
         cursorUserBubbleColorInput = cursorUserBubbleColor ?: defaultCursorUserBubbleColor
         bubbleUserBubbleColorInput = bubbleUserBubbleColor ?: defaultBubbleUserBubbleColor
         bubbleAiBubbleColorInput = bubbleAiBubbleColor ?: defaultBubbleAiBubbleColor
@@ -1584,6 +1606,14 @@ fun ThemeSettingsScreen() {
             onCursorUserBubbleWaterGlassInputChange = {
                 cursorUserBubbleWaterGlassInput = it
             },
+            bubbleUserBubbleLiquidGlassInput = bubbleUserBubbleLiquidGlassInput,
+            onBubbleUserBubbleLiquidGlassInputChange = {
+                bubbleUserBubbleLiquidGlassInput = it
+            },
+            bubbleUserBubbleWaterGlassInput = bubbleUserBubbleWaterGlassInput,
+            onBubbleUserBubbleWaterGlassInputChange = {
+                bubbleUserBubbleWaterGlassInput = it
+            },
             cursorUserBubbleColorInput = cursorUserBubbleColorInput,
             bubbleUserBubbleColorInput = bubbleUserBubbleColorInput,
             bubbleAiBubbleColorInput = bubbleAiBubbleColorInput,
@@ -1840,6 +1870,8 @@ fun ThemeSettingsScreen() {
                         cursorUserBubbleFollowThemeInput = true
                         cursorUserBubbleLiquidGlassInput = false
                         cursorUserBubbleWaterGlassInput = false
+                        bubbleUserBubbleLiquidGlassInput = false
+                        bubbleUserBubbleWaterGlassInput = false
                         cursorUserBubbleColorInput = defaultCursorUserBubbleColor
                         bubbleUserBubbleColorInput = defaultBubbleUserBubbleColor
                         bubbleAiBubbleColorInput = defaultBubbleAiBubbleColor
