@@ -1,18 +1,18 @@
-# API 文档：`tool-types.d.ts`
+# API :`tool-types.d.ts`
 
-`tool-types.d.ts` 定义了一个核心接口：`ToolResultMap`。它的作用不是提供运行时能力，而是给 `toolCall()` 提供**工具名 → 返回类型**的静态映射。
+`tool-types.d.ts` :`ToolResultMap`., `toolCall()` ** → **.
 
-## 作用
+## Translated section
 
-当你这样写：
+:
 
 ```ts
 const result = await toolCall('read_file', { path: '/sdcard/a.txt' });
 ```
 
-TypeScript 就会根据 `ToolResultMap['read_file']` 推导出 `result` 的类型。
+TypeScript `ToolResultMap['read_file']` `result` .
 
-## 核心接口
+## Translated section
 
 ```ts
 interface ToolResultMap {
@@ -20,9 +20,9 @@ interface ToolResultMap {
 }
 ```
 
-## 当前工具名映射
+## Translated section
 
-### 文件操作
+### Translated section
 
 - `list_files` → `DirectoryListingData`
 - `read_file` → `FileContentData`
@@ -46,7 +46,7 @@ interface ToolResultMap {
 - `download_file` → `FileOperationData`
 - `apply_file` → `FileApplyResultData`
 
-### 网络操作
+### Translated section
 
 - `http_request` → `HttpResponseData`
 - `visit_web` → `VisitWebResultData`
@@ -74,7 +74,7 @@ interface ToolResultMap {
 - `multipart_request` → `HttpResponseData`
 - `manage_cookies` → `HttpResponseData`
 
-### 系统操作
+### Translated section
 
 - `sleep` → `SleepResultData`
 - `get_system_setting` → `SystemSettingData`
@@ -106,7 +106,7 @@ interface ToolResultMap {
 - `test_model_config_connection` → `ModelConfigConnectionTestResultData`
 - `trigger_tasker_event` → `string`
 
-### UI 操作
+### UI
 
 - `get_page_info` → `UIPageResultData`
 - `click_element` → `UIActionResultData`
@@ -117,11 +117,11 @@ interface ToolResultMap {
 - `combined_operation` → `CombinedOperationResultData`
 - `run_ui_subagent` → `AutomationExecutionResultData`
 
-### 计算器
+### Translated section
 
 - `calculate` → `CalculationResultData`
 
-### 包与记忆
+### Translated section
 
 - `use_package` → `string`
 - `query_memory` → `MemoryQueryResultData`
@@ -142,7 +142,7 @@ interface ToolResultMap {
 - `execute_terminal` → `TerminalCommandResultData`
 - `get_terminal_session_screen` → `TerminalSessionScreenResultData`
 
-### 工作流
+### Translated section
 
 - `get_all_workflows` → `WorkflowListResultData`
 - `create_workflow` → `WorkflowDetailResultData`
@@ -167,9 +167,9 @@ interface ToolResultMap {
 - `list_character_cards` → `CharacterCardListResultData`
 - `get_chat_messages` → `ChatMessagesResultData`
 
-## 使用方式
+## Translated section
 
-### 让 `toolCall()` 拿到精确返回类型
+### `toolCall()`
 
 ```ts
 const file = await toolCall('read_file', {
@@ -180,7 +180,7 @@ file.content;
 file.size;
 ```
 
-### 对象形式调用
+### Translated section
 
 ```ts
 const page = await toolCall({
@@ -188,13 +188,13 @@ const page = await toolCall({
 });
 ```
 
-## 注意事项
+## Translated section
 
-- `tool-types.d.ts` 只描述**工具名与返回类型的映射**。
-- 参数结构仍然要结合对应模块文档或对应 `.d.ts` 查看。
-- 若某个工具名没有出现在 `ToolResultMap` 中，`toolCall()` 的泛型返回值就可能退化为 `any`。
+- `tool-types.d.ts` ****.
+- `.d.ts` .
+- `ToolResultMap` ,`toolCall()` `any`.
 
-## 相关文件
+## Translated section
 
 - `examples/types/tool-types.d.ts`
 - `examples/types/core.d.ts`

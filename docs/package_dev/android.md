@@ -1,10 +1,10 @@
-# API 文档：`android.d.ts`
+# API :`android.d.ts`
 
-`android.d.ts` 提供了一套比 `Tools.System` 更底层、更面向 Android 原生对象的 API。它的设计核心是几组类：`AdbExecutor`、`Intent`、`PackageManager`、`ContentProvider`、`SystemManager`、`DeviceController` 和总入口 `Android`。
+`android.d.ts` `Tools.System` 、 Android API.:`AdbExecutor`、`Intent`、`PackageManager`、`ContentProvider`、`SystemManager`、`DeviceController` `Android`.
 
-## 全局入口
+## Translated section
 
-以下对象在 `index.d.ts` 中被声明为全局可用：
+ `index.d.ts` :
 
 - `Intent`
 - `IntentFlag`
@@ -12,64 +12,64 @@
 - `IntentCategory`
 - `Android`
 
-也可以从 `index.d.ts` 的导出里按类型使用。
+ `index.d.ts` .
 
 ## `AdbExecutor`
 
-这是多个 Android 辅助类的基类。
+ Android .
 
-### 方法
+### Translated section
 
 - `executeAdb(command, timeout?)`
 - `executeShell(command, timeout?)`
 - `parseKeyValueOutput(output, separator?)`
 - `escapeShellArg(str)`
 
-适合封装原始 ADB / shell 操作与结果解析。
+ ADB / shell .
 
 ## `IntentFlag` / `IntentAction` / `IntentCategory`
 
-这三个常量枚举提供了 Intent 的常用标志、动作与分类。
+ Intent 、.
 
 ### `IntentFlag`
 
-覆盖了：
+:
 
-- Activity 启动标志，如 `ACTIVITY_NEW_TASK`、`ACTIVITY_CLEAR_TOP`
-- URI 权限标志，如 `GRANT_READ_URI_PERMISSION`
-- Receiver 标志，如 `RECEIVER_FOREGROUND`
-- 其他系统标志
+- Activity , `ACTIVITY_NEW_TASK`、`ACTIVITY_CLEAR_TOP`
+- URI , `GRANT_READ_URI_PERMISSION`
+- Receiver , `RECEIVER_FOREGROUND`
+- translated
 
 ### `IntentAction`
 
-覆盖了常见：
+:
 
-- 标准动作，如 `ACTION_VIEW`、`ACTION_SEND`、`ACTION_PICK`
-- 系统设置动作，如 `ACTION_SETTINGS`
-- 媒体动作，如 `ACTION_IMAGE_CAPTURE`
-- 通信动作与广播动作
+- , `ACTION_VIEW`、`ACTION_SEND`、`ACTION_PICK`
+- , `ACTION_SETTINGS`
+- , `ACTION_IMAGE_CAPTURE`
+- translated
 
 ### `IntentCategory`
 
-覆盖了常见分类，如：
+,:
 
 - `CATEGORY_DEFAULT`
 - `CATEGORY_BROWSABLE`
 - `CATEGORY_LAUNCHER`
 - `CATEGORY_HOME`
-- 各类 `CATEGORY_APP_*`
+- `CATEGORY_APP_*`
 
-完整枚举以 `examples/types/android.d.ts` 为准。
+ `examples/types/android.d.ts` .
 
-## `Intent` 类
+## `Intent`
 
-### 构造函数
+### Translated section
 
 ```ts
 new Intent(action?: string | IntentAction)
 ```
 
-### 主要属性
+### Translated section
 
 - `action`
 - `packageName`
@@ -81,7 +81,7 @@ new Intent(action?: string | IntentAction)
 - `uri`
 - `type`
 
-### 链式方法
+### Translated section
 
 - `setComponent(packageName, component)`
 - `setPackage(packageName)`
@@ -96,17 +96,17 @@ new Intent(action?: string | IntentAction)
 - `addFlag(flag)`
 - `putExtra(key, value)`
 
-### 执行动作
+### Translated section
 
-- `start()`：按 Activity 启动
-- `sendBroadcast()`：发送广播
-- `startService()`：启动 Service
+- `start()`: Activity
+- `sendBroadcast()`:
+- `startService()`: Service
 
 ## `PackageManager`
 
-继承自 `AdbExecutor`，用于应用包管理。
+ `AdbExecutor`,.
 
-### 方法
+### Translated section
 
 - `install(apkPath, replaceExisting?)`
 - `uninstall(packageName, keepData?)`
@@ -117,9 +117,9 @@ new Intent(action?: string | IntentAction)
 
 ## `ContentProvider`
 
-继承自 `AdbExecutor`，用于访问 Content Provider。
+ `AdbExecutor`, Content Provider.
 
-### 方法
+### Translated section
 
 - `setUri(uri)`
 - `query(projection?, selection?, selectionArgs?, sortOrder?)`
@@ -129,9 +129,9 @@ new Intent(action?: string | IntentAction)
 
 ## `SystemManager`
 
-继承自 `AdbExecutor`，用于读取和修改系统属性、设置及屏幕信息。
+ `AdbExecutor`,、.
 
-### 方法
+### Translated section
 
 - `getProperty(prop)`
 - `setProperty(prop, value)`
@@ -141,7 +141,7 @@ new Intent(action?: string | IntentAction)
 - `listSettings(namespace)`
 - `getScreenInfo()`
 
-其中 `namespace` 受类型约束：
+ `namespace` :
 
 ```ts
 'system' | 'secure' | 'global'
@@ -149,9 +149,9 @@ new Intent(action?: string | IntentAction)
 
 ## `DeviceController`
 
-继承自 `AdbExecutor`，用于设备级控制。
+ `AdbExecutor`,.
 
-### 方法
+### Translated section
 
 - `takeScreenshot(outputPath)`
 - `recordScreen(outputPath, timeLimit?, bitRate?, size?)`
@@ -164,34 +164,34 @@ new Intent(action?: string | IntentAction)
 - `unlock()`
 - `reboot(mode?)`
 
-`setVolume()` 的 `stream` 受类型约束：
+`setVolume()` `stream` :
 
 ```ts
 'music' | 'call' | 'ring' | 'alarm' | 'notification'
 ```
 
-## `Android` 总入口
+## `Android`
 
-### 构造函数
+### Translated section
 
 ```ts
 new Android()
 ```
 
-### 成员
+### Translated section
 
 - `packageManager`
 - `systemManager`
 - `deviceController`
 
-### 工厂方法
+### Translated section
 
 - `createIntent(action?)`
 - `createContentProvider(uri)`
 
-## 示例
+## Translated section
 
-### 构造并启动 Intent
+### Intent
 
 ```ts
 const intent = new Intent(IntentAction.ACTION_VIEW)
@@ -201,7 +201,7 @@ const intent = new Intent(IntentAction.ACTION_VIEW)
 await intent.start();
 ```
 
-### 使用 `Android` 总入口
+### `Android`
 
 ```ts
 const android = new Android();
@@ -209,7 +209,7 @@ const installed = await android.packageManager.isInstalled('com.android.settings
 console.log(installed);
 ```
 
-### 读取系统设置
+### Translated section
 
 ```ts
 const android = new Android();
@@ -217,14 +217,14 @@ const value = await android.systemManager.getSetting('secure', 'enabled_accessib
 console.log(value);
 ```
 
-### 截图
+### Translated section
 
 ```ts
 const android = new Android();
 await android.deviceController.takeScreenshot('/sdcard/screen.png');
 ```
 
-## 相关文件
+## Translated section
 
 - `examples/types/android.d.ts`
 - `examples/types/index.d.ts`

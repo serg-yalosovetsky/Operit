@@ -1,26 +1,26 @@
-# API 文档：`index.d.ts`
+# API :`index.d.ts`
 
-`index.d.ts` 是整个包开发类型系统的总入口。它做三件事：
+`index.d.ts` .:
 
-- 重导出各个 `.d.ts` 文件中的类型。
-- 把常用对象和函数注入全局作用域。
-- 组装运行时常用的 `Tools` 命名空间。
+- `.d.ts` .
+- .
+- `Tools` .
 
-如果你只在脚本顶部引用一个类型入口，通常就是它。
+,.
 
-## 推荐引用方式
+## Translated section
 
 ```ts
 /// <reference path="./types/index.d.ts" />
 ```
 
-这样 IDE 可以直接识别全局 API 和结果类型。
+ IDE API .
 
-## `index.d.ts` 做了什么
+## `index.d.ts`
 
-### 1. 重导出核心类型
+### 1.
 
-它会重导出：
+:
 
 - `core.d.ts`
 - `results.d.ts`
@@ -30,9 +30,9 @@
 - `compose-dsl.d.ts`
 - `compose-dsl.material3.generated.d.ts`
 
-### 2. 导出主要命名空间
+### 2.
 
-它还显式导出以下模块：
+:
 
 - `Net`
 - `System`
@@ -45,21 +45,21 @@
 - `ToolPkg`
 - `Chat`
 - `Memory`
-- Android 相关类与枚举
+- Android
 
-### 3. 注入全局对象与函数
+### 3.
 
-这也是 `index.d.ts` 最重要的职责：你在脚本里通常不需要 `import`，就能直接使用这些对象。
+ `index.d.ts` : `import`,.
 
-## 全局可用的函数
+## Translated section
 
-### 工具调用与结果返回
+### Translated section
 
 - `toolCall(...)`
 - `complete(result)`
 - `sendIntermediateResult(result)`
 
-### 上下文读取
+### Translated section
 
 - `getEnv(key)`
 - `getState()`
@@ -68,9 +68,9 @@
 - `getChatId()`
 - `getCallerCardId()`
 
-## 全局可用的对象与类
+## Translated section
 
-### Android / UI 相关
+### Android / UI
 
 - `Intent`
 - `IntentFlag`
@@ -79,7 +79,7 @@
 - `UINode`
 - `Android`
 
-### 运行时工具对象
+### Translated section
 
 - `Tools`
 - `_`
@@ -89,14 +89,14 @@
 - `Java`
 - `Kotlin`
 
-### 常量
+### Translated section
 
 - `OPERIT_DOWNLOAD_DIR`
 - `OPERIT_CLEAN_ON_EXIT_DIR`
 
-## `Tools` 命名空间
+## `Tools`
 
-`Tools` 会把各模块运行时入口组装到一个对象下：
+`Tools` :
 
 ```ts
 const Tools: {
@@ -114,15 +114,15 @@ const Tools: {
 }
 ```
 
-其中：
+:
 
-- `Tools.Tasker` 对应 `Tasker.Runtime`
-- `Tools.Workflow` 对应 `Workflow.Runtime`
-- `Tools.calc(expression)` 返回 `Promise<CalculationResultData>`
+- `Tools.Tasker` `Tasker.Runtime`
+- `Tools.Workflow` `Workflow.Runtime`
+- `Tools.calc(expression)` `Promise<CalculationResultData>`
 
-## 全局类型
+## Translated section
 
-`index.d.ts` 还把大量结果类型提升到了全局作用域里，例如：
+`index.d.ts` ,:
 
 - `CalculationResultData`
 - `SleepResultData`
@@ -139,7 +139,7 @@ const Tools: {
 - `ModelConfigResultItem`
 - `MemoryLinkResultData`
 
-此外，它还把以下桥接类型作为全局类型暴露：
+,:
 
 - `ComposeDslContext`
 - `ComposeDslScreen`
@@ -156,15 +156,15 @@ const Tools: {
 - `JavaBridgeInterfaceRef`
 - `JavaBridgeCallbackResult`
 
-## 示例
+## Translated section
 
-### 典型脚本写法
+### Translated section
 
 ```ts
 /// <reference path="./types/index.d.ts" />
 
 const page = await UINode.getCurrentPage();
-const title = page.findByText('设置');
+const title = page.findByText('');
 
 if (title) {
   await title.click();
@@ -177,7 +177,7 @@ complete({
 });
 ```
 
-### 使用上下文函数
+### Translated section
 
 ```ts
 const apiKey = getEnv('OPENAI_API_KEY');
@@ -187,9 +187,9 @@ const chatId = getChatId();
 sendIntermediateResult({ state, chatId });
 ```
 
-## 本目录文档索引
+## Translated section
 
-当前 `docs/package_dev` 已同步以下文件：
+ `docs/package_dev` :
 
 - `android.md`
 - `chat.md`
@@ -210,18 +210,18 @@ sendIntermediateResult({ state, chatId });
 - `ui.md`
 - `workflow.md`
 
-## 尚未单独展开的类型文件
+## Translated section
 
-`examples/types` 中还有一些高级或扩展定义目前未在本目录单独成文，例如：
+`examples/types` ,:
 
 - `compose-dsl.d.ts`
 - `compose-dsl.material3.generated.d.ts`
 - `java-bridge.d.ts`
 - `pako.d.ts`
 
-这些类型已经由 `index.d.ts` 重导出，使用时仍然以对应 `.d.ts` 为准。
+ `index.d.ts` , `.d.ts` .
 
-## 相关文件
+## Translated section
 
 - `examples/types/index.d.ts`
 - `docs/package_dev/core.md`

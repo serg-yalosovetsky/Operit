@@ -1,46 +1,46 @@
-<!-- chat-info: title=Python 编程讨论, group=编程技术 -->
+<!-- chat-info: title=Python , group= -->
 ---
-title: Python 编程讨论
-group: 编程技术
+title: Python
+group:
 ---
 
-# Python 编程讨论
+# Python
 
 <!-- msg: user -->
 ## 👤 User
 
-如何在 Python 中读取 JSON 文件？
+ Python JSON ？
 
 <!-- msg: ai, model=gpt-4 -->
 ## 🤖 Assistant
 
 *Model: gpt-4*
 
-在 Python 中读取 JSON 文件很简单，可以使用内置的 `json` 模块：
+ Python JSON , `json` :
 
 ```python
 import json
 
-# 方法1：读取 JSON 文件
+# 1: JSON
 with open('data.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 ```
 
-**关键要点**：
-- `json.load()` 用于从文件对象读取
-- `json.loads()` 用于从字符串读取
+****:
+- `json.load()`
+- `json.loads()`
 
 <!-- msg: user -->
 ## 👤 User
 
-如果 JSON 文件很大怎么办？
+ JSON ？
 
 <!-- msg: ai, model=gpt-4 -->
 ## 🤖 Assistant
 
 *Model: gpt-4*
 
-对于大型 JSON 文件，可以考虑以下方法：
+ JSON ,:
 
-1. **流式处理**：逐行读取
-2. **使用 ijson 库**：增量解析
+1. ****:
+2. ** ijson **:

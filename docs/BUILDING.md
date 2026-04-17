@@ -1,195 +1,195 @@
-# **Android 项目 Operit 编译指南（Linux/Ubuntu）**
+# **Android Operit (Linux/Ubuntu)**
 
-本指南详细介绍了在 Linux 环境下（推荐 Ubuntu/Debian）编译 Android 项目 **Operit** 所需的全部环境配置和步骤。
+ Linux ( Ubuntu/Debian) Android **Operit** .
 
-## **关于 Operit**
+## ** Operit**
 
-**Operit AI** 是移动端首个功能完备的 AI 智能助手应用，它**完全独立运行**于您的 Android 设备上，拥有强大的**工具调用能力**。本项目旨在为开发者提供一个可深度定制和扩展的 AI 助手框架。
+**Operit AI** AI ,**** Android ,****. AI .
 
-在开始编译之前，请确保您已了解本项目的功能和目标。更多信息请参考项目主页的 [README.md](../README.md)。
+,. [README.md](../README.md).
 
-## **目录**
+## ****
 
-1. 第一步：安装系统基础依赖
-2. 第二步：安装 Android 命令行工具
-3. 第三步：配置环境变量
-4. 第四步：安装 Android SDK 和 NDK
-5. 附：性能优化 - 配置编译资源
-6. 第五步：克隆并编译项目
-7. 常见问题排查
+1. :
+2. : Android
+3. :
+4. : Android SDK NDK
+5. : -
+6. :
+7.
 
-## **1. 第一步：安装系统基础依赖**
+## **1. :**
 
-首先，我们需要更新包管理器并安装编译所需的关键基础软件：**Git** 和 **JDK 17**。  
+,:**Git** **JDK 17**.
 ```bash 
-# 更新软件包列表  
+# Translated section
 sudo apt update
 
-# 安装必要的工具和 JDK 17  
+# JDK 17
 sudo apt install -y git wget unzip openjdk-17-jdk
 
-安装完成后，请验证 Java 版本是否正确：  
+, Java :
 java -version  
-# 预期输出应包含 "OpenJDK Runtime Environment (build 17..." 或类似信息
+# "OpenJDK Runtime Environment (build 17..."
 ``` 
-**注意：** 项目官方要求 **JDK 17**。为确保最大兼容性，强烈建议优先安装和使用 JDK 17。
+**:** **JDK 17**., JDK 17.
 
-## **2. 第二步：安装 Android 命令行工具**
+## **2. : Android **
 
-为了管理 SDK，我们将使用更轻量的 Android 命令行工具（Command Line Tools），而非庞大的 Android Studio。
+ SDK, Android (Command Line Tools), Android Studio.
 
-1. **创建 Android SDK 目录:**  
+1. ** Android SDK :**
 ```bash
 mkdir -p ~/Android/cmdline-tools
 ```
-2. 下载命令行工具:  
-访问 Android Developers 官网，复制最新的 Linux 版本链接。  
-**警告：** 下方的链接仅为示例，请务必检查并替换为官方提供的最新链接！  
+2. :
+ Android Developers , Linux .
+**:** ,！
 ```bash
-# 示例链接，请务必检查并替换为最新版本  
+# ,
 wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O ~/cmdline-tools.zip
 ```
 
-3. 解压并配置目录结构:  
-命令行工具要求其文件位于一个名为 latest 的子目录中，否则 sdkmanager 可能无法识别。  
+3. :
+ latest , sdkmanager .
 ```bash
-# 解压到目标目录  
+# Translated section
 unzip ~/cmdline-tools.zip -d ~/Android/cmdline-tools
 
-# 将解压后的 cmdline-tools 移动到 latest 子目录  
+# cmdline-tools latest
 mv ~/Android/cmdline-tools/cmdline-tools ~/Android/cmdline-tools/latest
 
-# 清理下载的压缩包  
+# Translated section
 rm ~/cmdline-tools.zip
 ```
-最终的工具路径应为 ~/Android/cmdline-tools/latest/bin。
+ ~/Android/cmdline-tools/latest/bin.
 
-## **3. 第三步：配置环境变量**
+## **3. :**
 
-配置环境变量以便系统能找到 **Java** 和 **Android SDK** 的相关命令，如 java、git 和 sdkmanager。
+ **Java** **Android SDK** , java、git sdkmanager.
 
-1. **编辑配置文件：**  
+1. **:**
 ```bash
 nano ~/.bashrc
 ```
 
-2. **在文件末尾添加以下内容：**  
+2. **:**
 ```bash
-# =============== Java JDK 17 配置 ===============  
+# =============== Java JDK 17 ===============
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64  
 export PATH=$JAVA_HOME/bin:$PATH
 
-# =============== Android SDK 配置 ===============  
+# =============== Android SDK ===============
 export ANDROID_HOME=$HOME/Android  
-# 将 latest/bin 添加到 PATH  
+# latest/bin PATH
 export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH  
-# 将 platform-tools (ADB/Fastboot) 添加到 PATH  
+# platform-tools (ADB/Fastboot) PATH
 export PATH=$ANDROID_HOME/platform-tools:$PATH
 ```
 
-3. **使配置生效:**  
+3. **:**
 ```bash
 source ~/.bashrc
 ```
 
-## **4. 第四步：安装 Android SDK 和 NDK**
+## **4. : Android SDK NDK**
 
-使用刚才配置好的 sdkmanager 命令来安装项目所需的 SDK 平台、构建工具和特定版本的 NDK。
+ sdkmanager SDK 、 NDK.
 
-1. 接受所有 SDK 许可 (关键步骤！):  
-此步骤是必须的，否则 Gradle 构建会因许可问题而失败。  
+1. SDK (！):
+, Gradle .
 ```bash
 yes | sdkmanager --licenses
 ```
 
-2. 安装平台工具、SDK 平台和构建工具:  
-Operit 项目依赖于 android-34 平台和 34.0.0 构建工具。  
+2. 、SDK :
+Operit android-34 34.0.0 .
 ```bash
 sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 ```
-3. 安装项目指定的 NDK 版本:  
-本项目要求使用 NDK 25.1.8937393。  
+3. NDK :
+ NDK 25.1.8937393.
 ```bash
 sdkmanager "ndk;25.1.8937393"
 ```
 
-## **附：性能优化 - 配置编译资源**
+## **: - **
 
-对于配置较高的机器（如 16GB 内存或以上），可以通过调整 Gradle 配置来显著加快编译速度。  
-在项目根目录下的 **gradle.properties** 文件中，您可以调整以下参数：  
+( 16GB ), Gradle .
+ **gradle.properties** ,:
 
 ```properties
-# 设置 Gradle 使用的 JVM 最大内存，例如 8GB  
+# Gradle JVM , 8GB
 org.gradle.jvmargs=-Xmx8g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError
 
-# 开启并行编译  
+# Translated section
 org.gradle.parallel=true
 
-# (可选) 设置并行编译的 worker 数量，通常建议设置为 CPU 核心数  
+# () worker , CPU
 # org.gradle.workers.max=8
 ``` 
 
-## **5. 第五步：配置 GitHub OAuth 应用**
+## **5. : GitHub OAuth **
 
-为了使应用的 GitHub 相关功能（如登录、MCP 包管理）能正常工作，你需要注册自己的 GitHub OAuth Application 并配置 Client ID。
+ GitHub (、MCP ), GitHub OAuth Application Client ID.
 
-1. **创建 GitHub OAuth App:**  
-   - 访问你的 GitHub 开发者设置页面：[**GitHub Developer Settings**](https://github.com/settings/developers)
-   - 点击 **"New OAuth App"**。
-   - 填写以下信息：
-     - **Application name**: `Operit Dev` (或任何你喜欢的名字)
-     - **Homepage URL**: `https://github.com/<你的 GitHub 用户名>/Operit` (使用你 Fork 后的仓库地址)
-     - **Authorization callback URL**: `operit://github-oauth-callback` (**必须完全匹配！**)
+1. ** GitHub OAuth App:**
+ - GitHub :[**GitHub Developer Settings**](https://github.com/settings/developers)
+ - **"New OAuth App"**.
+ - :
+ - **Application name**: `Operit Dev` ()
+ - **Homepage URL**: `https://github.com/< GitHub >/Operit` ( Fork )
+ - **Authorization callback URL**: `operit://github-oauth-callback` (**！**)
 
-2. **获取 Client ID:**  
-   创建成功后，页面会显示生成的 **Client ID**。复制这个 ID。
+2. ** Client ID:**
+ , **Client ID**. ID.
 
-3. **配置项目:**  
-   - 在项目根目录，找到 `local.properties.example` 文件。
-   - 复制该文件并重命名为 `local.properties`。
-   - 打开 `local.properties` 文件，将 `"YOUR_OWN_GITHUB_CLIENT_ID_HERE"` 替换为你刚刚复制的 Client ID。
+3. **:**
+ - , `local.properties.example` .
+ - `local.properties`.
+ - `local.properties` , `"YOUR_OWN_GITHUB_CLIENT_ID_HERE"` Client ID.
 
    ```properties
-   # 示例:
+ # :
    GITHUB_CLIENT_ID=iv1.1234567890abcdef
    ```
-   **注意：** `local.properties` 文件已被 Git 忽略，因此你的个人 ID 不会被提交到仓库中，确保了安全。
+ **:** `local.properties` Git , ID ,.
 
-## **6. 第六步：克隆并编译项目**
+## **6. :**
 
-环境准备就绪，现在开始编译项目。
+,.
 
-1. 克隆项目仓库并进入目录:  
-请根据需要选择以下两种克隆方式（项目包含 Git 子模块）：
+1. :
+( Git ):
 
-**推荐：先 Fork 后克隆你的仓库**  
-在 GitHub 打开上游仓库并点击 Fork： [AAswordman/Operit](https://github.com/AAswordman/Operit)  
-克隆你的 Fork（注意使用 --recurse-submodules）：
+**: Fork **
+ GitHub Fork: [AAswordman/Operit](https://github.com/AAswordman/Operit)
+ Fork( --recurse-submodules):
 ```bash
-git clone --recurse-submodules https://github.com/<你的 GitHub 用户名>/Operit.git
+git clone --recurse-submodules https://github.com/< GitHub >/Operit.git
 cd Operit
 ```  
-（可选）添加上游仓库以便同步更新：  
+():
 ```bash
 git remote add upstream https://github.com/AAswordman/Operit.git
 ```  
 
-**备选：不 Fork，直接克隆上游仓库（只读）**  
+**: Fork,()**
 ```bash
 git clone --recurse-submodules https://github.com/AAswordman/Operit.git
 cd Operit
 ```  
 
-如果你已克隆但忘记带 --recurse-submodules，可在仓库目录中执行：  
+ --recurse-submodules,:
 ```bash
 git submodule update --init --recursive
 ```  
-如果你只想单独初始化 FBX 运行时依赖，也可以执行：  
+ FBX ,:
 ```bash
 git submodule update --init fbx/third_party/ufbx
 ```  
-2. **下载并放置依赖库 (关键步骤！):**  
-`README.md` 中提到，项目依赖一些需要手动下载的库。请从 [这个 Google Drive 链接](https://drive.google.com/drive/folders/1g-Q_i7cf6Ua4KX9ZM6V282EEZvTVVfF7?usp=sharing) 下载所有文件，并将它们解压或放置到项目根目录下对应的 `libs` 或有 `.keep` 文件的文件夹中。  **警告：** 如果跳过此步骤，编译将因缺少依赖而失败。当前需要下载并解压这四个压缩包：`models.zip`、`subpack.zip`、`jniLibs.zip`、`libs.zip`。  
+2. ** (！):**
+`README.md` ,. [ Google Drive ](https://drive.google.com/drive/folders/1g-Q_i7cf6Ua4KX9ZM6V282EEZvTVVfF7?usp=sharing) , `libs` `.keep` . **:** ,.:`models.zip`、`subpack.zip`、`jniLibs.zip`、`libs.zip`.
 ```bash
 ./app/src/main/assets/models/.keep  
 ./app/src/main/assets/subpack/.keep  
@@ -197,32 +197,32 @@ git submodule update --init fbx/third_party/ufbx
 ./app/libs
 ```
 
-3. **切换到你的工作分支 (如果需要):**
+3. ** ():**
 ```bash
 git checkout docs/add-building-guide
-# 将上面的示例分支名替换为你自己创建的分支名
+# Translated section
 ```
 
-4. **为 Gradle 包装器添加可执行权限:**
+4. ** Gradle :**
 ```bash
 chmod +x ./gradlew
 ```
 
-4. 运行 assembleDebug 命令进行编译:  
-首次编译会下载大量依赖，请耐心等待。  
+4. assembleDebug :
+,.
 ```bash
 ./gradlew assembleDebug
 ```
-5. 查找 APK 文件:  
-编译成功后，生成的 APK 文件位于项目目录下的以下路径：  
+5. APK :
+, APK :
 app/build/outputs/apk/debug/app-debug.apk
 
-## **7. 常见问题排查**
+## **7. **
 
-| 错误信息 | 解决方案 |
+| | |
 | :---- | :---- |
-| sdkmanager: command not found | 环境变量未正确设置或生效。请检查 **~/.bashrc** 文件内容，并执行 source ~/.bashrc。 |
-| Could not determine Java version... | **JAVA_HOME** 环境变量不正确，或安装了错误的 JDK 版本。请确保已安装 **JDK 17** 并指向正确的路径。 |
-| NDK not found. | 确保已在 **第四步** 中使用 sdkmanager 安装了项目所需的 **ndk;25.1.8937393** 版本。 |
-| You have not accepted the license agreements... | 你跳过了或未成功执行接受许可的步骤。请返回 **第四步** 执行 `yes |
+| sdkmanager: command not found | . **~/.bashrc** , source ~/.bashrc. |
+| Could not determine Java version... | **JAVA_HOME** , JDK . **JDK 17** . |
+| NDK not found. | **** sdkmanager **ndk;25.1.8937393** . |
+| You have not accepted the license agreements... | . **** `yes |
 

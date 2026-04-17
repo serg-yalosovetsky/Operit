@@ -1,23 +1,23 @@
-# API 文档：`chat.d.ts`
+# API :`chat.d.ts`
 
-`chat.d.ts` 描述的是 `Tools.Chat` 命名空间，用于管理会话、切换会话、发送消息以及读取消息记录。
+`chat.d.ts` `Tools.Chat` ,、、.
 
-## 作用
+## Translated section
 
-当前定义覆盖：
+:
 
-- 启动聊天服务。
-- 创建、查询、切换、删除聊天会话。
-- 发送普通消息与高级消息。
-- 枚举角色卡与读取聊天消息。
+- .
+- 、、、.
+- .
+- .
 
-## 运行时入口
+## Translated section
 
 ```ts
 Tools.Chat
 ```
 
-## 主要 API
+## API
 
 ### `startService()`
 
@@ -25,7 +25,7 @@ Tools.Chat
 startService(): Promise<ChatServiceStartResultData>
 ```
 
-启动聊天服务或浮窗。
+.
 
 ### `createNew(group?, setAsCurrentChat?, characterCardId?)`
 
@@ -33,15 +33,15 @@ startService(): Promise<ChatServiceStartResultData>
 createNew(group?: string, setAsCurrentChat?: boolean, characterCardId?: string): Promise<ChatCreationResultData>
 ```
 
-创建新的聊天会话。
+.
 
 ### `listAll()`
 
-返回全部聊天列表。
+.
 
 ### `listChats(params?)`
 
-带过滤条件列出聊天：
+:
 
 - `query?`
 - `match?: 'contains' | 'exact' | 'regex'`
@@ -55,31 +55,31 @@ createNew(group?: string, setAsCurrentChat?: boolean, characterCardId?: string):
 findChat({ query, match?, index? }): Promise<ChatFindResultData>
 ```
 
-根据标题或 ID 查找聊天。
+ ID .
 
 ### `agentStatus(chatId)`
 
-查看某个聊天当前是否在处理中。
+.
 
 ### `switchTo(chatId)`
 
-切换当前聊天。
+.
 
 ### `updateTitle(chatId, title)`
 
-更新聊天标题。
+.
 
 ### `deleteChat(chatId)`
 
-删除聊天。
+.
 
 ### `sendMessage(message, chatId?, roleCardId?, senderName?)`
 
-发送普通消息。
+.
 
 ### `sendMessageAdvanced(params)`
 
-高级发送接口，支持：
+,:
 
 - `chatId`
 - `chatHistory`
@@ -97,7 +97,7 @@ findChat({ query, match?, index? }): Promise<ChatFindResultData>
 
 ### `listCharacterCards()`
 
-列出可用角色卡。
+.
 
 ### `getMessages(chatId, options?)`
 
@@ -105,11 +105,11 @@ findChat({ query, match?, index? }): Promise<ChatFindResultData>
 getMessages(chatId: string, options?: { order?: 'asc' | 'desc'; limit?: number }): Promise<ChatMessagesResultData>
 ```
 
-读取某个聊天的消息记录。
+.
 
-## 返回值
+## Translated section
 
-`chat.d.ts` 的返回值都定义在 `results.d.ts` 中，常见的有：
+`chat.d.ts` `results.d.ts` ,:
 
 - `ChatServiceStartResultData`
 - `ChatCreationResultData`
@@ -123,22 +123,22 @@ getMessages(chatId: string, options?: { order?: 'asc' | 'desc'; limit?: number }
 - `ChatMessagesResultData`
 - `CharacterCardListResultData`
 
-## 示例
+## Translated section
 
-### 创建会话并发送消息
+### Translated section
 
 ```ts
 const created = await Tools.Chat.createNew('work', true);
 const chatId = created.chatId;
 
-await Tools.Chat.sendMessage('帮我总结今天的待办', chatId);
+await Tools.Chat.sendMessage('', chatId);
 ```
 
-### 查找并切换聊天
+### Translated section
 
 ```ts
 const found = await Tools.Chat.findChat({
-  query: '日报',
+ query: '',
   match: 'contains'
 });
 
@@ -147,7 +147,7 @@ if (found.chat) {
 }
 ```
 
-### 读取最近消息
+### Translated section
 
 ```ts
 const messages = await Tools.Chat.getMessages('chat_123', {
@@ -157,7 +157,7 @@ const messages = await Tools.Chat.getMessages('chat_123', {
 console.log(messages.toString());
 ```
 
-## 相关文件
+## Translated section
 
 - `examples/types/chat.d.ts`
 - `examples/types/results.d.ts`
