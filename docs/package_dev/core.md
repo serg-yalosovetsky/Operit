@@ -1,18 +1,18 @@
-# API 文档：`core.d.ts`
+# API :`core.d.ts`
 
-`core.d.ts` 是整个脚本运行环境的基础定义文件。它提供了工具调用、结果结构、底层桥接接口，以及若干全局工具对象。
+`core.d.ts` .、、,.
 
-## 作用
+## Translated section
 
-当前定义覆盖：
+:
 
-- 通用参数与结果类型。
-- `toolCall()` 与 `complete()`。
-- `NativeInterface` 原生桥接。
-- 轻量工具对象 `_` 与 `dataUtils`。
-- CommonJS 风格的 `exports`。
+- .
+- `toolCall()` `complete()`.
+- `NativeInterface` .
+- `_` `dataUtils`.
+- CommonJS `exports`.
 
-## 基础类型
+## Translated section
 
 ### `ToolParams`
 
@@ -22,7 +22,7 @@ interface ToolParams {
 }
 ```
 
-用于描述工具调用参数。
+.
 
 ### `ToolConfig`
 
@@ -34,7 +34,7 @@ interface ToolConfig {
 }
 ```
 
-用于对象形式的 `toolCall()`。
+ `toolCall()`.
 
 ### `BaseResult`
 
@@ -47,7 +47,7 @@ interface BaseResult {
 
 ### `StringResult` / `BooleanResult` / `NumberResult`
 
-这三种结果都继承 `BaseResult`，并带有：
+ `BaseResult`,:
 
 - `data`
 - `toString()`
@@ -60,13 +60,13 @@ type ToolResult = StringResult | BooleanResult | NumberResult | (BaseResult & { 
 
 ### `ToolReturnType<T>`
 
-它会根据 `tool-types.d.ts` 中的 `ToolResultMap` 为 `toolCall()` 推导返回类型。
+ `tool-types.d.ts` `ToolResultMap` `toolCall()` .
 
-## 全局函数
+## Translated section
 
 ### `toolCall()`
 
-`core.d.ts` 中一共定义了 4 个重载：
+`core.d.ts` 4 :
 
 ```ts
 toolCall(toolType: string, toolName: T, toolParams?: ToolParams)
@@ -75,13 +75,13 @@ toolCall(config: ToolConfig & { name: T })
 toolCall(toolName: string)
 ```
 
-最常用的是后两种：
+:
 
 ```ts
 const result = await toolCall('read_file', { path: '/sdcard/a.txt' });
 ```
 
-或者：
+:
 
 ```ts
 const result = await toolCall({
@@ -96,13 +96,13 @@ const result = await toolCall({
 complete<T>(result: T): void
 ```
 
-结束脚本执行并返回结果。
+.
 
 ## `NativeInterface`
 
-`NativeInterface` 是更底层的原生桥接接口。多数业务代码优先使用 `Tools.*`、`toolCall()` 或全局对象；只有在需要桥接级能力时再直接用它。
+`NativeInterface` . `Tools.*`、`toolCall()` ；.
 
-### 工具调用与日志
+### Translated section
 
 - `callTool(toolType, toolName, paramsJson)`
 - `callToolAsync(callbackId, toolType, toolName, paramsJson)`
@@ -112,7 +112,7 @@ complete<T>(result: T): void
 - `logError(message)`
 - `logDebug(message, data)`
 
-### ToolPkg 注册相关
+### ToolPkg
 
 - `registerToolPkgToolboxUiModule(specJson)`
 - `registerToolPkgAppLifecycleHook(specJson)`
@@ -120,18 +120,18 @@ complete<T>(result: T): void
 - `registerToolPkgXmlRenderPlugin(specJson)`
 - `registerToolPkgInputMenuTogglePlugin(specJson)`
 
-### 图片注册
+### Translated section
 
 - `registerImageFromBase64(base64, mimeType)`
 - `registerImageFromPath(path)`
 
-这两个方法都会返回一个可嵌入消息的 `<link type="image" id="...">` 字符串。
+ `<link type="image" id="...">` .
 
-### 错误上报
+### Translated section
 
 - `reportError(errorType, errorMessage, errorLine, errorStack)`
 
-### Java / Kotlin 桥接
+### Java / Kotlin
 
 - `javaClassExists(className)`
 - `javaGetApplicationContext()`
@@ -144,18 +144,18 @@ complete<T>(result: T): void
 - `javaGetInstanceField(instanceHandle, fieldName)`
 - `javaSetInstanceField(instanceHandle, fieldName, valueJson)`
 
-这些方法普遍返回桥接 JSON 字符串，需要调用方自行解析。
+ JSON ,.
 
-补充说明：
+:
 
-- Java 实例句柄的解绑属于运行时内部生命周期管理，不再提供公开的 `release` / `releaseAll` 脚本接口。
-- `Java.implement(...)` / `Java.proxy(...)` 产生的 JS 回调对象改为运行时自动解绑，旧的脚本侧手动释放接口已移除。
+- Java , `release` / `releaseAll` .
+- `Java.implement(...)` / `Java.proxy(...)` JS ,.
 
-## 全局工具对象
+## Translated section
 
 ### `_`
 
-当前只声明了一个轻量 Lodash 风格子集：
+ Lodash :
 
 - `isEmpty`
 - `isString`
@@ -178,11 +178,11 @@ complete<T>(result: T): void
 var exports: { [key: string]: any }
 ```
 
-用于 CommonJS 风格导出。
+ CommonJS .
 
-## 示例
+## Translated section
 
-### 使用 `toolCall()`
+### `toolCall()`
 
 ```ts
 const file = await toolCall('read_file', {
@@ -191,23 +191,23 @@ const file = await toolCall('read_file', {
 complete(file);
 ```
 
-### 直接记录日志
+### Translated section
 
 ```ts
 NativeInterface.logInfo('start');
 NativeInterface.logDebug('payload', JSON.stringify({ ok: true }));
 ```
 
-### 注册图片
+### Translated section
 
 ```ts
 const imageLink = NativeInterface.registerImageFromPath('/sdcard/demo.png');
 complete({ imageLink });
 ```
 
-## 与 `index.d.ts` 的关系
+## `index.d.ts`
 
-`core.d.ts` 定义的是“基础能力”；`index.d.ts` 会在此基础上把更多对象和辅助函数挂到全局作用域里，例如：
+`core.d.ts` “”；`index.d.ts` ,:
 
 - `sendIntermediateResult`
 - `getEnv`
@@ -215,9 +215,9 @@ complete({ imageLink });
 - `Java`
 - `Kotlin`
 
-这些补充内容请结合 `docs/package_dev/index.md` 一起看。
+ `docs/package_dev/index.md` .
 
-## 相关文件
+## Translated section
 
 - `examples/types/core.d.ts`
 - `examples/types/tool-types.d.ts`

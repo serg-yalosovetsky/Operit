@@ -1,17 +1,17 @@
 # ToolPkg Probe Timing Breakdown
 
-采样日志：2026-03-10 00:17:18  
-场景：`deepsearching_message_plugin` 未命中，`probeOnly=true`，消息长度 `2`
+:2026-03-10 00:17:18
+:`deepsearching_message_plugin` ,`probeOnly=true`, `2`
 
-## 说明
+## Translated section
 
-- `sendMessage.total`、`delegate.prepareResponseStream`、`toolpkg.messageProcessing.matchTotal` 都是父级埋点，已经包含各自内部子阶段。
-- 看总耗时时，优先看父级埋点；看瓶颈细分时，再看子阶段。
-- 本文档只整理首包前的本地前置耗时，不含模型持续流式输出时间。
+- `sendMessage.total`、`delegate.prepareResponseStream`、`toolpkg.messageProcessing.matchTotal` ,.
+- ,；,.
+- ,.
 
-## 主链路耗时
+## Translated section
 
-| 阶段 | 耗时 |
+| | |
 | --- | ---: |
 | `delegate.loadModelConfig` | 4ms |
 | `delegate.buildUserMessageContent` | 11ms |
@@ -30,9 +30,9 @@
 | `delegate.loadProviderModel` | 18ms |
 | `delegate.firstResponseChunk` | 1895ms |
 
-## ToolPkg Probe 内部拆分
+## ToolPkg Probe
 
-| 阶段 | 耗时 |
+| | |
 | --- | ---: |
 | `toolpkg.messageProcessing.loadHooks` | 9ms |
 | `toolpkg.messageProcessing.buildPayload` | 0ms |
@@ -55,21 +55,21 @@
 | `toolpkg.messageProcessing.probeHook` | 97ms |
 | `toolpkg.messageProcessing.matchTotal` | 114ms |
 
-## 汇总
+## Translated section
 
-| 指标 | 耗时 |
+| | |
 | --- | ---: |
-| 本地前置到 `delegate.prepareResponseStream` | 145ms |
-| 本地前置到请求已发出并完成流共享、模型信息读取 | 164ms |
-| 插件探测总耗时 | 114ms |
-| 从发送开始到首包 | 1895ms |
-| 估算模型/网络首包等待 | 1731ms |
+| `delegate.prepareResponseStream` | 145ms |
+| 、 | 164ms |
+| | 114ms |
+| | 1895ms |
+| / | 1731ms |
 
-## 对比结论
+## Translated section
 
-| 采样阶段 | 耗时 |
+| | |
 | --- | ---: |
-| 早期 probe | ~498ms |
-| 解压缓存后 | ~385ms |
-| 模块上下文复用后 | ~114ms |
+| probe | ~498ms |
+| | ~385ms |
+| | ~114ms |
 

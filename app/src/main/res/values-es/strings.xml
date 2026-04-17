@@ -6641,10 +6641,10 @@
     <string name="update_version_title">Version %1$s</string>
     <string name="avatar_reset">Reset</string>
 
-    <!-- WorkflowExecutor (新增) -->
+    <!-- WorkflowExecutor (new) -->
     <string name="workflow_node_execution_exception">Node execution exception: %1$s</string>
 
-    <!-- MessageCoordinationDelegate (新增) -->
+    <!-- MessageCoordinationDelegate (new) -->
     <string name="chat_cannot_create_new">Cannot create new conversation, please try again</string>
     <string name="chat_ai_service_unavailable_memory">AI service unavailable, cannot update memory</string>
     <string name="chat_history_empty_no_update">Chat history is empty, no need to update memory</string>
@@ -6657,7 +6657,7 @@
     <string name="chat_summarize_failed_no_valid_summary">Summarization failed: unable to generate valid summary</string>
     <string name="chat_summarize_generation_failed">Summary generation failed: %1$s</string>
 
-    <!-- AIForegroundService (新增) -->
+    <!-- AIForegroundService (new) -->
     <string name="service_operit_running">Operit is running</string>
     <string name="service_chat_complete_reminder">Chat completion reminder</string>
     <string name="service_chat_complete_reminder_sound">Chat completion reminder (sound)</string>
@@ -6676,7 +6676,7 @@
     <string name="service_exit">Exit</string>
     <string name="service_stop">Stop</string>
 
-    <!-- ProblemLibraryTool (新增) -->
+    <!-- ProblemLibraryTool (new) -->
     <string name="problem_library_no_legacy_found">No related Legacy records found</string>
     <string name="problem_library_query_error">Error querying Legacy problem library: %1$s</string>
     <string name="problem_library_found_records">Found %1$d related Legacy records:</string>
@@ -6685,7 +6685,7 @@
     <string name="problem_library_using_tool">Using tool: %1$s</string>
     <string name="problem_library_time">Time: %1$s</string>
 
-    <!-- TextExporter (新增) -->
+    <!-- TextExporter (new) -->
     <string name="export_created_time">Created time: %1$s</string>
     <string name="export_updated_time">Updated time: %1$s</string>
     <string name="export_group">Group: %1$s</string>
@@ -6875,7 +6875,7 @@
     <string name="perform_edit_edittext_empty">EditText cannot be empty</string>
 
     <!-- GraphVisualizer -->
-    <string name="graph_char_for_measurement">中</string>
+    <string name="graph_char_for_measurement">M</string>
 
     <!-- MnnModelDownloadScreen -->
     <!-- No strings needed here -->

@@ -1,36 +1,36 @@
-# API 文档：`workflow.d.ts`
+# API :`workflow.d.ts`
 
-`workflow.d.ts` 描述的是 `Workflow` 类型命名空间，以及运行时入口 `Tools.Workflow`。它围绕工作流的节点、连接、增删改查与触发执行展开。
+`workflow.d.ts` `Workflow` , `Tools.Workflow`.、、.
 
-## 作用
+## Translated section
 
-当前定义覆盖：
+:
 
-- 工作流节点与连接类型。
-- 创建、读取、更新、局部补丁、删除、触发。
-- 工作流详情和列表结果类型。
+- .
+- 、、、、、.
+- .
 
-## 类型命名空间与运行时入口
+## Translated section
 
-类型命名空间：
+:
 
 ```ts
 Workflow
 ```
 
-运行时入口：
+:
 
 ```ts
 Tools.Workflow
 ```
 
-注意：`Tools.Workflow` 暴露的是 `Workflow.Runtime` 接口里的方法。
+:`Tools.Workflow` `Workflow.Runtime` .
 
-## 核心类型
+## Translated section
 
-### 节点类型
+### Translated section
 
-`Workflow.Node` 是以下联合类型之一：
+`Workflow.Node` :
 
 - `Workflow.Trigger`
 - `Workflow.Execute`
@@ -40,7 +40,7 @@ Tools.Workflow
 
 ### `Workflow.NodeInput`
 
-这是创建或更新工作流时最重要的输入类型。公共字段包括：
+.:
 
 - `id?`
 - `type: 'trigger' | 'execute' | 'condition' | 'logic' | 'extract'`
@@ -48,22 +48,22 @@ Tools.Workflow
 - `description?`
 - `position?`
 
-按节点类型还可带上不同字段：
+:
 
-- 触发器：`triggerType`、`triggerConfig`
-- 执行节点：`actionType`、`actionConfig`、`jsCode`
-- 条件节点：`left`、`operator`、`right`
-- 提取节点：`source`、`mode`、`expression`、`group`、`defaultValue` 等
-- 逻辑节点：通过 `type: 'logic'` 与操作符表达
+- :`triggerType`、`triggerConfig`
+- :`actionType`、`actionConfig`、`jsCode`
+- :`left`、`operator`、`right`
+- :`source`、`mode`、`expression`、`group`、`defaultValue`
+- : `type: 'logic'`
 
 ### `Workflow.ParameterValueInput`
 
-输入值既可以是：
+:
 
-- 直接字面量：`string | number | boolean | null`
-- 引用对象：`{ value?, nodeId?, ref?, refNodeId? }`
+- :`string | number | boolean | null`
+- :`{ value?, nodeId?, ref?, refNodeId? }`
 
-### 连接类型
+### Translated section
 
 #### `Workflow.ConnectionInput`
 
@@ -74,7 +74,7 @@ Tools.Workflow
 
 #### `Workflow.ConnectionCondition`
 
-支持关键字：
+:
 
 - `true`
 - `false`
@@ -85,34 +85,34 @@ Tools.Workflow
 - `error`
 - `failed`
 
-也支持正则条件字符串。
+.
 
-### Patch 类型
+### Patch
 
-局部更新支持：
+:
 
 - `PatchOperation = 'add' | 'update' | 'remove'`
 - `NodePatch`
 - `ConnectionPatch`
 - `PatchParams`
 
-## 运行时 API
+## API
 
 ### `Tools.Workflow.getAll()`
 
-获取全部工作流，返回 `WorkflowListResultData`。
+, `WorkflowListResultData`.
 
 ### `Tools.Workflow.create(name, description?, nodes?, connections?, enabled?)`
 
-创建工作流，返回 `WorkflowDetailResultData`。
+, `WorkflowDetailResultData`.
 
 ### `Tools.Workflow.get(workflowId)`
 
-按 ID 读取工作流详情。
+ ID .
 
 ### `Tools.Workflow.update(workflowId, updates?)`
 
-整体更新工作流，可传：
+,:
 
 - `name?`
 - `description?`
@@ -122,7 +122,7 @@ Tools.Workflow
 
 ### `Tools.Workflow.patch(workflowId, patch?)`
 
-按 patch 操作局部更新工作流，可传：
+ patch ,:
 
 - `name?`
 - `description?`
@@ -132,37 +132,37 @@ Tools.Workflow
 
 ### `Tools.Workflow.delete(workflowId)`
 
-删除工作流，返回 `StringResultData`。
+, `StringResultData`.
 
-类型定义里该成员写作 `'delete'(...)`，脚本里既可以写 `Tools.Workflow.delete(id)`，也可以更稳妥地写成 `Tools.Workflow['delete'](id)`。
+ `'delete'(...)`, `Tools.Workflow.delete(id)`, `Tools.Workflow['delete'](id)`.
 
 ### `Tools.Workflow.trigger(workflowId)`
 
-手动触发工作流，返回 `StringResultData`。
+, `StringResultData`.
 
-## 示例
+## Translated section
 
-### 创建最小工作流
+### Translated section
 
 ```ts
 const created = await Tools.Workflow.create(
   'demo-workflow',
-  '文档同步示例',
+ '',
   [
     {
       id: 'trigger_1',
       type: 'trigger',
-      name: '手动触发',
+ name: '',
       triggerType: 'manual',
       position: { x: 80, y: 80 }
     },
     {
       id: 'exec_1',
       type: 'execute',
-      name: '发送通知',
+ name: '',
       actionType: 'send_notification',
       actionConfig: {
-        message: '工作流已执行'
+ message: ''
       },
       position: { x: 320, y: 80 }
     }
@@ -178,7 +178,7 @@ const created = await Tools.Workflow.create(
 );
 ```
 
-### 读取详情
+### Translated section
 
 ```ts
 const detail = await Tools.Workflow.get(created.id);
@@ -186,7 +186,7 @@ console.log(detail.nodes.length);
 console.log(detail.connections.length);
 ```
 
-### 局部追加节点
+### Translated section
 
 ```ts
 await Tools.Workflow.patch(created.id, {
@@ -196,7 +196,7 @@ await Tools.Workflow.patch(created.id, {
       node: {
         id: 'exec_2',
         type: 'execute',
-        name: '写日志',
+ name: '',
         actionType: 'write_file',
         actionConfig: {
           path: '/sdcard/workflow.log',
@@ -209,23 +209,23 @@ await Tools.Workflow.patch(created.id, {
 });
 ```
 
-### 触发与删除
+### Translated section
 
 ```ts
 await Tools.Workflow.trigger(created.id);
 await Tools.Workflow['delete'](created.id);
 ```
 
-## 返回值
+## Translated section
 
-本文件主要使用以下结果类型：
+:
 
 - `WorkflowResultData`
 - `WorkflowListResultData`
 - `WorkflowDetailResultData`
 - `StringResultData`
 
-## 相关文件
+## Translated section
 
 - `examples/types/workflow.d.ts`
 - `examples/types/results.d.ts`

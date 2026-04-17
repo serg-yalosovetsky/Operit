@@ -1,54 +1,54 @@
-# API 文档：`ui.d.ts`
+# API :`ui.d.ts`
 
-`ui.d.ts` 描述了两层 UI 能力：
+`ui.d.ts` UI :
 
-- `Tools.UI`：直接执行点击、输入、滑动等动作。
-- `UINode`：把页面结构包装成可搜索、可遍历、可交互的对象模型。
+- `Tools.UI`:、、.
+- `UINode`:、、.
 
-## 运行时入口
+## Translated section
 
 ```ts
 Tools.UI
 UINode
 ```
 
-`UINode` 也是全局类，可以直接使用。
+`UINode` ,.
 
-## `Tools.UI` 命名空间
+## `Tools.UI`
 
-### 页面读取
+### Translated section
 
 #### `getPageInfo()`
 
-获取当前页面信息，返回 `UIPageResultData`。
+, `UIPageResultData`.
 
-### 直接动作
+### Translated section
 
 #### `tap(x, y)`
 
-按坐标点击。
+.
 
 #### `longPress(x, y)`
 
-按坐标长按。
+.
 
 #### `setText(text, resourceId?)`
 
-向输入框设置文本；若给出 `resourceId`，会尝试定位对应输入框。
+； `resourceId`,.
 
 #### `pressKey(keyCode)`
 
-按键事件。
+.
 
 #### `swipe(startX, startY, endX, endY, duration?)`
 
-执行滑动。
+.
 
-### 元素点击：`clickElement(...)`
+### :`clickElement(...)`
 
-该方法有多种重载形式，是 `ui.d.ts` 中最复杂的一组定义。
+, `ui.d.ts` .
 
-支持的调用方式包括：
+:
 
 ```ts
 clickElement(resourceId)
@@ -59,13 +59,13 @@ clickElement(type, value, index)
 clickElement({ resourceId?, className?, text?, contentDesc?, bounds?, index?, partialMatch?, isClickable? })
 ```
 
-其中：
+:
 
-- `bounds` 格式为 `"[x1,y1][x2,y2]"`
-- `type` 可为 `resourceId | className | bounds`
-- 对象参数支持按多种属性组合查找
+- `bounds` `"[x1,y1][x2,y2]"`
+- `type` `resourceId | className | bounds`
+- translated
 
-### 子代理
+### Translated section
 
 #### `runSubAgent(intent, maxSteps?, agentId?, targetApp?)`
 
@@ -73,26 +73,26 @@ clickElement({ resourceId?, className?, text?, contentDesc?, bounds?, index?, pa
 runSubAgent(intent: string, maxSteps?: number, agentId?: string, targetApp?: string): Promise<AutomationExecutionResultData>
 ```
 
-适合用高层目标描述驱动 UI 自动化。
+ UI .
 
-## `UINode` 类
+## `UINode`
 
-### 创建方式
+### Translated section
 
-通常有两种：
+:
 
 ```ts
 const root = await UINode.getCurrentPage();
 ```
 
-或者：
+:
 
 ```ts
 const page = await Tools.UI.getPageInfo();
 const root = UINode.fromPageInfo(page);
 ```
 
-### 常用只读属性
+### Translated section
 
 - `className`
 - `text`
@@ -107,13 +107,13 @@ const root = UINode.fromPageInfo(page);
 - `children`
 - `childCount`
 
-### 文本提取
+### Translated section
 
 - `allTexts(trim?, skipEmpty?)`
 - `textContent(separator?)`
 - `hasText(text, caseSensitive?)`
 
-### 搜索方法
+### Translated section
 
 - `find(criteria, deep?)`
 - `findAll(criteria, deep?)`
@@ -128,7 +128,7 @@ const root = UINode.fromPageInfo(page);
 - `findClickable()`
 - `closest(criteria)`
 
-### 动作方法
+### Translated section
 
 - `click()`
 - `longPress()`
@@ -137,9 +137,9 @@ const root = UINode.fromPageInfo(page);
 - `clickAndWait(ms?)`
 - `longPressAndWait(ms?)`
 
-其中 `wait()` / `clickAndWait()` / `longPressAndWait()` 返回的是更新后的 `UINode` 页面状态。
+ `wait()` / `clickAndWait()` / `longPressAndWait()` `UINode` .
 
-### 工具方法
+### Translated section
 
 - `toString()`
 - `toTree(indent?)`
@@ -147,7 +147,7 @@ const root = UINode.fromPageInfo(page);
 - `toFormattedString?()`
 - `equals(other)`
 
-### 静态方法
+### Translated section
 
 - `fromPageInfo(pageInfo)`
 - `getCurrentPage()`
@@ -155,39 +155,39 @@ const root = UINode.fromPageInfo(page);
 - `clickAndWait(query, delayMs?)`
 - `longPressAndWait(query, delayMs?)`
 
-## 示例
+## Translated section
 
-### 读取当前页面并查找文本
+### Translated section
 
 ```ts
 const root = await UINode.getCurrentPage();
-const button = root.findByText('确定');
+const button = root.findByText('');
 if (button) {
   await button.click();
 }
 ```
 
-### 使用 `clickElement` 的对象模式
+### `clickElement`
 
 ```ts
 await Tools.UI.clickElement({
-  text: '登录',
+ text: '',
   partialMatch: false,
   isClickable: true
 });
 ```
 
-### 设置输入框文本
+### Translated section
 
 ```ts
 await Tools.UI.setText('hello world', 'com.example:id/input');
 ```
 
-### 调用 UI 子代理
+### UI
 
 ```ts
 const result = await Tools.UI.runSubAgent(
-  '打开系统设置并进入 WLAN 页面',
+ ' WLAN ',
   20,
   undefined,
   'com.android.settings'
@@ -195,7 +195,7 @@ const result = await Tools.UI.runSubAgent(
 complete(result);
 ```
 
-## 相关文件
+## Translated section
 
 - `examples/types/ui.d.ts`
 - `examples/types/results.d.ts`
