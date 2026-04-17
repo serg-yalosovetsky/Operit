@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- 允许所有明文HTTP流量 -->
+    <!-- Allow cleartext HTTP traffic -->
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
-            <!-- 信任系统证书 -->
+            <!-- Trust system certificates -->
             <certificates src="system" />
-            <!-- 信任用户证书 -->
+            <!-- Trust user certificates -->
             <certificates src="user" />
         </trust-anchors>
     </base-config>
