@@ -40,7 +40,16 @@ if (DEFINED OPERIT_LLAMA_CPP_DIR)
     # but the propagation to LlamaWrapper does not always take effect when
     # built via Android NDK / Ninja, so pin it explicitly here.
     target_include_directories(LlamaWrapper PRIVATE "${OPERIT_LLAMA_CPP_DIR}/vendor")
-    target_link_libraries(LlamaWrapper llama common)
+
+    # The llama.cpp "common" utilities were renamed: older builds exposed a
+    # single `common` target, newer builds (>= ~45cac7ca) split it into
+    # `llama-common-base` + `llama-common`. Pick whichever actually exists
+    # so this wrapper compiles against both generations.
+    if (TARGET llama-common)
+        target_link_libraries(LlamaWrapper llama llama-common)
+    else()
+        target_link_libraries(LlamaWrapper llama common)
+    endif()
 else()
     target_compile_definitions(LlamaWrapper PRIVATE OPERIT_HAS_LLAMA_CPP=0)
 endif()
