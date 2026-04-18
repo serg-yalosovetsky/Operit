@@ -10,8 +10,13 @@ permissions:
   contents: write
 
 env:
-  JAVA_VERSION: '17'
+  # JDK 21 is required: the `io.github.kyant0:backdrop` dependency is compiled with
+  # class file major version 65 (Java 21), which kapt under JDK 17 cannot read.
+  JAVA_VERSION: '21'
   GRADLE_OPTS: -Dorg.gradle.daemon=false
+  # Release tag of this repo whose assets host the vendored binary archives
+  # (libs.zip, jniLibs.zip, models.zip, subpack.zip). Bump when the assets change.
+  VENDOR_ASSETS_TAG: vendor-assets-2026-03
 
 jobs:
   test:
@@ -20,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -30,6 +37,33 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Fetch vendored binary assets from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p gdrive_dependencies
+          for zip in libs.zip jniLibs.zip models.zip subpack.zip; do
+            echo "Downloading $zip from release $VENDOR_ASSETS_TAG"
+            gh release download "$VENDOR_ASSETS_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --pattern "$zip" \
+              --dir gdrive_dependencies \
+              --clobber
+          done
+
+      - name: Extract vendored binary assets
+        run: |
+          set -euo pipefail
+          for zip in gdrive_dependencies/libs.zip \
+                     gdrive_dependencies/jniLibs.zip \
+                     gdrive_dependencies/models.zip \
+                     gdrive_dependencies/subpack.zip; do
+            echo "Extracting $zip"
+            unzip -oq "$zip" -d .
+          done
+          test -f app/libs/ffmpeg-kit-local.aar
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
@@ -41,6 +75,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -51,6 +87,33 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Fetch vendored binary assets from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p gdrive_dependencies
+          for zip in libs.zip jniLibs.zip models.zip subpack.zip; do
+            echo "Downloading $zip from release $VENDOR_ASSETS_TAG"
+            gh release download "$VENDOR_ASSETS_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --pattern "$zip" \
+              --dir gdrive_dependencies \
+              --clobber
+          done
+
+      - name: Extract vendored binary assets
+        run: |
+          set -euo pipefail
+          for zip in gdrive_dependencies/libs.zip \
+                     gdrive_dependencies/jniLibs.zip \
+                     gdrive_dependencies/models.zip \
+                     gdrive_dependencies/subpack.zip; do
+            echo "Extracting $zip"
+            unzip -oq "$zip" -d .
+          done
+          test -f app/libs/ffmpeg-kit-local.aar
 
       - name: Decode release keystore (optional)
         if: ${{ secrets.RELEASE_STORE_FILE_BASE64 != '' }}
