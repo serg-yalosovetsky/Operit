@@ -108,6 +108,8 @@
     <string name="colorpicker_select_bubble_ai_bubble">Select dialog-style AI bubble color</string>
     <string name="colorpicker_select_bubble_user_text">Select dialog-style user text color</string>
     <string name="colorpicker_select_bubble_ai_text">Select dialog-style AI text color</string>
+    <string name="colorpicker_select_navigation_drawer_background">Select navigation drawer background color</string>
+    <string name="colorpicker_select_navigation_drawer_accent">Select navigation drawer accent color</string>
     <string name="colorpicker_select_color">Select color</string>
     <string name="colorpicker_sample_text">Sample text</string>
     <string name="colorpicker_high_contrast">High contrast</string>
@@ -2159,6 +2161,17 @@
     <string name="theme_appbar_color">App Bar Color</string>
     <string name="theme_use_custom_appbar_color">Custom App Bar Color</string>
     <string name="theme_use_custom_appbar_color_desc">When enabled, you can customize the app bar color</string>
+    <string name="theme_navigation_drawer_title">Navigation Drawer Settings</string>
+    <string name="theme_navigation_drawer_water_glass">Water Glass Navigation Drawer</string>
+    <string name="theme_navigation_drawer_water_glass_desc">When enabled, the navigation drawer background will use a water glass effect</string>
+    <string name="theme_navigation_drawer_button_liquid_glass">Frosted Glass Navigation Drawer Buttons</string>
+    <string name="theme_navigation_drawer_button_liquid_glass_desc">When enabled, navigation drawer buttons will use an iOS-style frosted glass effect</string>
+    <string name="theme_use_custom_navigation_drawer_background_color">Custom Navigation Drawer Background Color</string>
+    <string name="theme_use_custom_navigation_drawer_background_color_desc">When enabled, you can customize the navigation drawer background color</string>
+    <string name="theme_navigation_drawer_background_color">Navigation Drawer Background Color</string>
+    <string name="theme_use_custom_navigation_drawer_accent_color">Custom Navigation Drawer Accent Color</string>
+    <string name="theme_use_custom_navigation_drawer_accent_color_desc">When enabled, you can customize the navigation drawer accent color</string>
+    <string name="theme_navigation_drawer_accent_color">Navigation Drawer Accent Color</string>
 
     <!-- Toast Messages -->
     <string name="confirmation_code_copied">Confirmation code copied!</string>
@@ -3651,6 +3664,11 @@
     <string name="chat_style_bubble_user_bubble_liquid_glass_desc">When enabled, the dialog-style user bubble background will use an iOS-style frosted glass effect</string>
     <string name="chat_style_bubble_user_bubble_water_glass">Dialog-style user bubble water glass</string>
     <string name="chat_style_bubble_user_bubble_water_glass_desc">When enabled, the dialog-style user bubble background will use a water glass effect</string>
+    <string name="chat_style_bubble_ai_bubble_liquid_glass">Dialog-style AI bubble frosted glass</string>
+    <string name="chat_style_bubble_ai_bubble_liquid_glass_desc">When enabled, the dialog-style AI bubble background will use an iOS-style frosted glass effect</string>
+    <string name="chat_style_bubble_ai_bubble_water_glass">Dialog-style AI bubble water glass</string>
+    <string name="chat_style_bubble_ai_bubble_water_glass_desc">When enabled, the dialog-style AI bubble background will use a water glass effect</string>
+    <string name="chat_style_bubble_ai_image_disabled_by_glass">The image bubble is disabled while a frosted or water glass effect is active</string>
     <string name="chat_style_bubble_user_color">User bubble</string>
     <string name="chat_style_bubble_ai_color">AI bubble</string>
     <string name="chat_style_bubble_user_image_title">User bubble image</string>
