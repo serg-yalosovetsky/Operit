@@ -34,6 +34,12 @@ if (DEFINED OPERIT_LLAMA_CPP_DIR)
     target_include_directories(LlamaWrapper PRIVATE "${OPERIT_LLAMA_CPP_DIR}/common")
     target_include_directories(LlamaWrapper PRIVATE "${OPERIT_LLAMA_CPP_DIR}/include")
     target_include_directories(LlamaWrapper PRIVATE "${OPERIT_LLAMA_CPP_DIR}/ggml/include")
+    # Starting around llama.cpp commit 45cac7ca, common/peg-parser.h includes
+    # <nlohmann/json_fwd.hpp>. That header lives in llama.cpp/vendor/nlohmann.
+    # The `common` target exports `../vendor` as a PUBLIC include directory,
+    # but the propagation to LlamaWrapper does not always take effect when
+    # built via Android NDK / Ninja, so pin it explicitly here.
+    target_include_directories(LlamaWrapper PRIVATE "${OPERIT_LLAMA_CPP_DIR}/vendor")
     target_link_libraries(LlamaWrapper llama common)
 else()
     target_compile_definitions(LlamaWrapper PRIVATE OPERIT_HAS_LLAMA_CPP=0)
