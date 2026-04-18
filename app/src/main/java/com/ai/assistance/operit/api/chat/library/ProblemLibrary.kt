@@ -599,7 +599,7 @@ object ProblemLibrary {
     private fun extractCoreQuestionText(rawQuery: String): String {
         val compact = rawQuery.replace("\r\n", "\n")
 
-        val cn = Regex("(?s)问题\\s*[：:]\\s*(.+?)(?:\\n\\s*解决方案\\s*[：:]|\\z)")
+        val cn = Regex("(?s)\\u95ee\\u9898\\s*[：:]\\s*(.+?)(?:\\n\\s*\\u89e3\\u51b3\\u65b9\\u6848\\s*[：:]|\\z)")
             .find(compact)
             ?.groupValues
             ?.getOrNull(1)
@@ -619,7 +619,7 @@ object ProblemLibrary {
 
         val filtered = selected
             .lineSequence()
-            .filterNot { it.trimStart().startsWith("历史记录:") }
+            .filterNot { it.trimStart().startsWith("\u5386\u53f2\u8bb0\u5f55:") }
             .filterNot { it.trimStart().startsWith("History:") }
             .joinToString("\n")
 
@@ -867,13 +867,13 @@ object ProblemLibrary {
             return if (match.groupValues.size > 1) match.groupValues.last().trim() else null
         }
 
-        val birthDateMatch = "(出生日期|出生年月日|Birth Date|Date of Birth)[:：\\s]+([\\d-]+)".toRegex().find(preferencesText)
-        val birthYearMatch = "(出生年份|年龄|Birth year|Age)[:：\\s]+(\\d+)".toRegex().find(preferencesText)
-        val genderMatch = "(性别|Gender)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
-        val personalityMatch = "(性格(特点)?|Personality( traits)?)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
-        val identityMatch = "(身份(认同)?|Identity( recognition)?)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
-        val occupationMatch = "(职业|Occupation)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
-        val aiStyleMatch = "(AI风格|期待的AI风格|偏好的AI风格|AI Style|Expected AI Style|Preferred AI Style)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
+        val birthDateMatch = "(\\u51fa\\u751f\\u65e5\\u671f|\\u51fa\\u751f\\u5e74\\u6708\\u65e5|Birth Date|Date of Birth)[:：\\s]+([\\d-]+)".toRegex().find(preferencesText)
+        val birthYearMatch = "(\\u51fa\\u751f\\u5e74\\u4efd|\\u5e74\\u9f84|Birth year|Age)[:：\\s]+(\\d+)".toRegex().find(preferencesText)
+        val genderMatch = "(\\u6027\\u522b|Gender)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
+        val personalityMatch = "(\\u6027\\u683c(\\u7279\\u70b9)?|Personality( traits)?)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
+        val identityMatch = "(\\u8eab\\u4efd(\\u8ba4\\u540c)?|Identity( recognition)?)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
+        val occupationMatch = "(\\u804c\\u4e1a|Occupation)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
+        val aiStyleMatch = "(AI\\u98ce\\u683c|\\u671f\\u5f85\\u7684AI\\u98ce\\u683c|\\u504f\\u597d\\u7684AI\\u98ce\\u683c|AI Style|Expected AI Style|Preferred AI Style)[:：\\s]+([^;]+)".toRegex().find(preferencesText)
 
         var birthDateTimestamp: Long? = null
         if (birthDateMatch != null) {

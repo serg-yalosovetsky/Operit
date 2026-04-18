@@ -579,7 +579,7 @@ class ChatHistoryDelegate(
     /** 删除单条消息 */
     fun deleteMessage(index: Int) {
         coroutineScope.launch {
-            runCurrentChatDestructiveHistoryMutation("删除消息时当前会话已变化，放弃操作") { chatId ->
+            runCurrentChatDestructiveHistoryMutation("The current conversation changed while deleting a message; aborting.") { chatId ->
                 val currentMessages = _chatHistory.value.toMutableList()
                 if (index < 0 || index >= currentMessages.size) {
                     return@runCurrentChatDestructiveHistoryMutation false
@@ -613,7 +613,7 @@ class ChatHistoryDelegate(
 
     /** 从指定索引删除后续所有消息 */
     suspend fun deleteMessagesFrom(index: Int) {
-        runCurrentChatDestructiveHistoryMutation("批量删除后续消息时当前会话已变化，放弃操作") { chatId ->
+        runCurrentChatDestructiveHistoryMutation("The current conversation changed while deleting subsequent messages; aborting.") { chatId ->
                 val currentMessages = _chatHistory.value
                 if (index < 0 || index >= currentMessages.size) {
                     return@runCurrentChatDestructiveHistoryMutation false
@@ -881,7 +881,7 @@ class ChatHistoryDelegate(
      * @param timestampOfFirstDeletedMessage 用于删除数据库记录的起始时间戳。如果为null，则清空所有消息。
      */
     suspend fun truncateChatHistory(newHistory: List<ChatMessage>, timestampOfFirstDeletedMessage: Long?) {
-        runCurrentChatDestructiveHistoryMutation("截断聊天历史时当前会话已变化，放弃操作") { chatIdSnapshot ->
+        runCurrentChatDestructiveHistoryMutation("The current conversation changed while truncating chat history; aborting.") { chatIdSnapshot ->
             if (timestampOfFirstDeletedMessage != null) {
                 // 从数据库中删除指定时间戳之后的消息
                 chatHistoryManager.deleteMessagesFrom(

@@ -2,11 +2,11 @@
 {
   name: "operit_editor"
   display_name: {
-    zh: "Operit平台编辑器"
+    ru: "Operit平台编辑器"
     en: "Operit Platform Editor"
   }
   description: {
-    zh: '''Operit 平台配置直改工具包：提供一组可直接读取与修改 Operit 平台设置的工具，覆盖 MCP、Skill、Sandbox Package、功能模型绑定、模型参数、上下文总结与 TTS/STT 语音服务配置。'''
+    ru: '''Operit 平台配置直改工具包：提供一组可直接读取与修改 Operit 平台设置的工具，覆盖 MCP、Skill、Sandbox Package、功能模型绑定、模型参数、上下文总结与 TTS/STT 语音服务配置。'''
     en: '''Direct Operit platform configuration toolkit: a collection of tools for reading and directly modifying Operit platform settings, covering MCP, Skill, Sandbox Package, function-model bindings, model parameters, context-summary settings, and TTS/STT speech-service configuration.'''
   }
 
@@ -17,7 +17,7 @@
     {
       name: "operit_editor"
       description: {
-        zh: '''配置排查手册。
+        ru: '''配置排查手册。
 
 【触发条件】
 - 用户提到 MCP/Skill 安装失败、无法启动、工具不出现、导入失败、重名冲突、配置文件怎么改
@@ -494,7 +494,7 @@
     {
       name: "how_make_skill"
       description: {
-        zh: '''返回如何制作 skill 的双语说明。'''
+        ru: '''返回如何制作 skill 的双语说明。'''
         en: '''Return a bilingual guide for creating a skill.'''
       }
       parameters: []
@@ -502,7 +502,7 @@
     {
       name: "list_sandbox_packages"
       description: {
-        zh: '''获取沙盒包列表（内置+外部）及当前启用状态、管理路径。'''
+        ru: '''获取沙盒包列表（内置+外部）及当前启用状态、管理路径。'''
         en: '''Get sandbox package list (built-in + external), current enabled states, and management paths.'''
       }
       parameters: []
@@ -510,14 +510,14 @@
     {
       name: "set_sandbox_package_enabled"
       description: {
-        zh: '''设置沙盒包开关状态。'''
+        ru: '''设置沙盒包开关状态。'''
         en: '''Set sandbox package enabled state.'''
       }
       parameters: [
         {
           name: "package_name"
           description: {
-            zh: "沙盒包名称"
+            ru: "沙盒包名称"
             en: "Sandbox package name"
           }
           type: string
@@ -526,7 +526,7 @@
         {
           name: "enabled"
           description: {
-            zh: "是否启用（true/false）"
+            ru: "是否启用（true/false）"
             en: "Enable state (true/false)"
           }
           type: boolean
@@ -537,14 +537,14 @@
     {
       name: "debug_install_js_package"
       description: {
-        zh: '''将 Android 侧的普通 `.js` 沙盒包直接烧录到外部 packages 目录，并刷新、启用、重新加载，便于在软件内调试。'''
+        ru: '''将 Android 侧的普通 `.js` 沙盒包直接烧录到外部 packages 目录，并刷新、启用、重新加载，便于在软件内调试。'''
         en: '''Install an Android-side plain `.js` sandbox package into the external packages directory, refresh it, enable it, and reload it for in-app debugging.'''
       }
       parameters: [
         {
           name: "source_path"
           description: {
-            zh: "Android 侧 `.js` 源文件路径"
+            ru: "Android 侧 `.js` 源文件路径"
             en: "Android-side `.js` source file path"
           }
           type: string
@@ -553,7 +553,7 @@
         {
           name: "enable_after_install"
           description: {
-            zh: "安装后是否自动启用，默认 true"
+            ru: "安装后是否自动启用，默认 true"
             en: "Whether to enable it automatically after install, default true"
           }
           type: boolean
@@ -562,7 +562,7 @@
         {
           name: "activate_after_install"
           description: {
-            zh: "安装后是否自动 use_package 重新加载，默认 true"
+            ru: "安装后是否自动 use_package 重新加载，默认 true"
             en: "Whether to automatically call use_package after install, default true"
           }
           type: boolean
@@ -573,14 +573,14 @@
     {
       name: "debug_install_toolpkg"
       description: {
-        zh: '''根据 Android 侧的 ToolPkg 目录、manifest 或现成 `.toolpkg`，直接打包/烧录到外部 packages 目录，并触发 ToolPkg 安装与刷新链路。'''
+        ru: '''根据 Android 侧的 ToolPkg 目录、manifest 或现成 `.toolpkg`，直接打包/烧录到外部 packages 目录，并触发 ToolPkg 安装与刷新链路。'''
         en: '''Package or install an Android-side ToolPkg folder, manifest, or existing `.toolpkg` into the external packages directory and trigger the ToolPkg install/refresh flow.'''
       }
       parameters: [
         {
           name: "source_path"
           description: {
-            zh: "Android 侧 ToolPkg 目录、manifest.json/manifest.hjson 或 `.toolpkg` 路径"
+            ru: "Android 侧 ToolPkg 目录、manifest.json/manifest.hjson 或 `.toolpkg` 路径"
             en: "Android-side ToolPkg folder, manifest.json/manifest.hjson, or `.toolpkg` path"
           }
           type: string
@@ -589,7 +589,7 @@
         {
           name: "reset_subpackage_states"
           description: {
-            zh: "是否按 manifest 默认值重置子包启用状态，默认 true"
+            ru: "是否按 manifest 默认值重置子包启用状态，默认 true"
             en: "Whether to reset subpackage enable states from manifest defaults, default true"
           }
           type: boolean
@@ -598,7 +598,7 @@
         {
           name: "activate_subpackages"
           description: {
-            zh: "可选，逗号或换行分隔的子包 ID；安装后会自动启用并 use_package"
+            ru: "可选，逗号或换行分隔的子包 ID；安装后会自动启用并 use_package"
             en: "Optional comma/newline separated subpackage IDs; they will be enabled and activated after install"
           }
           type: string
@@ -607,7 +607,7 @@
         {
           name: "wait_ms"
           description: {
-            zh: "安装广播后等待并轮询刷新的毫秒数，默认 1500"
+            ru: "安装广播后等待并轮询刷新的毫秒数，默认 1500"
             en: "Milliseconds to wait and poll for refresh after sending the install broadcast, default 1500"
           }
           type: integer
@@ -618,14 +618,14 @@
     {
       name: "debug_run_sandbox_script"
       description: {
-        zh: '''直接运行一段 sandbox script。可传 Android 侧 `source_path`，也可直接传 `source_code` 内联代码；会返回结构化执行结果与日志事件。'''
+        ru: '''直接运行一段 sandbox script。可传 Android 侧 `source_path`，也可直接传 `source_code` 内联代码；会返回结构化执行结果与日志事件。'''
         en: '''Run a sandbox script directly. Accepts either an Android-side `source_path` or inline `source_code`, and returns structured execution results with log events.'''
       }
       parameters: [
         {
           name: "source_path"
           description: {
-            zh: "Android 侧脚本文件路径；与 source_code 二选一"
+            ru: "Android 侧脚本文件路径；与 source_code 二选一"
             en: "Android-side script file path; use either this or source_code"
           }
           type: string
@@ -634,7 +634,7 @@
         {
           name: "source_code"
           description: {
-            zh: "直接执行的内联 JavaScript 代码；与 source_path 二选一"
+            ru: "直接执行的内联 JavaScript 代码；与 source_path 二选一"
             en: "Inline JavaScript code to execute directly; use either this or source_path"
           }
           type: string
@@ -643,7 +643,7 @@
         {
           name: "params_json"
           description: {
-            zh: "传给脚本运行时的 JSON 参数字符串，默认 {}"
+            ru: "传给脚本运行时的 JSON 参数字符串，默认 {}"
             en: "JSON parameter string passed to the script runtime, default {}"
           }
           type: string
@@ -652,7 +652,7 @@
         {
           name: "env_file_path"
           description: {
-            zh: "可选，Android 侧 env 文件路径"
+            ru: "可选，Android 侧 env 文件路径"
             en: "Optional Android-side env file path"
           }
           type: string
@@ -661,7 +661,7 @@
         {
           name: "script_label"
           description: {
-            zh: "可选，仅用于内联代码模式下生成结果文件名和显示标识"
+            ru: "可选，仅用于内联代码模式下生成结果文件名和显示标识"
             en: "Optional label used only for inline-code mode to name the result file and display path"
           }
           type: string
@@ -670,7 +670,7 @@
         {
           name: "wait_ms"
           description: {
-            zh: "等待结构化结果文件的毫秒数，默认 15000"
+            ru: "等待结构化结果文件的毫秒数，默认 15000"
             en: "Milliseconds to wait for the structured result file, default 15000"
           }
           type: integer
@@ -681,14 +681,14 @@
     {
       name: "read_environment_variable"
       description: {
-        zh: '''读取指定环境变量当前值（仅用于沙盒包脚本环境变量排查，不用于 MCP 配置）。'''
+        ru: '''读取指定环境变量当前值（仅用于沙盒包脚本环境变量排查，不用于 MCP 配置）。'''
         en: '''Read current value of a specified environment variable (sandbox-package script env troubleshooting only, not MCP config env).'''
       }
       parameters: [
         {
           name: "key"
           description: {
-            zh: "环境变量名"
+            ru: "环境变量名"
             en: "Environment variable key"
           }
           type: string
@@ -699,14 +699,14 @@
     {
       name: "write_environment_variable"
       description: {
-        zh: '''写入指定环境变量；value 为空时会清除该变量（仅用于沙盒包脚本环境变量，不用于 MCP 配置 env）。'''
+        ru: '''写入指定环境变量；value 为空时会清除该变量（仅用于沙盒包脚本环境变量，不用于 MCP 配置 env）。'''
         en: '''Write a specified environment variable; empty value clears it (sandbox-package script env only, not MCP config env).'''
       }
       parameters: [
         {
           name: "key"
           description: {
-            zh: "环境变量名"
+            ru: "环境变量名"
             en: "Environment variable key"
           }
           type: string
@@ -715,7 +715,7 @@
         {
           name: "value"
           description: {
-            zh: "变量值；为空时清除该变量"
+            ru: "变量值；为空时清除该变量"
             en: "Variable value; empty clears the variable"
           }
           type: string
@@ -726,14 +726,14 @@
     {
       name: "restart_mcp_with_logs"
       description: {
-        zh: '''触发一次 MCP 重启流程，返回每个插件的启动日志与状态摘要。'''
+        ru: '''触发一次 MCP 重启流程，返回每个插件的启动日志与状态摘要。'''
         en: '''Trigger one MCP restart flow and return per-plugin startup logs with status summary.'''
       }
       parameters: [
         {
           name: "timeout_ms"
           description: {
-            zh: "可选，最大等待时长（毫秒）"
+            ru: "可选，最大等待时长（毫秒）"
             en: "Optional max wait time in milliseconds"
           }
           type: integer
@@ -744,7 +744,7 @@
     {
       name: "get_speech_services_config"
       description: {
-        zh: '''获取当前 TTS/STT 语音服务配置快照。'''
+        ru: '''获取当前 TTS/STT 语音服务配置快照。'''
         en: '''Get current TTS/STT speech services config snapshot.'''
       }
       parameters: []
@@ -752,14 +752,14 @@
     {
       name: "set_speech_services_config"
       description: {
-        zh: '''按字段更新 TTS/STT 语音服务配置（支持部分字段更新）。'''
+        ru: '''按字段更新 TTS/STT 语音服务配置（支持部分字段更新）。'''
         en: '''Update TTS/STT speech services config by fields (partial update supported).'''
       }
       parameters: [
         {
           name: "tts_service_type"
           description: {
-            zh: "可选，SIMPLE_TTS/HTTP_TTS/OPENAI_WS_TTS/SILICONFLOW_TTS/MINIMAX_TTS/OPENAI_TTS"
+            ru: "可选，SIMPLE_TTS/HTTP_TTS/OPENAI_WS_TTS/SILICONFLOW_TTS/MINIMAX_TTS/OPENAI_TTS"
             en: "Optional, SIMPLE_TTS/HTTP_TTS/OPENAI_WS_TTS/SILICONFLOW_TTS/MINIMAX_TTS/OPENAI_TTS"
           }
           type: string
@@ -768,7 +768,7 @@
         {
           name: "tts_url_template"
           description: {
-            zh: "可选，TTS URL 模板。仅支持 `{text}`、`{rate}`、`{pitch}`、`{voice}`"
+            ru: "可选，TTS URL 模板。仅支持 `{text}`、`{rate}`、`{pitch}`、`{voice}`"
             en: "Optional TTS URL template. Supports only `{text}`, `{rate}`, `{pitch}`, `{voice}`"
           }
           type: string
@@ -777,7 +777,7 @@
         {
           name: "tts_api_key"
           description: {
-            zh: "可选，TTS API Key"
+            ru: "可选，TTS API Key"
             en: "Optional TTS API key"
           }
           type: string
@@ -786,7 +786,7 @@
         {
           name: "tts_headers"
           description: {
-            zh: "可选，TTS headers 的 JSON 对象字符串"
+            ru: "可选，TTS headers 的 JSON 对象字符串"
             en: "Optional JSON object string for TTS headers"
           }
           type: string
@@ -795,7 +795,7 @@
         {
           name: "tts_http_method"
           description: {
-            zh: "可选，GET/POST"
+            ru: "可选，GET/POST"
             en: "Optional, GET/POST"
           }
           type: string
@@ -804,7 +804,7 @@
         {
           name: "tts_request_body"
           description: {
-            zh: "可选，TTS POST body 模板。仅支持 `{text}`、`{rate}`、`{pitch}`、`{voice}`"
+            ru: "可选，TTS POST body 模板。仅支持 `{text}`、`{rate}`、`{pitch}`、`{voice}`"
             en: "Optional TTS POST body template. Supports only `{text}`, `{rate}`, `{pitch}`, `{voice}`"
           }
           type: string
@@ -813,7 +813,7 @@
         {
           name: "tts_content_type"
           description: {
-            zh: "可选，TTS Content-Type"
+            ru: "可选，TTS Content-Type"
             en: "Optional TTS content type"
           }
           type: string
@@ -822,7 +822,7 @@
         {
           name: "tts_voice_id"
           description: {
-            zh: "可选，TTS 音色 ID"
+            ru: "可选，TTS 音色 ID"
             en: "Optional TTS voice id"
           }
           type: string
@@ -831,7 +831,7 @@
         {
           name: "tts_model_name"
           description: {
-            zh: "可选，TTS 模型名"
+            ru: "可选，TTS 模型名"
             en: "Optional TTS model name"
           }
           type: string
@@ -840,7 +840,7 @@
         {
           name: "tts_response_pipeline"
           description: {
-            zh: "可选，HTTP TTS 响应处理管线 JSON 数组字符串。留空或 `[]` 时保持旧行为，直接把响应体当音频"
+            ru: "可选，HTTP TTS 响应处理管线 JSON 数组字符串。留空或 `[]` 时保持旧行为，直接把响应体当音频"
             en: "Optional HTTP TTS response pipeline JSON array string. Leave empty or use `[]` to keep the old direct-audio behavior"
           }
           type: string
@@ -849,7 +849,7 @@
         {
           name: "tts_cleaner_regexs"
           description: {
-            zh: "可选，TTS 清理正则列表 JSON 数组字符串"
+            ru: "可选，TTS 清理正则列表 JSON 数组字符串"
             en: "Optional JSON array string for TTS cleaner regex list"
           }
           type: string
@@ -858,7 +858,7 @@
         {
           name: "tts_speech_rate"
           description: {
-            zh: "可选，TTS 语速"
+            ru: "可选，TTS 语速"
             en: "Optional TTS speech rate"
           }
           type: number
@@ -867,7 +867,7 @@
         {
           name: "tts_pitch"
           description: {
-            zh: "可选，TTS 音调"
+            ru: "可选，TTS 音调"
             en: "Optional TTS pitch"
           }
           type: number
@@ -876,7 +876,7 @@
         {
           name: "stt_service_type"
           description: {
-            zh: "可选，SHERPA_NCNN/OPENAI_STT/DEEPGRAM_STT"
+            ru: "可选，SHERPA_NCNN/OPENAI_STT/DEEPGRAM_STT"
             en: "Optional, SHERPA_NCNN/OPENAI_STT/DEEPGRAM_STT"
           }
           type: string
@@ -885,7 +885,7 @@
         {
           name: "stt_endpoint_url"
           description: {
-            zh: "可选，STT endpoint URL"
+            ru: "可选，STT endpoint URL"
             en: "Optional STT endpoint URL"
           }
           type: string
@@ -894,7 +894,7 @@
         {
           name: "stt_api_key"
           description: {
-            zh: "可选，STT API Key"
+            ru: "可选，STT API Key"
             en: "Optional STT API key"
           }
           type: string
@@ -903,7 +903,7 @@
         {
           name: "stt_model_name"
           description: {
-            zh: "可选，STT 模型名"
+            ru: "可选，STT 模型名"
             en: "Optional STT model name"
           }
           type: string
@@ -914,14 +914,14 @@
     {
       name: "test_tts_playback"
       description: {
-        zh: '''按当前 TTS 配置播放一次测试文本。'''
+        ru: '''按当前 TTS 配置播放一次测试文本。'''
         en: '''Play one TTS test utterance with the current configuration.'''
       }
       parameters: [
         {
           name: "text"
           description: {
-            zh: "必填，要播放的测试文本"
+            ru: "必填，要播放的测试文本"
             en: "Required test text to play"
           }
           type: string
@@ -930,7 +930,7 @@
         {
           name: "interrupt"
           description: {
-            zh: "可选，播放前是否先中断当前播报"
+            ru: "可选，播放前是否先中断当前播报"
             en: "Optional, interrupt current playback before this test"
           }
           type: boolean
@@ -939,7 +939,7 @@
         {
           name: "speech_rate"
           description: {
-            zh: "可选，仅本次测试生效的语速覆盖值"
+            ru: "可选，仅本次测试生效的语速覆盖值"
             en: "Optional speech-rate override for this test only"
           }
           type: number
@@ -948,7 +948,7 @@
         {
           name: "pitch"
           description: {
-            zh: "可选，仅本次测试生效的音调覆盖值"
+            ru: "可选，仅本次测试生效的音调覆盖值"
             en: "Optional pitch override for this test only"
           }
           type: number
@@ -959,7 +959,7 @@
     {
       name: "list_model_configs"
       description: {
-        zh: '''列出全部模型配置及功能模型绑定关系。'''
+        ru: '''列出全部模型配置及功能模型绑定关系。'''
         en: '''List all model configs and function-model bindings.'''
       }
       parameters: []
@@ -967,14 +967,14 @@
     {
       name: "create_model_config"
       description: {
-        zh: '''新增模型配置（可带初始化字段）。'''
+        ru: '''新增模型配置（可带初始化字段）。'''
         en: '''Create a model config (optional initialization fields).'''
       }
       parameters: [
         {
           name: "name"
           description: {
-            zh: "可选，配置名称"
+            ru: "可选，配置名称"
             en: "Optional config name"
           }
           type: string
@@ -983,7 +983,7 @@
         {
           name: "api_provider_type"
           description: {
-            zh: "可选，提供商枚举名"
+            ru: "可选，提供商枚举名"
             en: "Optional provider enum name"
           }
           type: string
@@ -992,7 +992,7 @@
         {
           name: "api_endpoint"
           description: {
-            zh: "可选，API端点"
+            ru: "可选，API端点"
             en: "Optional API endpoint"
           }
           type: string
@@ -1001,7 +1001,7 @@
         {
           name: "api_key"
           description: {
-            zh: "可选，API Key"
+            ru: "可选，API Key"
             en: "Optional API key"
           }
           type: string
@@ -1010,7 +1010,7 @@
         {
           name: "model_name"
           description: {
-            zh: "可选，模型名（多个可逗号分隔）"
+            ru: "可选，模型名（多个可逗号分隔）"
             en: "Optional model name (comma-separated for multiple models)"
           }
           type: string
@@ -1019,7 +1019,7 @@
         {
           name: "max_tokens_enabled"
           description: {
-            zh: "可选，是否启用 max_tokens 参数"
+            ru: "可选，是否启用 max_tokens 参数"
             en: "Optional switch for max_tokens"
           }
           type: boolean
@@ -1028,7 +1028,7 @@
         {
           name: "max_tokens"
           description: {
-            zh: "可选，max_tokens 数值"
+            ru: "可选，max_tokens 数值"
             en: "Optional max_tokens value"
           }
           type: integer
@@ -1037,7 +1037,7 @@
         {
           name: "temperature_enabled"
           description: {
-            zh: "可选，是否启用 temperature 参数"
+            ru: "可选，是否启用 temperature 参数"
             en: "Optional switch for temperature"
           }
           type: boolean
@@ -1046,7 +1046,7 @@
         {
           name: "temperature"
           description: {
-            zh: "可选，temperature 数值"
+            ru: "可选，temperature 数值"
             en: "Optional temperature value"
           }
           type: number
@@ -1055,7 +1055,7 @@
         {
           name: "top_p_enabled"
           description: {
-            zh: "可选，是否启用 top_p 参数"
+            ru: "可选，是否启用 top_p 参数"
             en: "Optional switch for top_p"
           }
           type: boolean
@@ -1064,7 +1064,7 @@
         {
           name: "top_p"
           description: {
-            zh: "可选，top_p 数值"
+            ru: "可选，top_p 数值"
             en: "Optional top_p value"
           }
           type: number
@@ -1073,7 +1073,7 @@
         {
           name: "top_k_enabled"
           description: {
-            zh: "可选，是否启用 top_k 参数"
+            ru: "可选，是否启用 top_k 参数"
             en: "Optional switch for top_k"
           }
           type: boolean
@@ -1082,7 +1082,7 @@
         {
           name: "top_k"
           description: {
-            zh: "可选，top_k 数值"
+            ru: "可选，top_k 数值"
             en: "Optional top_k value"
           }
           type: integer
@@ -1091,7 +1091,7 @@
         {
           name: "presence_penalty_enabled"
           description: {
-            zh: "可选，是否启用 presence_penalty 参数"
+            ru: "可选，是否启用 presence_penalty 参数"
             en: "Optional switch for presence_penalty"
           }
           type: boolean
@@ -1100,7 +1100,7 @@
         {
           name: "presence_penalty"
           description: {
-            zh: "可选，presence_penalty 数值"
+            ru: "可选，presence_penalty 数值"
             en: "Optional presence_penalty value"
           }
           type: number
@@ -1109,7 +1109,7 @@
         {
           name: "frequency_penalty_enabled"
           description: {
-            zh: "可选，是否启用 frequency_penalty 参数"
+            ru: "可选，是否启用 frequency_penalty 参数"
             en: "Optional switch for frequency_penalty"
           }
           type: boolean
@@ -1118,7 +1118,7 @@
         {
           name: "frequency_penalty"
           description: {
-            zh: "可选，frequency_penalty 数值"
+            ru: "可选，frequency_penalty 数值"
             en: "Optional frequency_penalty value"
           }
           type: number
@@ -1127,7 +1127,7 @@
         {
           name: "repetition_penalty_enabled"
           description: {
-            zh: "可选，是否启用 repetition_penalty 参数"
+            ru: "可选，是否启用 repetition_penalty 参数"
             en: "Optional switch for repetition_penalty"
           }
           type: boolean
@@ -1136,7 +1136,7 @@
         {
           name: "repetition_penalty"
           description: {
-            zh: "可选，repetition_penalty 数值"
+            ru: "可选，repetition_penalty 数值"
             en: "Optional repetition_penalty value"
           }
           type: number
@@ -1145,7 +1145,7 @@
         {
           name: "custom_parameters"
           description: {
-            zh: "可选，自定义参数 JSON 字符串"
+            ru: "可选，自定义参数 JSON 字符串"
             en: "Optional custom parameters JSON string"
           }
           type: string
@@ -1154,7 +1154,7 @@
         {
           name: "custom_headers"
           description: {
-            zh: "可选，自定义请求头 JSON 对象字符串"
+            ru: "可选，自定义请求头 JSON 对象字符串"
             en: "Optional custom request headers JSON object string"
           }
           type: string
@@ -1163,7 +1163,7 @@
         {
           name: "context_length"
           description: {
-            zh: "可选，上下文长度倍率"
+            ru: "可选，上下文长度倍率"
             en: "Optional context length multiplier"
           }
           type: number
@@ -1172,7 +1172,7 @@
         {
           name: "max_context_length"
           description: {
-            zh: "可选，最大上下文长度倍率"
+            ru: "可选，最大上下文长度倍率"
             en: "Optional max context length multiplier"
           }
           type: number
@@ -1181,7 +1181,7 @@
         {
           name: "enable_max_context_mode"
           description: {
-            zh: "可选，是否启用最大上下文模式"
+            ru: "可选，是否启用最大上下文模式"
             en: "Optional max-context mode switch"
           }
           type: boolean
@@ -1190,7 +1190,7 @@
         {
           name: "summary_token_threshold"
           description: {
-            zh: "可选，总结触发阈值"
+            ru: "可选，总结触发阈值"
             en: "Optional summary trigger threshold"
           }
           type: number
@@ -1199,7 +1199,7 @@
         {
           name: "enable_summary"
           description: {
-            zh: "可选，是否启用总结"
+            ru: "可选，是否启用总结"
             en: "Optional summary switch"
           }
           type: boolean
@@ -1208,7 +1208,7 @@
         {
           name: "enable_summary_by_message_count"
           description: {
-            zh: "可选，是否按消息数触发总结"
+            ru: "可选，是否按消息数触发总结"
             en: "Optional summary-by-message-count switch"
           }
           type: boolean
@@ -1217,7 +1217,7 @@
         {
           name: "summary_message_count_threshold"
           description: {
-            zh: "可选，按消息数总结的阈值"
+            ru: "可选，按消息数总结的阈值"
             en: "Optional message-count threshold for summary"
           }
           type: integer
@@ -1226,7 +1226,7 @@
         {
           name: "enable_direct_image_processing"
           description: {
-            zh: "可选，是否启用直接图片处理"
+            ru: "可选，是否启用直接图片处理"
             en: "Optional direct image processing switch"
           }
           type: boolean
@@ -1235,7 +1235,7 @@
         {
           name: "enable_direct_audio_processing"
           description: {
-            zh: "可选，是否启用直接音频处理"
+            ru: "可选，是否启用直接音频处理"
             en: "Optional direct audio processing switch"
           }
           type: boolean
@@ -1244,7 +1244,7 @@
         {
           name: "enable_direct_video_processing"
           description: {
-            zh: "可选，是否启用直接视频处理"
+            ru: "可选，是否启用直接视频处理"
             en: "Optional direct video processing switch"
           }
           type: boolean
@@ -1253,7 +1253,7 @@
         {
           name: "enable_google_search"
           description: {
-            zh: "可选，是否启用 Google Search"
+            ru: "可选，是否启用 Google Search"
             en: "Optional Google Search switch"
           }
           type: boolean
@@ -1262,7 +1262,7 @@
         {
           name: "enable_tool_call"
           description: {
-            zh: "可选，是否开启Tool Call"
+            ru: "可选，是否开启Tool Call"
             en: "Optional tool-call switch"
           }
           type: boolean
@@ -1271,7 +1271,7 @@
         {
           name: "mnn_forward_type"
           description: {
-            zh: "可选，MNN 前向类型"
+            ru: "可选，MNN 前向类型"
             en: "Optional MNN forward type"
           }
           type: integer
@@ -1280,7 +1280,7 @@
         {
           name: "mnn_thread_count"
           description: {
-            zh: "可选，MNN 线程数"
+            ru: "可选，MNN 线程数"
             en: "Optional MNN thread count"
           }
           type: integer
@@ -1289,7 +1289,7 @@
         {
           name: "llama_thread_count"
           description: {
-            zh: "可选，llama.cpp 线程数"
+            ru: "可选，llama.cpp 线程数"
             en: "Optional llama.cpp thread count"
           }
           type: integer
@@ -1298,7 +1298,7 @@
         {
           name: "llama_context_size"
           description: {
-            zh: "可选，llama.cpp 上下文长度"
+            ru: "可选，llama.cpp 上下文长度"
             en: "Optional llama.cpp context size"
           }
           type: integer
@@ -1307,7 +1307,7 @@
         {
           name: "llama_gpu_layers"
           description: {
-            zh: "可选，llama.cpp GPU 层数"
+            ru: "可选，llama.cpp GPU 层数"
             en: "Optional llama.cpp GPU layer count"
           }
           type: integer
@@ -1316,7 +1316,7 @@
         {
           name: "request_limit_per_minute"
           description: {
-            zh: "可选，每分钟请求限制"
+            ru: "可选，每分钟请求限制"
             en: "Optional request-per-minute limit"
           }
           type: integer
@@ -1325,7 +1325,7 @@
         {
           name: "max_concurrent_requests"
           description: {
-            zh: "可选，最大并发请求数"
+            ru: "可选，最大并发请求数"
             en: "Optional max concurrent requests"
           }
           type: integer
@@ -1336,14 +1336,14 @@
     {
       name: "update_model_config"
       description: {
-        zh: '''按 config_id 修改模型配置。'''
+        ru: '''按 config_id 修改模型配置。'''
         en: '''Update model config by config_id.'''
       }
       parameters: [
         {
           name: "config_id"
           description: {
-            zh: "目标配置ID"
+            ru: "目标配置ID"
             en: "Target config id"
           }
           type: string
@@ -1352,7 +1352,7 @@
         {
           name: "name"
           description: {
-            zh: "可选，配置名称"
+            ru: "可选，配置名称"
             en: "Optional config name"
           }
           type: string
@@ -1361,7 +1361,7 @@
         {
           name: "api_provider_type"
           description: {
-            zh: "可选，提供商枚举名"
+            ru: "可选，提供商枚举名"
             en: "Optional provider enum name"
           }
           type: string
@@ -1370,7 +1370,7 @@
         {
           name: "api_endpoint"
           description: {
-            zh: "可选，API端点"
+            ru: "可选，API端点"
             en: "Optional API endpoint"
           }
           type: string
@@ -1379,7 +1379,7 @@
         {
           name: "api_key"
           description: {
-            zh: "可选，API Key"
+            ru: "可选，API Key"
             en: "Optional API key"
           }
           type: string
@@ -1388,7 +1388,7 @@
         {
           name: "model_name"
           description: {
-            zh: "可选，模型名（多个可逗号分隔）"
+            ru: "可选，模型名（多个可逗号分隔）"
             en: "Optional model name (comma-separated for multiple models)"
           }
           type: string
@@ -1397,7 +1397,7 @@
         {
           name: "max_tokens_enabled"
           description: {
-            zh: "可选，是否启用 max_tokens 参数"
+            ru: "可选，是否启用 max_tokens 参数"
             en: "Optional switch for max_tokens"
           }
           type: boolean
@@ -1406,7 +1406,7 @@
         {
           name: "max_tokens"
           description: {
-            zh: "可选，max_tokens 数值"
+            ru: "可选，max_tokens 数值"
             en: "Optional max_tokens value"
           }
           type: integer
@@ -1415,7 +1415,7 @@
         {
           name: "temperature_enabled"
           description: {
-            zh: "可选，是否启用 temperature 参数"
+            ru: "可选，是否启用 temperature 参数"
             en: "Optional switch for temperature"
           }
           type: boolean
@@ -1424,7 +1424,7 @@
         {
           name: "temperature"
           description: {
-            zh: "可选，temperature 数值"
+            ru: "可选，temperature 数值"
             en: "Optional temperature value"
           }
           type: number
@@ -1433,7 +1433,7 @@
         {
           name: "top_p_enabled"
           description: {
-            zh: "可选，是否启用 top_p 参数"
+            ru: "可选，是否启用 top_p 参数"
             en: "Optional switch for top_p"
           }
           type: boolean
@@ -1442,7 +1442,7 @@
         {
           name: "top_p"
           description: {
-            zh: "可选，top_p 数值"
+            ru: "可选，top_p 数值"
             en: "Optional top_p value"
           }
           type: number
@@ -1451,7 +1451,7 @@
         {
           name: "top_k_enabled"
           description: {
-            zh: "可选，是否启用 top_k 参数"
+            ru: "可选，是否启用 top_k 参数"
             en: "Optional switch for top_k"
           }
           type: boolean
@@ -1460,7 +1460,7 @@
         {
           name: "top_k"
           description: {
-            zh: "可选，top_k 数值"
+            ru: "可选，top_k 数值"
             en: "Optional top_k value"
           }
           type: integer
@@ -1469,7 +1469,7 @@
         {
           name: "presence_penalty_enabled"
           description: {
-            zh: "可选，是否启用 presence_penalty 参数"
+            ru: "可选，是否启用 presence_penalty 参数"
             en: "Optional switch for presence_penalty"
           }
           type: boolean
@@ -1478,7 +1478,7 @@
         {
           name: "presence_penalty"
           description: {
-            zh: "可选，presence_penalty 数值"
+            ru: "可选，presence_penalty 数值"
             en: "Optional presence_penalty value"
           }
           type: number
@@ -1487,7 +1487,7 @@
         {
           name: "frequency_penalty_enabled"
           description: {
-            zh: "可选，是否启用 frequency_penalty 参数"
+            ru: "可选，是否启用 frequency_penalty 参数"
             en: "Optional switch for frequency_penalty"
           }
           type: boolean
@@ -1496,7 +1496,7 @@
         {
           name: "frequency_penalty"
           description: {
-            zh: "可选，frequency_penalty 数值"
+            ru: "可选，frequency_penalty 数值"
             en: "Optional frequency_penalty value"
           }
           type: number
@@ -1505,7 +1505,7 @@
         {
           name: "repetition_penalty_enabled"
           description: {
-            zh: "可选，是否启用 repetition_penalty 参数"
+            ru: "可选，是否启用 repetition_penalty 参数"
             en: "Optional switch for repetition_penalty"
           }
           type: boolean
@@ -1514,7 +1514,7 @@
         {
           name: "repetition_penalty"
           description: {
-            zh: "可选，repetition_penalty 数值"
+            ru: "可选，repetition_penalty 数值"
             en: "Optional repetition_penalty value"
           }
           type: number
@@ -1523,7 +1523,7 @@
         {
           name: "custom_parameters"
           description: {
-            zh: "可选，自定义参数 JSON 字符串"
+            ru: "可选，自定义参数 JSON 字符串"
             en: "Optional custom parameters JSON string"
           }
           type: string
@@ -1532,7 +1532,7 @@
         {
           name: "custom_headers"
           description: {
-            zh: "可选，自定义请求头 JSON 对象字符串"
+            ru: "可选，自定义请求头 JSON 对象字符串"
             en: "Optional custom request headers JSON object string"
           }
           type: string
@@ -1541,7 +1541,7 @@
         {
           name: "context_length"
           description: {
-            zh: "可选，上下文长度倍率"
+            ru: "可选，上下文长度倍率"
             en: "Optional context length multiplier"
           }
           type: number
@@ -1550,7 +1550,7 @@
         {
           name: "max_context_length"
           description: {
-            zh: "可选，最大上下文长度倍率"
+            ru: "可选，最大上下文长度倍率"
             en: "Optional max context length multiplier"
           }
           type: number
@@ -1559,7 +1559,7 @@
         {
           name: "enable_max_context_mode"
           description: {
-            zh: "可选，是否启用最大上下文模式"
+            ru: "可选，是否启用最大上下文模式"
             en: "Optional max-context mode switch"
           }
           type: boolean
@@ -1568,7 +1568,7 @@
         {
           name: "summary_token_threshold"
           description: {
-            zh: "可选，总结触发阈值"
+            ru: "可选，总结触发阈值"
             en: "Optional summary trigger threshold"
           }
           type: number
@@ -1577,7 +1577,7 @@
         {
           name: "enable_summary"
           description: {
-            zh: "可选，是否启用总结"
+            ru: "可选，是否启用总结"
             en: "Optional summary switch"
           }
           type: boolean
@@ -1586,7 +1586,7 @@
         {
           name: "enable_summary_by_message_count"
           description: {
-            zh: "可选，是否按消息数触发总结"
+            ru: "可选，是否按消息数触发总结"
             en: "Optional summary-by-message-count switch"
           }
           type: boolean
@@ -1595,7 +1595,7 @@
         {
           name: "summary_message_count_threshold"
           description: {
-            zh: "可选，按消息数总结的阈值"
+            ru: "可选，按消息数总结的阈值"
             en: "Optional message-count threshold for summary"
           }
           type: integer
@@ -1604,7 +1604,7 @@
         {
           name: "enable_direct_image_processing"
           description: {
-            zh: "可选，是否启用直接图片处理"
+            ru: "可选，是否启用直接图片处理"
             en: "Optional direct image processing switch"
           }
           type: boolean
@@ -1613,7 +1613,7 @@
         {
           name: "enable_direct_audio_processing"
           description: {
-            zh: "可选，是否启用直接音频处理"
+            ru: "可选，是否启用直接音频处理"
             en: "Optional direct audio processing switch"
           }
           type: boolean
@@ -1622,7 +1622,7 @@
         {
           name: "enable_direct_video_processing"
           description: {
-            zh: "可选，是否启用直接视频处理"
+            ru: "可选，是否启用直接视频处理"
             en: "Optional direct video processing switch"
           }
           type: boolean
@@ -1631,7 +1631,7 @@
         {
           name: "enable_google_search"
           description: {
-            zh: "可选，是否启用 Google Search"
+            ru: "可选，是否启用 Google Search"
             en: "Optional Google Search switch"
           }
           type: boolean
@@ -1640,7 +1640,7 @@
         {
           name: "enable_tool_call"
           description: {
-            zh: "可选，是否开启Tool Call"
+            ru: "可选，是否开启Tool Call"
             en: "Optional tool-call switch"
           }
           type: boolean
@@ -1649,7 +1649,7 @@
         {
           name: "mnn_forward_type"
           description: {
-            zh: "可选，MNN 前向类型"
+            ru: "可选，MNN 前向类型"
             en: "Optional MNN forward type"
           }
           type: integer
@@ -1658,7 +1658,7 @@
         {
           name: "mnn_thread_count"
           description: {
-            zh: "可选，MNN 线程数"
+            ru: "可选，MNN 线程数"
             en: "Optional MNN thread count"
           }
           type: integer
@@ -1667,7 +1667,7 @@
         {
           name: "llama_thread_count"
           description: {
-            zh: "可选，llama.cpp 线程数"
+            ru: "可选，llama.cpp 线程数"
             en: "Optional llama.cpp thread count"
           }
           type: integer
@@ -1676,7 +1676,7 @@
         {
           name: "llama_context_size"
           description: {
-            zh: "可选，llama.cpp 上下文长度"
+            ru: "可选，llama.cpp 上下文长度"
             en: "Optional llama.cpp context size"
           }
           type: integer
@@ -1685,7 +1685,7 @@
         {
           name: "llama_gpu_layers"
           description: {
-            zh: "可选，llama.cpp GPU 层数"
+            ru: "可选，llama.cpp GPU 层数"
             en: "Optional llama.cpp GPU layer count"
           }
           type: integer
@@ -1694,7 +1694,7 @@
         {
           name: "request_limit_per_minute"
           description: {
-            zh: "可选，每分钟请求限制"
+            ru: "可选，每分钟请求限制"
             en: "Optional request-per-minute limit"
           }
           type: integer
@@ -1703,7 +1703,7 @@
         {
           name: "max_concurrent_requests"
           description: {
-            zh: "可选，最大并发请求数"
+            ru: "可选，最大并发请求数"
             en: "Optional max concurrent requests"
           }
           type: integer
@@ -1714,14 +1714,14 @@
     {
       name: "delete_model_config"
       description: {
-        zh: '''按 config_id 删除模型配置（默认配置不可删）。'''
+        ru: '''按 config_id 删除模型配置（默认配置不可删）。'''
         en: '''Delete model config by config_id (default cannot be deleted).'''
       }
       parameters: [
         {
           name: "config_id"
           description: {
-            zh: "目标配置ID"
+            ru: "目标配置ID"
             en: "Target config id"
           }
           type: string
@@ -1732,7 +1732,7 @@
     {
       name: "list_function_model_configs"
       description: {
-        zh: '''仅列出功能模型绑定关系（功能 -> 配置 + 模型索引）。'''
+        ru: '''仅列出功能模型绑定关系（功能 -> 配置 + 模型索引）。'''
         en: '''List function model bindings only (function -> config + model index).'''
       }
       parameters: []
@@ -1740,14 +1740,14 @@
     {
       name: "get_function_model_config"
       description: {
-        zh: '''查看某个功能当前绑定的单个模型配置详情。'''
+        ru: '''查看某个功能当前绑定的单个模型配置详情。'''
         en: '''Get one function's currently bound model config detail.'''
       }
       parameters: [
         {
           name: "function_type"
           description: {
-            zh: "功能类型枚举名"
+            ru: "功能类型枚举名"
             en: "Function type enum name"
           }
           type: string
@@ -1758,14 +1758,14 @@
     {
       name: "get_context_summary_config"
       description: {
-        zh: '''获取某个功能当前绑定模型配置中的上下文总结参数。'''
+        ru: '''获取某个功能当前绑定模型配置中的上下文总结参数。'''
         en: '''Get context-summary settings from the model config bound to a function.'''
       }
       parameters: [
         {
           name: "function_type"
           description: {
-            zh: "可选，功能类型；默认 CHAT"
+            ru: "可选，功能类型；默认 CHAT"
             en: "Optional function type; default CHAT"
           }
           type: string
@@ -1776,14 +1776,14 @@
     {
       name: "set_context_summary_config"
       description: {
-        zh: '''为某个功能绑定配置设置上下文总结参数（可选覆盖默认值）。'''
+        ru: '''为某个功能绑定配置设置上下文总结参数（可选覆盖默认值）。'''
         en: '''Set context-summary settings for a function binding (optional overrides supported).'''
       }
       parameters: [
         {
           name: "function_type"
           description: {
-            zh: "可选，功能类型；默认 CHAT"
+            ru: "可选，功能类型；默认 CHAT"
             en: "Optional function type; default CHAT"
           }
           type: string
@@ -1792,7 +1792,7 @@
         {
           name: "context_length"
           description: {
-            zh: "可选，基础上下文长度"
+            ru: "可选，基础上下文长度"
             en: "Optional base context length"
           }
           type: number
@@ -1801,7 +1801,7 @@
         {
           name: "max_context_length"
           description: {
-            zh: "可选，最大上下文长度"
+            ru: "可选，最大上下文长度"
             en: "Optional max context length"
           }
           type: number
@@ -1810,7 +1810,7 @@
         {
           name: "enable_max_context_mode"
           description: {
-            zh: "可选，是否启用最大上下文模式"
+            ru: "可选，是否启用最大上下文模式"
             en: "Optional max-context-mode switch"
           }
           type: boolean
@@ -1819,7 +1819,7 @@
         {
           name: "summary_token_threshold"
           description: {
-            zh: "可选，总结触发 token 阈值（0~1）"
+            ru: "可选，总结触发 token 阈值（0~1）"
             en: "Optional token-ratio threshold for summary trigger (0~1)"
           }
           type: number
@@ -1828,7 +1828,7 @@
         {
           name: "enable_summary"
           description: {
-            zh: "可选，是否启用上下文总结"
+            ru: "可选，是否启用上下文总结"
             en: "Optional context-summary switch"
           }
           type: boolean
@@ -1837,7 +1837,7 @@
         {
           name: "enable_summary_by_message_count"
           description: {
-            zh: "可选，是否启用按消息条数触发总结"
+            ru: "可选，是否启用按消息条数触发总结"
             en: "Optional message-count summary trigger switch"
           }
           type: boolean
@@ -1846,7 +1846,7 @@
         {
           name: "summary_message_count_threshold"
           description: {
-            zh: "可选，按消息条数触发总结阈值"
+            ru: "可选，按消息条数触发总结阈值"
             en: "Optional message-count threshold for summary trigger"
           }
           type: integer
@@ -1857,14 +1857,14 @@
     {
       name: "set_function_model_config"
       description: {
-        zh: '''为功能指定模型配置与模型索引。'''
+        ru: '''为功能指定模型配置与模型索引。'''
         en: '''Set model config and model index for a function.'''
       }
       parameters: [
         {
           name: "function_type"
           description: {
-            zh: "功能类型枚举名"
+            ru: "功能类型枚举名"
             en: "Function type enum name"
           }
           type: string
@@ -1873,7 +1873,7 @@
         {
           name: "config_id"
           description: {
-            zh: "模型配置ID"
+            ru: "模型配置ID"
             en: "Model config id"
           }
           type: string
@@ -1882,7 +1882,7 @@
         {
           name: "model_index"
           description: {
-            zh: "可选，模型索引"
+            ru: "可选，模型索引"
             en: "Optional model index"
           }
           type: integer
@@ -1893,14 +1893,14 @@
     {
       name: "test_model_config_connection"
       description: {
-        zh: '''按设置页同等逻辑测试某个模型配置。'''
+        ru: '''按设置页同等逻辑测试某个模型配置。'''
         en: '''Run settings-UI-equivalent tests for one model config.'''
       }
       parameters: [
         {
           name: "config_id"
           description: {
-            zh: "目标配置ID"
+            ru: "目标配置ID"
             en: "Target config id"
           }
           type: string
@@ -1909,7 +1909,7 @@
         {
           name: "model_index"
           description: {
-            zh: "可选，模型索引"
+            ru: "可选，模型索引"
             en: "Optional model index"
           }
           type: integer
@@ -1920,14 +1920,14 @@
     {
       name: "ping_mcp"
       description: {
-        zh: '''直通 use_package 的探测工具：用于快速测试某个 package 是否可被加载（MCP/Skill/Sandbox 三兼容）。'''
+        ru: '''直通 use_package 的探测工具：用于快速测试某个 package 是否可被加载（MCP/Skill/Sandbox 三兼容）。'''
         en: '''A pass-through probe for use_package: quickly test whether a package can be loaded (tri-compatible across MCP/Skill/Sandbox).'''
       }
       parameters: [
         {
           name: "package_name"
           description: {
-            zh: "要探测的包名"
+            ru: "要探测的包名"
             en: "Package name to probe"
           }
           type: string

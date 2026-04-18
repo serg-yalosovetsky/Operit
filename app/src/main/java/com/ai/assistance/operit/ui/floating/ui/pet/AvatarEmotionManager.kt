@@ -5,21 +5,21 @@ import com.ai.assistance.operit.core.avatar.common.state.AvatarEmotion
 import com.ai.assistance.operit.core.avatar.common.state.AvatarMoodTypes
 
 /**
- * Avatar表情管理器
- * 从PetOverlayService迁移的表情推理逻辑
+ * Avatar emotion manager.
+ * Emotion inference logic migrated from PetOverlayService.
  */
 object AvatarEmotionManager {
 
     /**
-     * 从文本内容推理情感
-     * 通过关键词匹配来判断应该使用哪种表情
+     * Infer emotion from text content.
+     * Uses keyword matching to decide which expression should be used.
      */
     fun inferEmotionFromText(text: String): AvatarEmotion {
         val t = text.lowercase()
-        val happyKeywords = listOf("开心", "高兴", "不错", "棒", "太好了", "😀", "🙂", "😊", "😄", "赞")
-        val angryKeywords = listOf("生气", "愤怒", "气死", "讨厌", "糟糕", "😡", "怒")
-        val cryKeywords = listOf("难过", "伤心", "沮丧", "忧伤", "哭", "😭", "😢")
-        val shyKeywords = listOf("害羞", "羞", "脸红", "不好意思", "///")
+        val happyKeywords = listOf("\u5f00\u5fc3", "\u9ad8\u5174", "\u4e0d\u9519", "\u68d2", "\u592a\u597d\u4e86", "😀", "🙂", "😊", "😄", "\u8d5e")
+        val angryKeywords = listOf("\u751f\u6c14", "\u6124\u6012", "\u6c14\u6b7b", "\u8ba8\u538c", "\u7cdf\u7cd5", "😡", "\u6012")
+        val cryKeywords = listOf("\u96be\u8fc7", "\u4f24\u5fc3", "\u6cae\u4e27", "\u5fe7\u4f24", "\u54ed", "😭", "😢")
+        val shyKeywords = listOf("\u5bb3\u7f9e", "\u7f9e", "\u8138\u7ea2", "\u4e0d\u597d\u610f\u601d", "///")
         
         fun containsAny(keys: List<String>): Boolean = 
             keys.any { t.contains(it) || text.contains(it) }
@@ -34,8 +34,8 @@ object AvatarEmotionManager {
     }
     
     /**
-     * 从文本中提取mood标签
-     * AI可能会在回复中包含<mood>标签来明确指定情感
+     * Extract the mood tag from text.
+     * The AI may include a <mood> tag in its response to explicitly specify emotion.
      */
     fun extractMoodTagValue(text: String): String? {
         return try {
@@ -48,42 +48,42 @@ object AvatarEmotionManager {
     }
     
     /**
-     * 将Mood转换为AvatarEmotion
+     * Convert a mood value into AvatarEmotion.
      */
     private fun moodToEmotion(mood: String): AvatarEmotion? {
         return AvatarMoodTypes.builtInFallbackEmotion(mood)
     }
     
     /**
-     * 综合分析文本，返回最合适的表情
-     * 优先使用mood标签，如果没有则使用关键词推理
+     * Analyze the text and return the most suitable expression.
+     * Prefer the mood tag; fall back to keyword inference when it is absent.
      */
     fun analyzeEmotion(text: String): AvatarEmotion {
-        AppLogger.d("AvatarEmotionManager", "分析情感 - 原始文本: $text")
+        AppLogger.d("AvatarEmotionManager", "Analyzing emotion from raw text: $text")
         
-        // 首先尝试从mood标签获取
+        // First, try to read the value from the mood tag.
         val parsedMood = extractMoodTagValue(text)
         if (!parsedMood.isNullOrBlank()) {
             val emotion = moodToEmotion(parsedMood)
             if (emotion != null) {
-                AppLogger.d("AvatarEmotionManager", "从mood标签解析: $parsedMood -> $emotion")
+                AppLogger.d("AvatarEmotionManager", "Resolved from mood tag: $parsedMood -> $emotion")
                 return emotion
             }
         }
         
-        // 如果没有mood标签，则使用关键词推理
+        // If no mood tag is present, fall back to keyword inference.
         val emotion = inferEmotionFromText(text)
-        AppLogger.d("AvatarEmotionManager", "使用关键词推理: $emotion")
+        AppLogger.d("AvatarEmotionManager", "Using keyword inference: $emotion")
         return emotion
     }
     
     /**
-     * 清除文本中的XML标签
-     * 用于显示给用户时移除mood等标记标签
+     * Remove XML-like tags from text.
+     * Used to strip mood and similar markup before showing content to the user.
      */
     fun stripXmlLikeTags(text: String): String {
         var s = text
-        // 匹配成对的标签 <tag>...</tag>
+        // Match paired tags such as <tag>...</tag>.
         val paired = Regex(
             pattern = "<([A-Za-z][A-Za-z0-9:_-]*)(\\s[^>]*)?>[\\s\\S]*?</\\1>",
             options = setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
@@ -93,12 +93,12 @@ object AvatarEmotionManager {
             if (updated == s) return@repeat
             s = updated
         }
-        // 匹配自闭合标签 <tag />
+        // Match self-closing tags such as <tag />.
         s = s.replace(
             Regex("<[A-Za-z][A-Za-z0-9:_-]*(\\s[^>]*)?/\\s*>", RegexOption.IGNORE_CASE),
             ""
         )
-        // 匹配任何剩余的标签
+        // Match any remaining tags.
         s = s.replace(
             Regex("</?[^>]+>", RegexOption.IGNORE_CASE),
             ""

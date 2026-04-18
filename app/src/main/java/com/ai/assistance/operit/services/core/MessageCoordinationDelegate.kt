@@ -919,15 +919,16 @@ class MessageCoordinationDelegate(
         val useEnglish = LocaleUtils.getCurrentLanguage(context).lowercase().startsWith("en")
         val userName = displayPreferencesManager.globalUserName.first()?.trim().orEmpty()
         val formattedUserName = if (userName.isNotBlank()) {
-            "$userName（用户）"
+            "$userName (User)"
         } else {
-            "用户（用户）"
+            "User (User)"
         }
+        val separator = if (useEnglish) ", " else ", "
         val participantNames = members
             .sortedBy { it.orderIndex }
             .mapNotNull { member -> memberCardsById[member.characterCardId]?.name?.trim()?.takeIf { it.isNotBlank() } }
             .distinct() + formattedUserName
-        return if (useEnglish) participantNames.joinToString(", ") else participantNames.joinToString("、")
+        return participantNames.joinToString(separator)
     }
 
     private suspend fun resolveTargetGroupForChat(chatId: String): com.ai.assistance.operit.data.model.CharacterGroupCard? {

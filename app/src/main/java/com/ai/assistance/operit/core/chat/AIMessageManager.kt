@@ -946,7 +946,7 @@ object AIMessageManager {
         messagesToSummarize: List<ChatMessage>,
         useEnglish: Boolean
     ): String {
-        val title = if (useEnglish) "[Package Warmup]" else "【工具包预热】"
+        val title = "[Package Warmup]"
         val topPackages = extractTopPackageUsages(messagesToSummarize, limit = 2)
 
         if (topPackages.isEmpty()) {
@@ -954,7 +954,7 @@ object AIMessageManager {
                 if (useEnglish) {
                     "No package-prefixed tool usage was detected in this summary window, so no package was preheated."
                 } else {
-                    "本次摘要范围内未检测到包工具调用，因此未进行工具包预热。"
+                    "No package-prefixed tool usage was detected in this summary window, so no package was preheated."
                 }
             return "$title\n$emptyMessage"
         }
@@ -962,9 +962,9 @@ object AIMessageManager {
         val intro =
             if (useEnglish) {
                 "The following high-frequency packages were automatically activated from the summarized tool usage, and their use_package results are attached for the next-turn warmup."
-            } else {
-                "以下根据本次摘要范围内的工具使用频次，自动激活了最高频的工具包，并附上 use_package 的返回结果，供下一轮预热。"
-            }
+                } else {
+                    "The following high-frequency packages were automatically activated from the summarized tool usage, and their use_package results are attached for the next-turn warmup."
+                }
 
         val body = withContext(Dispatchers.IO) {
             val packageManager = toolHandler.getOrCreatePackageManager()
@@ -978,21 +978,21 @@ object AIMessageManager {
                                 if (useEnglish) {
                                     "use_package failed: ${throwable.message ?: "unknown error"}"
                                 } else {
-                                    "use_package 调用失败: ${throwable.message ?: "未知错误"}"
+                                    "use_package failed: ${throwable.message ?: "unknown error"}"
                                 }
                             }
                             .ifBlank {
                                 if (useEnglish) {
                                     "use_package returned empty content."
                                 } else {
-                                    "use_package 返回为空。"
+                                    "use_package returned empty content."
                                 }
                             }
 
                     if (useEnglish) {
                         appendLine("${index + 1}. Package ${stat.packageName} (${stat.count} hits)")
                     } else {
-                        appendLine("${index + 1}. 包 ${stat.packageName}（命中 ${stat.count} 次）")
+                        appendLine("${index + 1}. Package ${stat.packageName} (${stat.count} hits)")
                     }
                     appendLine(indentBlock(resultText, "   "))
                     if (index != topPackages.lastIndex) {

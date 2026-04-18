@@ -2,12 +2,10 @@
 {
     "name": "pdf_vision_parser",
     "display_name": {
-        "zh": "PDF 逐页识图解析",
-        "en": "PDF Vision Parser"
+        "ru": "PDF Vision Parser", "en": "PDF Vision Parser"
     },
     "description": {
-        "zh": "将 PDF 逐页渲染为图片，并调用用户当前配置的识图模型进行解析，最后按页拼接结果。",
-        "en": "Render a PDF page by page into images, send each image to the user's configured vision model, and merge the results."
+        "ru": "Render a PDF page by page into images, send each image to the user's configured vision model, and merge the results.", "en": "Render a PDF page by page into images, send each image to the user's configured vision model, and merge the results."
     },
     "enabledByDefault": false,
     "category": "File",
@@ -15,15 +13,13 @@
         {
             "name": "parse_pdf_with_vision",
             "description": {
-                "zh": "将 PDF 逐页拆成图片，逐页调用 IMAGE_RECOGNITION 功能模型识图，并返回分页索引与输出文件路径。",
-                "en": "Split a PDF into page images, analyze each page with the IMAGE_RECOGNITION function model, and return per-page indexes plus output file paths."
+                "ru": "Split a PDF into page images, analyze each page with the IMAGE_RECOGNITION function model, and return per-page indexes plus output file paths.", "en": "Split a PDF into page images, analyze each page with the IMAGE_RECOGNITION function model, and return per-page indexes plus output file paths."
             },
             "parameters": [
                 {
                     "name": "pdf_path",
                     "description": {
-                        "zh": "PDF 文件路径。",
-                        "en": "Path to the PDF file."
+                        "ru": "Path to the PDF file.", "en": "Path to the PDF file."
                     },
                     "type": "string",
                     "required": true
@@ -31,8 +27,7 @@
                 {
                     "name": "page_prompt",
                     "description": {
-                        "zh": "每页识图提示词；不传则使用默认的尽量转文字提示词。",
-                        "en": "Vision prompt for each page; defaults to a text-extraction-oriented prompt."
+                        "ru": "Vision prompt for each page; defaults to a text-extraction-oriented prompt.", "en": "Vision prompt for each page; defaults to a text-extraction-oriented prompt."
                     },
                     "type": "string",
                     "required": false
@@ -40,8 +35,7 @@
                 {
                     "name": "start_page",
                     "description": {
-                        "zh": "起始页码，1-based，默认 1。",
-                        "en": "Start page number, 1-based, default 1."
+                        "ru": "Start page number, 1-based, default 1.", "en": "Start page number, 1-based, default 1."
                     },
                     "type": "number",
                     "required": false
@@ -49,8 +43,7 @@
                 {
                     "name": "end_page",
                     "description": {
-                        "zh": "结束页码，1-based，默认文档最后一页。",
-                        "en": "End page number, 1-based, default is the last page."
+                        "ru": "End page number, 1-based, default is the last page.", "en": "End page number, 1-based, default is the last page."
                     },
                     "type": "number",
                     "required": false

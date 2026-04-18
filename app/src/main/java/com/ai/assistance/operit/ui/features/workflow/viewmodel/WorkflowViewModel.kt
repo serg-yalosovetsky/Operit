@@ -922,7 +922,7 @@ class WorkflowViewModel(application: Application) : AndroidViewModel(application
             name = context.getString(R.string.workflow_trigger_voice),
             triggerType = "speech",
             triggerConfig = mapOf(
-                "pattern" to ".*(打开|启动).*(对话|聊天|悬浮窗).*",
+                "pattern" to ".*(\\u6253\\u5f00|\\u542f\\u52a8).*(\\u5bf9\\u8bdd|\\u804a\\u5929|\\u60ac\\u6d6e\\u7a97).*",
                 "ignore_case" to "true",
                 "require_final" to "true",
                 "cooldown_ms" to "3000"

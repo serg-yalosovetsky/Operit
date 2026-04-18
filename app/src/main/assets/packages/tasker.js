@@ -3,12 +3,10 @@
   "name": "tasker",
 
   "display_name": {
-      "zh": "Tasker 触发器",
-      "en": "Tasker Trigger"
+      "ru": "Tasker Trigger", "en": "Tasker Trigger"
   },
   "description": {
-    "zh": "集成 Tasker 插件事件触发工具，通过本包可向 Tasker 发送事件。",
-    "en": "Integration for triggering Tasker plugin events. This package lets you send events to Tasker."
+    "ru": "Integration for triggering Tasker plugin events. This package lets you send events to Tasker.", "en": "Integration for triggering Tasker plugin events. This package lets you send events to Tasker."
   },
   "enabledByDefault": false,
   "category": "Workflow",
@@ -16,17 +14,16 @@
     {
       "name": "trigger_tasker_event",
       "description": {
-        "zh": "触发一个 Tasker 事件。使用 task_type 指定事件类型，可传 arg1..arg5 或 args_json。",
-        "en": "Trigger a Tasker event. Use task_type to specify the event type. You can pass arg1..arg5 or args_json."
+        "ru": "Trigger a Tasker event. Use task_type to specify the event type. You can pass arg1..arg5 or args_json.", "en": "Trigger a Tasker event. Use task_type to specify the event type. You can pass arg1..arg5 or args_json."
       },
       "parameters": [
-        { "name": "task_type", "description": { "zh": "事件类型标识", "en": "Event type identifier" }, "type": "string", "required": true },
-        { "name": "arg1", "description": { "zh": "可选参数1", "en": "Optional argument 1" }, "type": "string", "required": false },
-        { "name": "arg2", "description": { "zh": "可选参数2", "en": "Optional argument 2" }, "type": "string", "required": false },
-        { "name": "arg3", "description": { "zh": "可选参数3", "en": "Optional argument 3" }, "type": "string", "required": false },
-        { "name": "arg4", "description": { "zh": "可选参数4", "en": "Optional argument 4" }, "type": "string", "required": false },
-        { "name": "arg5", "description": { "zh": "可选参数5", "en": "Optional argument 5" }, "type": "string", "required": false },
-        { "name": "args_json", "description": { "zh": "以JSON形式传递任意参数", "en": "Pass arbitrary parameters as a JSON string" }, "type": "string", "required": false }
+        { "name": "task_type", "description": { "ru": "Event type identifier", "en": "Event type identifier" }, "type": "string", "required": true },
+        { "name": "arg1", "description": { "ru": "Optional argument 1", "en": "Optional argument 1" }, "type": "string", "required": false },
+        { "name": "arg2", "description": { "ru": "Optional argument 2", "en": "Optional argument 2" }, "type": "string", "required": false },
+        { "name": "arg3", "description": { "ru": "Optional argument 3", "en": "Optional argument 3" }, "type": "string", "required": false },
+        { "name": "arg4", "description": { "ru": "Optional argument 4", "en": "Optional argument 4" }, "type": "string", "required": false },
+        { "name": "arg5", "description": { "ru": "Optional argument 5", "en": "Optional argument 5" }, "type": "string", "required": false },
+        { "name": "args_json", "description": { "ru": "Pass arbitrary parameters as a JSON string", "en": "Pass arbitrary parameters as a JSON string" }, "type": "string", "required": false }
       ]
     }
   ]

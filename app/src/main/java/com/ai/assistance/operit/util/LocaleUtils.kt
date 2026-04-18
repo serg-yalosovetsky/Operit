@@ -30,8 +30,8 @@ object LocaleUtils {
 
     private val supportedLanguages =
             listOf(
-                    Language(AUTO_LANGUAGE_CODE, "Follow system", "跟随系统"),
-                    Language("zh", "Chinese", "中文"),
+                    Language(AUTO_LANGUAGE_CODE, "Follow system", "Follow system"),
+                    Language("ru", "Russian", "Russian"),
                     Language("en", "English", "English"),
                     Language(
                             PORTUGUESE_BRAZIL_LANGUAGE_CODE,

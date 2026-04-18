@@ -2,11 +2,11 @@
 {
   name: "vflow_trigger"
   display_name: {
-    zh: "VFlow 触发器"
+    ru: "VFlow 触发器"
     en: "VFlow Trigger"
   }
   description: {
-    zh: "触发vflow app的工作流。"
+    ru: "触发vflow app的工作流。"
     en: "Trigger VFlow app workflows."
   }
   enabledByDefault: false
@@ -15,11 +15,11 @@
     {
       name: "trigger_vflow_workflow"
       description: {
-        zh: "根据 workflow_id 触发 VFlow 工作流（需安装 com.chaomixian.vflow）。"
+        ru: "根据 workflow_id 触发 VFlow 工作流（需安装 com.chaomixian.vflow）。"
         en: "Trigger a VFlow workflow by workflow_id (requires com.chaomixian.vflow installed)."
       }
       parameters: [
-        { name: "workflow_id", description: { zh: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
+        { name: "workflow_id", description: { ru: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
       ]
     }
   ]

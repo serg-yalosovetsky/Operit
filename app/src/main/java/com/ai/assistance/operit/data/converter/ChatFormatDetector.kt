@@ -139,7 +139,7 @@ object ChatFormatDetector {
         // 只匹配: ## Role 或 ## Role: 且整行只能有这些内容
         val hasDialogueMarkers = lines.any { line ->
             val trimmed = line.trim()
-            trimmed.matches(Regex("^##\\s*(User|Assistant|AI|System|Model|用户|助手|系统|模型)[:：]?\\s*$", RegexOption.IGNORE_CASE))
+            trimmed.matches(Regex("^##\\s*(User|Assistant|AI|System|Model|\\u7528\\u6237|\\u52a9\\u624b|\\u7cfb\\u7edf|\\u6a21\\u578b)[:：]?\\s*$", RegexOption.IGNORE_CASE))
         }
         
         return hasMarkdownHeaders && hasDialogueMarkers

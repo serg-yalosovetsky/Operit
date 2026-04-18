@@ -3,27 +3,27 @@
   name: various_search
 
   display_name: {
-    zh: "多平台搜索"
+    ru: "多平台搜索"
     en: "Multi-Platform Search"
   }
   category: "Search"
-  description: { zh: "提供多平台搜索功能（含图片搜索），支持从必应、百度、搜狗、夸克等平台获取搜索结果。", en: "Multi-platform search tools (including image search) that fetch results from Bing, Baidu, Sogou, Quark, and more." }
+  description: { ru: "提供多平台搜索功能（含图片搜索），支持从必应、百度、搜狗、夸克等平台获取搜索结果。", en: "Multi-platform search tools (including image search) that fetch results from Bing, Baidu, Sogou, Quark, and more." }
   enabledByDefault: true
   
   tools: [
     {
       name: search_bing
-      description: { zh: "使用必应搜索引擎进行搜索", en: "Search using the Bing search engine." }
+      description: { ru: "使用必应搜索引擎进行搜索", en: "Search using the Bing search engine." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索查询关键词", en: "Search query keywords." }
+          description: { ru: "搜索查询关键词", en: "Search query keywords." }
           type: string
           required: true
         },
         {
           name: includeLinks
-          description: { zh: "是否在结果中包含可点击的链接列表，默认为false。如果为true，AI可以根据返回的链接序号进行深入访问。", en: "Whether to include a clickable link list in results (default: false). If true, the AI can follow links by index." }
+          description: { ru: "是否在结果中包含可点击的链接列表，默认为false。如果为true，AI可以根据返回的链接序号进行深入访问。", en: "Whether to include a clickable link list in results (default: false). If true, the AI can follow links by index." }
           type: boolean
           required: false
         }
@@ -31,23 +31,23 @@
     },
     {
       name: search_baidu
-      description: { zh: "使用百度搜索引擎进行搜索", en: "Search using the Baidu search engine." }
+      description: { ru: "使用百度搜索引擎进行搜索", en: "Search using the Baidu search engine." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索查询关键词", en: "Search query keywords." }
+          description: { ru: "搜索查询关键词", en: "Search query keywords." }
           type: string
           required: true
         },
         {
           name: page
-          description: { zh: "搜索结果页码，默认为1", en: "Result page number (default: 1)." }
+          description: { ru: "搜索结果页码，默认为1", en: "Result page number (default: 1)." }
           type: string
           required: false
         },
         {
           name: includeLinks
-          description: { zh: "是否在结果中包含可点击的链接列表，默认为false。如果为true，AI可以根据返回的链接序号进行深入访问。", en: "Whether to include a clickable link list in results (default: false). If true, the AI can follow links by index." }
+          description: { ru: "是否在结果中包含可点击的链接列表，默认为false。如果为true，AI可以根据返回的链接序号进行深入访问。", en: "Whether to include a clickable link list in results (default: false). If true, the AI can follow links by index." }
           type: boolean
           required: false
         }
@@ -55,23 +55,23 @@
     },
     {
       name: search_sogou
-      description: { zh: "使用搜狗搜索引擎进行搜索", en: "Search using the Sogou search engine." }
+      description: { ru: "使用搜狗搜索引擎进行搜索", en: "Search using the Sogou search engine." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索查询关键词", en: "Search query keywords." }
+          description: { ru: "搜索查询关键词", en: "Search query keywords." }
           type: string
           required: true
         },
         {
           name: page
-          description: { zh: "搜索结果页码，默认为1", en: "Result page number (default: 1)." }
+          description: { ru: "搜索结果页码，默认为1", en: "Result page number (default: 1)." }
           type: string
           required: false
         },
         {
           name: includeLinks
-          description: { zh: "是否在结果中包含可点击的链接列表，默认为false。如果为true，AI可以根据返回的链接序号进行深入访问。", en: "Whether to include a clickable link list in results (default: false). If true, the AI can follow links by index." }
+          description: { ru: "是否在结果中包含可点击的链接列表，默认为false。如果为true，AI可以根据返回的链接序号进行深入访问。", en: "Whether to include a clickable link list in results (default: false). If true, the AI can follow links by index." }
           type: boolean
           required: false
         }
@@ -79,23 +79,23 @@
     },
     {
       name: search_quark
-      description: { zh: "使用夸克搜索引擎进行搜索", en: "Search using the Quark search engine." }
+      description: { ru: "使用夸克搜索引擎进行搜索", en: "Search using the Quark search engine." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索查询关键词", en: "Search query keywords." }
+          description: { ru: "搜索查询关键词", en: "Search query keywords." }
           type: string
           required: true
         },
         {
           name: page
-          description: { zh: "搜索结果页码，默认为1", en: "Result page number (default: 1)." }
+          description: { ru: "搜索结果页码，默认为1", en: "Result page number (default: 1)." }
           type: string
           required: false
         },
         {
           name: includeLinks
-          description: { zh: "是否在结果中包含可点击的链接列表，默认为false。如果为true，AI可以根据返回的链接序号进行深入访问。", en: "Whether to include a clickable link list in results (default: false). If true, the AI can follow links by index." }
+          description: { ru: "是否在结果中包含可点击的链接列表，默认为false。如果为true，AI可以根据返回的链接序号进行深入访问。", en: "Whether to include a clickable link list in results (default: false). If true, the AI can follow links by index." }
           type: boolean
           required: false
         }
@@ -103,23 +103,23 @@
     },
     {
       name: combined_search
-      description: { zh: "在多个平台同时执行搜索。建议用户要求搜索的时候默认使用这个工具。", en: "Run searches across multiple platforms. Use this tool by default when the user asks to search." }
+      description: { ru: "在多个平台同时执行搜索。建议用户要求搜索的时候默认使用这个工具。", en: "Run searches across multiple platforms. Use this tool by default when the user asks to search." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索查询关键词", en: "Search query keywords." }
+          description: { ru: "搜索查询关键词", en: "Search query keywords." }
           type: string
           required: true
         },
         {
           name: platforms
-          description: { zh: "搜索平台列表字符串，可选值包括\"bing\",\"baidu\",\"sogou\",\"quark\"，多个平台用逗号分隔，比如\"bing,baidu,sogou,quark\"", en: "Comma-separated platform list. Supported: \"bing\", \"baidu\", \"sogou\", \"quark\". Example: \"bing,baidu,sogou,quark\"." }
+          description: { ru: "搜索平台列表字符串，可选值包括\"bing\",\"baidu\",\"sogou\",\"quark\"，多个平台用逗号分隔，比如\"bing,baidu,sogou,quark\"", en: "Comma-separated platform list. Supported: \"bing\", \"baidu\", \"sogou\", \"quark\". Example: \"bing,baidu,sogou,quark\"." }
           type: string
           required: true
         },
         {
           name: includeLinks
-          description: { zh: "是否在结果中包含可点击的链接列表，默认为false。聚合搜索时建议保持为false以节省输出，仅在需要深入访问时对单个搜索引擎使用。", en: "Whether to include a clickable link list in results (default: false). For combined search, keep it false to reduce output; enable it for a single engine when you need to open links." }
+          description: { ru: "是否在结果中包含可点击的链接列表，默认为false。聚合搜索时建议保持为false以节省输出，仅在需要深入访问时对单个搜索引擎使用。", en: "Whether to include a clickable link list in results (default: false). For combined search, keep it false to reduce output; enable it for a single engine when you need to open links." }
           type: boolean
           required: false
         }
@@ -127,11 +127,11 @@
     },
     {
       name: search_bing_images
-      description: { zh: "使用必应图片搜索引擎进行图片搜索。返回内容会包含 visitKey 和 Images 编号；下载图片请用 download_file 的 visit_key + image_number（不要用 link_number 乱点页面链接）。", en: "Search images using Bing Images. The result includes visitKey and indexed Images; download images via download_file with visit_key + image_number (do not follow random page links via link_number)." }
+      description: { ru: "使用必应图片搜索引擎进行图片搜索。返回内容会包含 visitKey 和 Images 编号；下载图片请用 download_file 的 visit_key + image_number（不要用 link_number 乱点页面链接）。", en: "Search images using Bing Images. The result includes visitKey and indexed Images; download images via download_file with visit_key + image_number (do not follow random page links via link_number)." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索关键词", en: "Search query keywords." }
+          description: { ru: "搜索关键词", en: "Search query keywords." }
           type: string
           required: true
         }
@@ -139,11 +139,11 @@
     },
     {
       name: search_wikimedia_images
-      description: { zh: "使用 Wikimedia Commons 进行图片搜索（公共资源）。返回 visitKey + Images 编号；下载图片用 download_file(visit_key + image_number)。", en: "Search images using Wikimedia Commons (public domain/commons). Use visitKey + image_number with download_file to download images." }
+      description: { ru: "使用 Wikimedia Commons 进行图片搜索（公共资源）。返回 visitKey + Images 编号；下载图片用 download_file(visit_key + image_number)。", en: "Search images using Wikimedia Commons (public domain/commons). Use visitKey + image_number with download_file to download images." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索关键词", en: "Search query keywords." }
+          description: { ru: "搜索关键词", en: "Search query keywords." }
           type: string
           required: true
         }
@@ -151,11 +151,11 @@
     },
     {
       name: search_duckduckgo_images
-      description: { zh: "使用 DuckDuckGo Images 进行图片搜索。返回 visitKey + Images 编号；下载图片用 download_file(visit_key + image_number)。", en: "Search images using DuckDuckGo Images. Use visitKey + image_number with download_file to download images." }
+      description: { ru: "使用 DuckDuckGo Images 进行图片搜索。返回 visitKey + Images 编号；下载图片用 download_file(visit_key + image_number)。", en: "Search images using DuckDuckGo Images. Use visitKey + image_number with download_file to download images." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索关键词", en: "Search query keywords." }
+          description: { ru: "搜索关键词", en: "Search query keywords." }
           type: string
           required: true
         }
@@ -163,11 +163,11 @@
     },
     {
       name: search_ecosia_images
-      description: { zh: "使用 Ecosia Images 进行图片搜索。返回 visitKey + Images 编号；下载图片用 download_file(visit_key + image_number)。", en: "Search images using Ecosia Images. Use visitKey + image_number with download_file to download images." }
+      description: { ru: "使用 Ecosia Images 进行图片搜索。返回 visitKey + Images 编号；下载图片用 download_file(visit_key + image_number)。", en: "Search images using Ecosia Images. Use visitKey + image_number with download_file to download images." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索关键词", en: "Search query keywords." }
+          description: { ru: "搜索关键词", en: "Search query keywords." }
           type: string
           required: true
         }
@@ -175,11 +175,11 @@
     },
     {
       name: search_pexels_images
-      description: { zh: "使用 Pexels 进行图片搜索（高质量图库）。返回 visitKey + Images 编号；下载图片请用 download_file 的 visit_key + image_number。", en: "Search images using Pexels (high-quality stock). Use visitKey + image_number with download_file to download images." }
+      description: { ru: "使用 Pexels 进行图片搜索（高质量图库）。返回 visitKey + Images 编号；下载图片请用 download_file 的 visit_key + image_number。", en: "Search images using Pexels (high-quality stock). Use visitKey + image_number with download_file to download images." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索关键词", en: "Search query keywords." }
+          description: { ru: "搜索关键词", en: "Search query keywords." }
           type: string
           required: true
         }
@@ -187,11 +187,11 @@
     },
     {
       name: search_pixabay_images
-      description: { zh: "使用 Pixabay 进行图片搜索（图库）。返回 visitKey + Images 编号；下载图片请用 download_file 的 visit_key + image_number。", en: "Search images using Pixabay (stock). Use visitKey + image_number with download_file to download images." }
+      description: { ru: "使用 Pixabay 进行图片搜索（图库）。返回 visitKey + Images 编号；下载图片请用 download_file 的 visit_key + image_number。", en: "Search images using Pixabay (stock). Use visitKey + image_number with download_file to download images." }
       parameters: [
         {
           name: query
-          description: { zh: "搜索关键词", en: "Search query keywords." }
+          description: { ru: "搜索关键词", en: "Search query keywords." }
           type: string
           required: true
         }

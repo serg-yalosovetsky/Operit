@@ -101,15 +101,15 @@ private fun UrlConfig.localizePresetTabNames(context: Context): UrlConfig {
 
     val mappedTabs = tabs.map { tab ->
         val localizedTitle = when (tab.title) {
-            "Chat", "聊天" -> context.getString(R.string.url_tab_chat)
-            "Projects", "项目" -> context.getString(R.string.url_tab_projects)
-            "Artifacts", "工件" -> context.getString(R.string.url_tab_artifacts)
-            "Settings", "设置" -> context.getString(R.string.url_tab_settings)
-            "Account", "账户" -> context.getString(R.string.url_tab_account)
-            "History", "历史" -> context.getString(R.string.url_tab_history)
-            "Help", "帮助" -> context.getString(R.string.url_tab_help)
-            "Explore", "探索" -> context.getString(R.string.url_tab_explore)
-            "Create", "创建" -> context.getString(R.string.url_tab_create)
+            "Chat", "\u804a\u5929" -> context.getString(R.string.url_tab_chat)
+            "Projects", "\u9879\u76ee" -> context.getString(R.string.url_tab_projects)
+            "Artifacts", "\u5de5\u4ef6" -> context.getString(R.string.url_tab_artifacts)
+            "Settings", "\u8bbe\u7f6e" -> context.getString(R.string.url_tab_settings)
+            "Account", "\u8d26\u6237" -> context.getString(R.string.url_tab_account)
+            "History", "\u5386\u53f2" -> context.getString(R.string.url_tab_history)
+            "Help", "\u5e2e\u52a9" -> context.getString(R.string.url_tab_help)
+            "Explore", "\u63a2\u7d22" -> context.getString(R.string.url_tab_explore)
+            "Create", "\u521b\u5efa" -> context.getString(R.string.url_tab_create)
             else -> tab.title
         }
 

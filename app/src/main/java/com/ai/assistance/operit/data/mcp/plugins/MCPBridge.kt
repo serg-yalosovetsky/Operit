@@ -534,7 +534,7 @@ class MCPBridge private constructor(private val context: Context) {
                                     cmdId = cmdId,
                                     cmdType = cmdType,
                                     serviceName = serviceName,
-                                    emptyResponseMessage = "命令[$cmdId: $cmdType]没有收到响应（独立连接）"
+                                    emptyResponseMessage = "Command [$cmdId: $cmdType] did not receive a response (dedicated connection)"
                                 )
                             } catch (e: Exception) {
                                 AppLogger.e(TAG, "发送独立连接命令失败[$cmdType]: ${e.message}")
@@ -584,7 +584,7 @@ class MCPBridge private constructor(private val context: Context) {
                                 cmdId = cmdId,
                                 cmdType = cmdType,
                                 serviceName = serviceName,
-                                emptyResponseMessage = "命令[$cmdId: $cmdType]没有收到响应"
+                                emptyResponseMessage = "Command [$cmdId: $cmdType] did not receive a response"
                             )
 
                             if (jsonResponse == null) {

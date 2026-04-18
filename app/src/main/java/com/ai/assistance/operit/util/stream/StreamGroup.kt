@@ -163,10 +163,10 @@ class StreamGroupBuilder<TAG> {
      */
     fun build(context: Context? = null): StreamGroup<TAG> {
         requireNotNull(tag) {
-            context?.getString(R.string.stream_group_tag_must_be_set) ?: "标签必须设置"
+            context?.getString(R.string.stream_group_tag_must_be_set) ?: "Tag must be set"
         }
         requireNotNull(stream) {
-            context?.getString(R.string.stream_group_stream_must_be_set) ?: "数据流必须设置"
+            context?.getString(R.string.stream_group_stream_must_be_set) ?: "Stream must be set"
         }
 
         return StreamGroup(

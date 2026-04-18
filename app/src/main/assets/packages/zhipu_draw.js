@@ -2,27 +2,23 @@
 {
   "name": "zhipu_draw",
   "display_name": {
-    "zh": "智谱生图",
-    "en": "Zhipu Draw"
+    "ru": "Zhipu Draw", "en": "Zhipu Draw"
   },
   "description": {
-    "zh": "使用智谱AI图像生成API根据提示词画图，将图片保存到本地 /sdcard/Download/Operit/draws/ 目录，并返回 Markdown 图片提示。",
-    "en": "Generate images via Zhipu AI image generation API from a prompt, save to /sdcard/Download/Operit/draws/, and return a Markdown image reference."
+    "ru": "Generate images via Zhipu AI image generation API from a prompt, save to /sdcard/Download/Operit/draws/, and return a Markdown image reference.", "en": "Generate images via Zhipu AI image generation API from a prompt, save to /sdcard/Download/Operit/draws/, and return a Markdown image reference."
   },
   "env": [
     {
       "name": "ZHIPU_API_KEY",
       "description": {
-        "zh": "智谱API Key（必填）",
-        "en": "Zhipu API key (required)"
+        "ru": "Zhipu API key (required)", "en": "Zhipu API key (required)"
       },
       "required": true
     },
     {
       "name": "ZHIPU_IMAGE_MODEL",
       "description": {
-        "zh": "默认绘图模型（可选；当 draw_image 未传 model 时使用）",
-        "en": "Default image model (optional; used when draw_image doesn't pass model)"
+        "ru": "Default image model (optional; used when draw_image doesn't pass model)", "en": "Default image model (optional; used when draw_image doesn't pass model)"
       },
       "required": false
     }
@@ -32,14 +28,13 @@
     {
       "name": "draw_image",
       "description": {
-        "zh": "根据提示词调用智谱AI图像生成接口生成图片，保存到本地并返回 Markdown 图片提示。",
-        "en": "Generate an image via Zhipu AI image generation API using a prompt, save it locally, and return a Markdown image reference."
+        "ru": "Generate an image via Zhipu AI image generation API using a prompt, save it locally, and return a Markdown image reference.", "en": "Generate an image via Zhipu AI image generation API using a prompt, save it locally, and return a Markdown image reference."
       },
       "parameters": [
-        { "name": "prompt", "description": { "zh": "绘图提示词（中文或英文）", "en": "Prompt for image generation (Chinese or English)" }, "type": "string", "required": true },
-        { "name": "size", "description": { "zh": "图片尺寸，例如 '1024x1024' 或 '1280x1280'（可选，默认1024x1024）", "en": "Image size, e.g. '1024x1024' or '1280x1280' (optional, default 1024x1024)" }, "type": "string", "required": false },
-        { "name": "file_name", "description": { "zh": "自定义保存到本地的文件名（不含路径和扩展名）", "en": "Custom output file name (without path or extension)" }, "type": "string", "required": false },
-        { "name": "model", "description": { "zh": "模型名称（可选；不传则使用环境变量 ZHIPU_IMAGE_MODEL，否则默认glm-image）", "en": "Model name (optional; falls back to env ZHIPU_IMAGE_MODEL)" }, "type": "string", "required": false }
+        { "name": "prompt", "description": { "ru": "Prompt for image generation (Chinese or English)", "en": "Prompt for image generation (Chinese or English)" }, "type": "string", "required": true },
+        { "name": "size", "description": { "ru": "Image size, e.g. '1024x1024' or '1280x1280' (optional, default 1024x1024)", "en": "Image size, e.g. '1024x1024' or '1280x1280' (optional, default 1024x1024)" }, "type": "string", "required": false },
+        { "name": "file_name", "description": { "ru": "Custom output file name (without path or extension)", "en": "Custom output file name (without path or extension)" }, "type": "string", "required": false },
+        { "name": "model", "description": { "ru": "Model name (optional; falls back to env ZHIPU_IMAGE_MODEL)", "en": "Model name (optional; falls back to env ZHIPU_IMAGE_MODEL)" }, "type": "string", "required": false }
       ]
     }
   ]

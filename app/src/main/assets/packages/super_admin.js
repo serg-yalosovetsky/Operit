@@ -4,32 +4,31 @@ METADATA
     "name": "super_admin",
 
     "display_name": {
-        "zh": "超级管理员",
-        "en": "Super Admin"
+        "ru": "Super Admin", "en": "Super Admin"
     },
-    "description": { "zh": "超级管理员工具集，提供终端命令和Shell操作的高级功能。terminal工具运行在Ubuntu环境中（已正确挂载sdcard和storage），shell工具通过Shizuku/Root直接执行Android系统命令。适合需要进行底层系统管理和命令行操作的场景。", "en": "Super admin toolkit providing advanced terminal and shell capabilities. The terminal tool runs in an Ubuntu environment (with sdcard/storage mounted). The shell tool executes Android system commands directly via Shizuku/Root. Useful for low-level system administration and CLI operations." },
+    "description": { "ru": "Super admin toolkit providing advanced terminal and shell capabilities. The terminal tool runs in an Ubuntu environment (with sdcard/storage mounted). The shell tool executes Android system commands directly via Shizuku/Root. Useful for low-level system administration and CLI operations.", "en": "Super admin toolkit providing advanced terminal and shell capabilities. The terminal tool runs in an Ubuntu environment (with sdcard/storage mounted). The shell tool executes Android system commands directly via Shizuku/Root. Useful for low-level system administration and CLI operations." },
     "enabledByDefault": true,
     "category": "System",
     "tools": [
         {
             "name": "terminal",
-            "description": { "zh": "在Ubuntu环境中执行命令并收集输出结果。运行环境：完整的Ubuntu系统，已正确挂载sdcard和storage目录，可访问Android存储空间。所有命令将会在相同的会话执行且上下文连贯。强烈建议每次都显式传 timeoutMs，避免命令卡住。禁止使用 `set -e`、`set -o errexit` 等会改变 shell 退出行为的命令，这会导致终端会话直接退出并卡死。若未传，前台默认15秒超时；background=true 时不使用该默认超时。命令超时时不会被自动取消，不需要重新执行命令，请继续通过 terminal_getscreen 跟踪当前屏幕内容。", "en": "Execute commands in an Ubuntu environment and collect output. Environment: full Ubuntu system with sdcard/storage mounted, allowing access to Android storage. Automatically preserves working-directory context. Strongly recommend explicitly passing timeoutMs every time to avoid hangs. Do not use commands such as `set -e` or `set -o errexit` that change shell exit behavior, because they can cause the terminal session to exit and hang. If omitted, foreground mode defaults to 15s timeout; background=true does not use this default timeout. When a command times out, it is not automatically cancelled. Do not rerun the command; continue tracking the current screen via terminal_getscreen." },
+            "description": { "ru": "Execute commands in an Ubuntu environment and collect output. Environment: full Ubuntu system with sdcard/storage mounted, allowing access to Android storage. Automatically preserves working-directory context. Strongly recommend explicitly passing timeoutMs every time to avoid hangs. Do not use commands such as `set -e` or `set -o errexit` that change shell exit behavior, because they can cause the terminal session to exit and hang. If omitted, foreground mode defaults to 15s timeout; background=true does not use this default timeout. When a command times out, it is not automatically cancelled. Do not rerun the command; continue tracking the current screen via terminal_getscreen.", "en": "Execute commands in an Ubuntu environment and collect output. Environment: full Ubuntu system with sdcard/storage mounted, allowing access to Android storage. Automatically preserves working-directory context. Strongly recommend explicitly passing timeoutMs every time to avoid hangs. Do not use commands such as `set -e` or `set -o errexit` that change shell exit behavior, because they can cause the terminal session to exit and hang. If omitted, foreground mode defaults to 15s timeout; background=true does not use this default timeout. When a command times out, it is not automatically cancelled. Do not rerun the command; continue tracking the current screen via terminal_getscreen." },
             "parameters": [
                 {
                     "name": "command",
-                    "description": { "zh": "要执行的命令", "en": "Command to execute." },
+                    "description": { "ru": "Command to execute.", "en": "Command to execute." },
                     "type": "string",
                     "required": true
                 },
                 {
                     "name": "background",
-                    "description": { "zh": "是否在后台运行命令,\"true\" 表示后台执行并立即返回,适合启动服务器等长时间运行的任务（AI 不会收到该命令的输出结果），\"false\" 或未提供则前台执行并等待并返回命令结果", "en": "Run command in background. 'true' runs in background and returns immediately (good for long-running tasks like servers; AI will not receive output). 'false' or omitted runs in foreground and returns the command result." },
+                    "description": { "ru": "Run command in background. 'true' runs in background and returns immediately (good for long-running tasks like servers; AI will not receive output). 'false' or omitted runs in foreground and returns the command result.", "en": "Run command in background. 'true' runs in background and returns immediately (good for long-running tasks like servers; AI will not receive output). 'false' or omitted runs in foreground and returns the command result." },
                     "type": "string",
                     "required": false
                 },
                 {
                     "name": "timeoutMs",
-                    "description": { "zh": "可选超时（毫秒，最低3000ms）。强烈建议显式传入；未传时前台默认15000ms，background=true时不使用默认超时。", "en": "Optional timeout (ms, minimum 3000ms). Strongly recommended to pass explicitly; if omitted, foreground defaults to 15000ms, and background=true does not use the default timeout." },
+                    "description": { "ru": "Optional timeout (ms, minimum 3000ms). Strongly recommended to pass explicitly; if omitted, foreground defaults to 15000ms, and background=true does not use the default timeout.", "en": "Optional timeout (ms, minimum 3000ms). Strongly recommended to pass explicitly; if omitted, foreground defaults to 15000ms, and background=true does not use the default timeout." },
                     "type": "string",
                     "required": false
                 }
@@ -37,17 +36,17 @@ METADATA
         },
         {
             "name": "terminal_wait",
-            "description": { "zh": "等待同一终端会话中的上一条命令执行完成。适用于安装/编译等长命令在 timeout 后继续后台执行的场景。与 sleep 不同，本工具会在命令实际完成时提前返回，而不是固定睡眠。", "en": "Wait until the previous command in the same terminal session finishes. Useful when long install/build commands continue running after a timeout. Unlike sleep, this tool can return early as soon as the command actually completes." },
+            "description": { "ru": "Wait until the previous command in the same terminal session finishes. Useful when long install/build commands continue running after a timeout. Unlike sleep, this tool can return early as soon as the command actually completes.", "en": "Wait until the previous command in the same terminal session finishes. Useful when long install/build commands continue running after a timeout. Unlike sleep, this tool can return early as soon as the command actually completes." },
             "parameters": [
                 {
                     "name": "sessionId",
-                    "description": { "zh": "可选目标会话ID。不传则使用默认会话 super_admin_default_session。", "en": "Optional target session ID. If omitted, uses default session super_admin_default_session." },
+                    "description": { "ru": "Optional target session ID. If omitted, uses default session super_admin_default_session.", "en": "Optional target session ID. If omitted, uses default session super_admin_default_session." },
                     "type": "string",
                     "required": false
                 },
                 {
                     "name": "timeoutMs",
-                    "description": { "zh": "可选超时（毫秒，最低3000ms）。未传时默认300000ms（5分钟）。", "en": "Optional timeout (ms, minimum 3000ms). Defaults to 300000ms (5 minutes) if omitted." },
+                    "description": { "ru": "Optional timeout (ms, minimum 3000ms). Defaults to 300000ms (5 minutes) if omitted.", "en": "Optional timeout (ms, minimum 3000ms). Defaults to 300000ms (5 minutes) if omitted." },
                     "type": "string",
                     "required": false
                 }
@@ -55,22 +54,22 @@ METADATA
         },
         {
             "name": "terminal_getscreen",
-            "description": { "zh": "获取当前终端会话可见屏幕内容（仅一屏，不包含历史滚动缓冲）。", "en": "Get the current visible screen content for the active terminal session (single screen only, no scrollback history)." },
+            "description": { "ru": "Get the current visible screen content for the active terminal session (single screen only, no scrollback history).", "en": "Get the current visible screen content for the active terminal session (single screen only, no scrollback history)." },
             "parameters": []
         },
         {
             "name": "terminal_input",
-            "description": { "zh": "向当前终端会话写入输入。input 与 control 至少传一个。常见用法：先写 input，再写 control=enter 提交；control=ctrl 且 input=c 可发送 Ctrl+C。", "en": "Write input to the active terminal session. Provide at least one of input or control. Typical usage: send input first, then control=enter to submit; use control=ctrl with input=c for Ctrl+C." },
+            "description": { "ru": "Write input to the active terminal session. Provide at least one of input or control. Typical usage: send input first, then control=enter to submit; use control=ctrl with input=c for Ctrl+C.", "en": "Write input to the active terminal session. Provide at least one of input or control. Typical usage: send input first, then control=enter to submit; use control=ctrl with input=c for Ctrl+C." },
             "parameters": [
                 {
                     "name": "input",
-                    "description": { "zh": "写入终端的文本", "en": "Text to write to terminal." },
+                    "description": { "ru": "Text to write to terminal.", "en": "Text to write to terminal." },
                     "type": "string",
                     "required": false
                 },
                 {
                     "name": "control",
-                    "description": { "zh": "控制键，例如 enter / tab / esc / ctrl", "en": "Control key, e.g. enter / tab / esc / ctrl." },
+                    "description": { "ru": "Control key, e.g. enter / tab / esc / ctrl.", "en": "Control key, e.g. enter / tab / esc / ctrl." },
                     "type": "string",
                     "required": false
                 }
@@ -78,11 +77,11 @@ METADATA
         },
         {
             "name": "shell",
-            "description": { "zh": "通过Shizuku/Root权限直接在Android系统中执行Shell命令。运行环境：直接访问Android系统，具有系统级权限，适用于需要操作Android系统底层的场景（如pm、am等系统命令）。", "en": "Execute shell commands directly on Android with Shizuku/Root. Environment: direct Android system access with system-level privileges, suitable for low-level commands such as pm/am." },
+            "description": { "ru": "Execute shell commands directly on Android with Shizuku/Root. Environment: direct Android system access with system-level privileges, suitable for low-level commands such as pm/am.", "en": "Execute shell commands directly on Android with Shizuku/Root. Environment: direct Android system access with system-level privileges, suitable for low-level commands such as pm/am." },
             "parameters": [
                 {
                     "name": "command",
-                    "description": { "zh": "要执行的Shell命令", "en": "Shell command to execute." },
+                    "description": { "ru": "Shell command to execute.", "en": "Shell command to execute." },
                     "type": "string",
                     "required": true
                 }

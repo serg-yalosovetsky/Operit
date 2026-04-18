@@ -1538,12 +1538,12 @@ class CanvasCodeEditorView @JvmOverloads constructor(
         val callback =
             object : ActionMode.Callback2() {
                 override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-                    menu.add(0, MENU_COPY, 0, "复制")
+                    menu.add(0, MENU_COPY, 0, "Copy")
                     if (!readOnly) {
-                        menu.add(0, MENU_CUT, 1, "剪切")
-                        menu.add(0, MENU_PASTE, 2, "粘贴")
+                        menu.add(0, MENU_CUT, 1, "Cut")
+                        menu.add(0, MENU_PASTE, 2, "Paste")
                     }
-                    menu.add(0, MENU_SELECT_ALL, 3, "全选")
+                    menu.add(0, MENU_SELECT_ALL, 3, "Select all")
                     return true
                 }
 

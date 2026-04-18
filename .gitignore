@@ -64,3 +64,4 @@ gdrive_dependencies/
 # generated toolpkg bundles
 *.toolpkg
 .venv
+.gradle-user-home

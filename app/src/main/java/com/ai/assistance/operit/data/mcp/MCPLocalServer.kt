@@ -475,7 +475,7 @@ class MCPLocalServer private constructor(private val context: Context) {
         autoApprove: List<String>? = emptyList()
     ) {
         val normalizedCommand = command?.trim()
-        require(!normalizedCommand.isNullOrEmpty()) { "MCP服务器 $serverId 的 command 不能为空" }
+        require(!normalizedCommand.isNullOrEmpty()) { "The command for MCP server $serverId must not be empty" }
 
         _mcpConfig.update { currentConfig ->
             val newServers = currentConfig.mcpServers.toMutableMap()

@@ -3,11 +3,11 @@
   name: "workflow"
 
   display_name: {
-    zh: "工作流管理"
+    ru: "工作流管理"
     en: "Workflow Management"
   }
   description: {
-    zh: '''工作流管理工具：创建/查询/更新/启用/禁用/删除/触发执行；支持 on_success/on_error 分支；支持语音触发（speech）。'''
+    ru: '''工作流管理工具：创建/查询/更新/启用/禁用/删除/触发执行；支持 on_success/on_error 分支；支持语音触发（speech）。'''
     en: '''Workflow management tools for creating/querying/updating/enabling/disabling/deleting workflows, triggering execution, and branching via on_success/on_error. Supports speech trigger (speech).'''
   }
   "category": "Workflow",
@@ -17,7 +17,7 @@
     {
       name: "usage_advice"
       description: {
-        zh: '''
+        ru: '''
 工作流工具使用建议（给 AI）：
 
 - 核心概念（请优先对齐这些语义）：
@@ -159,22 +159,22 @@ Workflow tool usage advice (for the AI):
 
     {
       name: "get_all_workflows"
-      description: { zh: "获取所有工作流列表（只含概要信息：ID/名称/启用/统计等）。", en: "List all workflows (summary only: id/name/enabled/stats, etc.)." }
+      description: { ru: "获取所有工作流列表（只含概要信息：ID/名称/启用/统计等）。", en: "List all workflows (summary only: id/name/enabled/stats, etc.)." }
       parameters: []
     }
 
     {
       name: "get_workflow"
-      description: { zh: "获取指定工作流完整详情（nodes + connections）。", en: "Get full details of a specific workflow (nodes + connections)." }
+      description: { ru: "获取指定工作流完整详情（nodes + connections）。", en: "Get full details of a specific workflow (nodes + connections)." }
       parameters: [
-        { name: "workflow_id", description: { zh: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
+        { name: "workflow_id", description: { ru: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
       ]
     }
 
     {
       name: "create_workflow"
       description: {
-        zh: '''
+        ru: '''
 创建工作流。
 
 参数说明：
@@ -270,18 +270,18 @@ Extract (operator) node:
 '''
       }
       parameters: [
-        { name: "name", description: { zh: "工作流名称", en: "Workflow name" }, type: "string", required: true }
-        { name: "description", description: { zh: "工作流描述（可选）", en: "Workflow description (optional)" }, type: "string", required: false }
-        { name: "nodes", description: { zh: "可选，节点 JSON 数组字符串（或直接传节点数组，由封装 stringify）", en: "Optional. Nodes JSON array string (or pass an array and the wrapper will stringify)." }, type: "string", required: false }
-        { name: "connections", description: { zh: "可选，连线 JSON 数组字符串（或直接传连线数组，由封装 stringify）", en: "Optional. Connections JSON array string (or pass an array and the wrapper will stringify)." }, type: "string", required: false }
-        { name: "enabled", description: { zh: "可选，是否启用（默认 true）", en: "Optional. Whether to enable (default: true)." }, type: "boolean", required: false }
+        { name: "name", description: { ru: "工作流名称", en: "Workflow name" }, type: "string", required: true }
+        { name: "description", description: { ru: "工作流描述（可选）", en: "Workflow description (optional)" }, type: "string", required: false }
+        { name: "nodes", description: { ru: "可选，节点 JSON 数组字符串（或直接传节点数组，由封装 stringify）", en: "Optional. Nodes JSON array string (or pass an array and the wrapper will stringify)." }, type: "string", required: false }
+        { name: "connections", description: { ru: "可选，连线 JSON 数组字符串（或直接传连线数组，由封装 stringify）", en: "Optional. Connections JSON array string (or pass an array and the wrapper will stringify)." }, type: "string", required: false }
+        { name: "enabled", description: { ru: "可选，是否启用（默认 true）", en: "Optional. Whether to enable (default: true)." }, type: "boolean", required: false }
       ]
     }
 
     {
       name: "update_workflow"
       description: {
-        zh: '''
+        ru: '''
 更新工作流。
 
 注意：update_workflow 的 nodes / connections 是“整体覆盖”。
@@ -297,19 +297,19 @@ Note: nodes/connections in update_workflow are full overwrites.
 '''
       }
       parameters: [
-        { name: "workflow_id", description: { zh: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
-        { name: "name", description: { zh: "可选，新名称", en: "Optional. New name." }, type: "string", required: false }
-        { name: "description", description: { zh: "可选，新描述", en: "Optional. New description." }, type: "string", required: false }
-        { name: "nodes", description: { zh: "可选，节点 JSON 数组字符串（整体覆盖）", en: "Optional. Nodes JSON array string (full overwrite)." }, type: "string", required: false }
-        { name: "connections", description: { zh: "可选，连线 JSON 数组字符串（整体覆盖）", en: "Optional. Connections JSON array string (full overwrite)." }, type: "string", required: false }
-        { name: "enabled", description: { zh: "可选，是否启用", en: "Optional. Whether to enable." }, type: "boolean", required: false }
+        { name: "workflow_id", description: { ru: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
+        { name: "name", description: { ru: "可选，新名称", en: "Optional. New name." }, type: "string", required: false }
+        { name: "description", description: { ru: "可选，新描述", en: "Optional. New description." }, type: "string", required: false }
+        { name: "nodes", description: { ru: "可选，节点 JSON 数组字符串（整体覆盖）", en: "Optional. Nodes JSON array string (full overwrite)." }, type: "string", required: false }
+        { name: "connections", description: { ru: "可选，连线 JSON 数组字符串（整体覆盖）", en: "Optional. Connections JSON array string (full overwrite)." }, type: "string", required: false }
+        { name: "enabled", description: { ru: "可选，是否启用", en: "Optional. Whether to enable." }, type: "boolean", required: false }
       ]
     }
 
     {
       name: "patch_workflow"
       description: {
-        zh: '''
+        ru: '''
 差异更新工作流（增量 patch）。
 
 使用 node_patches / connection_patches 传入 JSON 数组字符串：
@@ -337,44 +337,44 @@ Notes:
 '''
       }
       parameters: [
-        { name: "workflow_id", description: { zh: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
-        { name: "name", description: { zh: "可选，新名称", en: "Optional. New name." }, type: "string", required: false }
-        { name: "description", description: { zh: "可选，新描述", en: "Optional. New description." }, type: "string", required: false }
-        { name: "enabled", description: { zh: "可选，是否启用", en: "Optional. Whether to enable." }, type: "boolean", required: false }
-        { name: "node_patches", description: { zh: "可选，节点 patch JSON 数组字符串", en: "Optional. Node patch JSON array string." }, type: "string", required: false }
-        { name: "connection_patches", description: { zh: "可选，连线 patch JSON 数组字符串", en: "Optional. Connection patch JSON array string." }, type: "string", required: false }
+        { name: "workflow_id", description: { ru: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
+        { name: "name", description: { ru: "可选，新名称", en: "Optional. New name." }, type: "string", required: false }
+        { name: "description", description: { ru: "可选，新描述", en: "Optional. New description." }, type: "string", required: false }
+        { name: "enabled", description: { ru: "可选，是否启用", en: "Optional. Whether to enable." }, type: "boolean", required: false }
+        { name: "node_patches", description: { ru: "可选，节点 patch JSON 数组字符串", en: "Optional. Node patch JSON array string." }, type: "string", required: false }
+        { name: "connection_patches", description: { ru: "可选，连线 patch JSON 数组字符串", en: "Optional. Connection patch JSON array string." }, type: "string", required: false }
       ]
     }
 
     {
       name: "enable_workflow"
-      description: { zh: "启用指定工作流。", en: "Enable a specific workflow." }
+      description: { ru: "启用指定工作流。", en: "Enable a specific workflow." }
       parameters: [
-        { name: "workflow_id", description: { zh: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
+        { name: "workflow_id", description: { ru: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
       ]
     }
 
     {
       name: "disable_workflow"
-      description: { zh: "禁用指定工作流。", en: "Disable a specific workflow." }
+      description: { ru: "禁用指定工作流。", en: "Disable a specific workflow." }
       parameters: [
-        { name: "workflow_id", description: { zh: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
+        { name: "workflow_id", description: { ru: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
       ]
     }
 
     {
       name: "delete_workflow"
-      description: { zh: "删除指定工作流。", en: "Delete a specific workflow." }
+      description: { ru: "删除指定工作流。", en: "Delete a specific workflow." }
       parameters: [
-        { name: "workflow_id", description: { zh: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
+        { name: "workflow_id", description: { ru: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
       ]
     }
 
     {
       name: "trigger_workflow"
-      description: { zh: "触发指定工作流执行（相当于 UI 手动触发）。", en: "Trigger execution of a workflow (equivalent to manual trigger in UI)." }
+      description: { ru: "触发指定工作流执行（相当于 UI 手动触发）。", en: "Trigger execution of a workflow (equivalent to manual trigger in UI)." }
       parameters: [
-        { name: "workflow_id", description: { zh: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
+        { name: "workflow_id", description: { ru: "工作流 ID", en: "Workflow ID" }, type: "string", required: true }
       ]
     }
   ]

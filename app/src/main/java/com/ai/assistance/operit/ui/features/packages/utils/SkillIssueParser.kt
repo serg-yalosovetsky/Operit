@@ -15,10 +15,10 @@ object SkillIssueParser {
         "desc",
         "summary",
         "introduction",
-        "简介",
-        "描述",
-        "介绍",
-        "说明"
+        "\u7b80\u4ecb",
+        "\u63cf\u8ff0",
+        "\u4ecb\u7ecd",
+        "\u8bf4\u660e"
     )
 
     private fun isLabelOnlyLine(raw: String): Boolean {
@@ -72,7 +72,7 @@ object SkillIssueParser {
                 .replace(Regex("^\\*\\*[^*]+\\*\\*\\s*[:：]\\s*"), "")
                 .replace(
                     Regex(
-                        "^(描述|简介|介绍|说明|description|desc|summary|introduction)\\s*[:：]\\s*",
+                        "^(\\u63cf\\u8ff0|\\u7b80\\u4ecb|\\u4ecb\\u7ecd|\\u8bf4\\u660e|description|desc|summary|introduction)\\s*[:：]\\s*",
                         RegexOption.IGNORE_CASE
                     ),
                     ""
@@ -126,7 +126,7 @@ object SkillIssueParser {
         if (body.isNullOrBlank()) {
             return ParsedSkillInfo(
                 title = issue.title,
-                description = "无描述信息"
+                description = "No description available"
             )
         }
 
@@ -136,7 +136,7 @@ object SkillIssueParser {
         return if (metadata != null) {
             ParsedSkillInfo(
                 title = issue.title,
-                description = metadata.description.ifBlank { extractedDescription.ifBlank { "无描述信息" } },
+                description = metadata.description.ifBlank { extractedDescription.ifBlank { "No description available" } },
                 repositoryUrl = metadata.repositoryUrl,
                 category = metadata.category,
                 tags = metadata.tags,
@@ -146,7 +146,7 @@ object SkillIssueParser {
         } else {
             ParsedSkillInfo(
                 title = issue.title,
-                description = extractedDescription.ifBlank { "无描述信息" },
+                description = extractedDescription.ifBlank { "No description available" },
                 repositoryUrl = "",
                 repositoryOwner = ""
             )

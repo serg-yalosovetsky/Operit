@@ -8,13 +8,13 @@ import com.ai.assistance.operit.util.AppLogger
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * 文本分词工具类 - 提供中文和多语言文本的分词功能
+ * Text segmentation utility with support for Chinese and multilingual text.
  */
 object TextSegmenter {
     private const val TAG = "TextSegmenter"
-    private const val PREWARM_TEXT = "搜索记忆 分词预热"
+    private const val PREWARM_TEXT = "memory search prewarm"
 
-    // 使用延迟初始化，避免不必要的资源消耗
+    // Use lazy initialization to avoid unnecessary resource usage.
     private val segmenter by lazy { JiebaSegmenter() }
 
     private val initLock = Any()

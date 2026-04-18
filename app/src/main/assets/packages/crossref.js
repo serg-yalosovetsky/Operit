@@ -2,23 +2,21 @@
 {
     "name": "crossref",
     "display_name": {
-        "zh": "Crossref 学术文献查询",
-        "en": "Crossref Academic Literature Search"
+        "ru": "Crossref Academic Literature Search", "en": "Crossref Academic Literature Search"
     },
     "description": {
-        "zh": "Crossref 学术文献查询工具，提供 DOI 查询、关键词搜索、作者搜索等功能，帮助用户查找和获取学术文章元数据。",
-        "en": "Crossref scholarly literature search tools: query by DOI, keyword, author, title, ISSN, and retrieve publication metadata."
+        "ru": "Crossref scholarly literature search tools: query by DOI, keyword, author, title, ISSN, and retrieve publication metadata.", "en": "Crossref scholarly literature search tools: query by DOI, keyword, author, title, ISSN, and retrieve publication metadata."
     },
     "category": "Search",
     "enabledByDefault": true,
     "tools": [
         {
             "name": "search_by_doi",
-            "description": { "zh": "通过 DOI (Digital Object Identifier) 查询文章的详细信息", "en": "Query article details by DOI (Digital Object Identifier)." },
+            "description": { "ru": "Query article details by DOI (Digital Object Identifier).", "en": "Query article details by DOI (Digital Object Identifier)." },
             "parameters": [
                 {
                     "name": "doi",
-                    "description": { "zh": "文章的 DOI 标识符，例如 '10.1038/nature12373'", "en": "DOI identifier, e.g. '10.1038/nature12373'" },
+                    "description": { "ru": "DOI identifier, e.g. '10.1038/nature12373'", "en": "DOI identifier, e.g. '10.1038/nature12373'" },
                     "type": "string",
                     "required": true
                 }
@@ -26,29 +24,29 @@
         },
         {
             "name": "search_by_keyword",
-            "description": { "zh": "通过关键词搜索学术文章", "en": "Search scholarly articles by keyword." },
+            "description": { "ru": "Search scholarly articles by keyword.", "en": "Search scholarly articles by keyword." },
             "parameters": [
                 {
                     "name": "query",
-                    "description": { "zh": "搜索关键词", "en": "Search query keyword(s)" },
+                    "description": { "ru": "Search query keyword(s)", "en": "Search query keyword(s)" },
                     "type": "string",
                     "required": true
                 },
                 {
                     "name": "rows",
-                    "description": { "zh": "返回结果数量，默认 10，最大 100", "en": "Number of results to return (default: 10, max: 100)" },
+                    "description": { "ru": "Number of results to return (default: 10, max: 100)", "en": "Number of results to return (default: 10, max: 100)" },
                     "type": "number",
                     "required": false
                 },
                 {
                     "name": "sort",
-                    "description": { "zh": "排序方式，可选值：'relevance'(相关性), 'score'(评分), 'updated'(更新时间), 'deposited'(提交时间), 'indexed'(索引时间), 'published'(发布时间)", "en": "Sort mode. Options: 'relevance', 'score', 'updated', 'deposited', 'indexed', 'published'." },
+                    "description": { "ru": "Sort mode. Options: 'relevance', 'score', 'updated', 'deposited', 'indexed', 'published'.", "en": "Sort mode. Options: 'relevance', 'score', 'updated', 'deposited', 'indexed', 'published'." },
                     "type": "string",
                     "required": false
                 },
                 {
                     "name": "order",
-                    "description": { "zh": "排序顺序，可选值：'asc'(升序), 'desc'(降序)，默认 'desc'", "en": "Sort order: 'asc' or 'desc' (default: 'desc')." },
+                    "description": { "ru": "Sort order: 'asc' or 'desc' (default: 'desc').", "en": "Sort order: 'asc' or 'desc' (default: 'desc')." },
                     "type": "string",
                     "required": false
                 }
@@ -56,17 +54,17 @@
         },
         {
             "name": "search_by_author",
-            "description": { "zh": "通过作者名字搜索文章", "en": "Search articles by author name." },
+            "description": { "ru": "Search articles by author name.", "en": "Search articles by author name." },
             "parameters": [
                 {
                     "name": "author",
-                    "description": { "zh": "作者名字", "en": "Author name" },
+                    "description": { "ru": "Author name", "en": "Author name" },
                     "type": "string",
                     "required": true
                 },
                 {
                     "name": "rows",
-                    "description": { "zh": "返回结果数量，默认 10，最大 100", "en": "Number of results to return (default: 10, max: 100)" },
+                    "description": { "ru": "Number of results to return (default: 10, max: 100)", "en": "Number of results to return (default: 10, max: 100)" },
                     "type": "number",
                     "required": false
                 }
@@ -74,17 +72,17 @@
         },
         {
             "name": "search_by_title",
-            "description": { "zh": "通过文章标题搜索", "en": "Search articles by title." },
+            "description": { "ru": "Search articles by title.", "en": "Search articles by title." },
             "parameters": [
                 {
                     "name": "title",
-                    "description": { "zh": "文章标题或标题关键词", "en": "Article title or title keyword(s)" },
+                    "description": { "ru": "Article title or title keyword(s)", "en": "Article title or title keyword(s)" },
                     "type": "string",
                     "required": true
                 },
                 {
                     "name": "rows",
-                    "description": { "zh": "返回结果数量，默认 10，最大 100", "en": "Number of results to return (default: 10, max: 100)" },
+                    "description": { "ru": "Number of results to return (default: 10, max: 100)", "en": "Number of results to return (default: 10, max: 100)" },
                     "type": "number",
                     "required": false
                 }
@@ -92,17 +90,17 @@
         },
         {
             "name": "search_by_issn",
-            "description": { "zh": "通过期刊 ISSN 查询该期刊发表的文章", "en": "Search articles published in a journal by ISSN." },
+            "description": { "ru": "Search articles published in a journal by ISSN.", "en": "Search articles published in a journal by ISSN." },
             "parameters": [
                 {
                     "name": "issn",
-                    "description": { "zh": "期刊的 ISSN 标识符，例如 '1476-4687'", "en": "Journal ISSN identifier, e.g. '1476-4687'" },
+                    "description": { "ru": "Journal ISSN identifier, e.g. '1476-4687'", "en": "Journal ISSN identifier, e.g. '1476-4687'" },
                     "type": "string",
                     "required": true
                 },
                 {
                     "name": "rows",
-                    "description": { "zh": "返回结果数量，默认 10，最大 100", "en": "Number of results to return (default: 10, max: 100)" },
+                    "description": { "ru": "Number of results to return (default: 10, max: 100)", "en": "Number of results to return (default: 10, max: 100)" },
                     "type": "number",
                     "required": false
                 }

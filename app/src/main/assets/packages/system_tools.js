@@ -3,123 +3,121 @@
     "name": "system_tools",
 
     "display_name": {
-        "zh": "系统工具",
-        "en": "System Tools"
+        "ru": "System Tools", "en": "System Tools"
     },
     "description": {
-        "zh": "提供系统级操作工具，包括设置管理、应用安装卸载与启动、通知获取、位置服务、设备信息查询，以及 Intent/广播调用。",
-        "en": "System-level operations: settings management, app install/uninstall & launch, notification retrieval, location services, device info queries, plus Intent/broadcast execution."
+        "ru": "System-level operations: settings management, app install/uninstall & launch, notification retrieval, location services, device info queries, plus Intent/broadcast execution.", "en": "System-level operations: settings management, app install/uninstall & launch, notification retrieval, location services, device info queries, plus Intent/broadcast execution."
     },
     "enabledByDefault": true,
     "category": "System",
     "tools": [
         {
             "name": "get_system_setting",
-            "description": { "zh": "获取系统设置的值。需要用户授权。", "en": "Get the value of a system setting. Requires user authorization." },
+            "description": { "ru": "Get the value of a system setting. Requires user authorization.", "en": "Get the value of a system setting. Requires user authorization." },
             "parameters": [
-                { "name": "setting", "description": { "zh": "设置名称", "en": "Setting key/name" }, "type": "string", "required": true },
-                { "name": "namespace", "description": { "zh": "命名空间：system/secure/global，默认system", "en": "Namespace: system/secure/global (default: system)" }, "type": "string", "required": false }
+                { "name": "setting", "description": { "ru": "Setting key/name", "en": "Setting key/name" }, "type": "string", "required": true },
+                { "name": "namespace", "description": { "ru": "Namespace: system/secure/global (default: system)", "en": "Namespace: system/secure/global (default: system)" }, "type": "string", "required": false }
             ]
         },
         {
             "name": "modify_system_setting",
-            "description": { "zh": "修改系统设置的值。需要用户授权。", "en": "Modify the value of a system setting. Requires user authorization." },
+            "description": { "ru": "Modify the value of a system setting. Requires user authorization.", "en": "Modify the value of a system setting. Requires user authorization." },
             "parameters": [
-                { "name": "setting", "description": { "zh": "设置名称", "en": "Setting key/name" }, "type": "string", "required": true },
-                { "name": "value", "description": { "zh": "设置值", "en": "Setting value" }, "type": "string", "required": true },
-                { "name": "namespace", "description": { "zh": "命名空间：system/secure/global，默认system", "en": "Namespace: system/secure/global (default: system)" }, "type": "string", "required": false }
+                { "name": "setting", "description": { "ru": "Setting key/name", "en": "Setting key/name" }, "type": "string", "required": true },
+                { "name": "value", "description": { "ru": "Setting value", "en": "Setting value" }, "type": "string", "required": true },
+                { "name": "namespace", "description": { "ru": "Namespace: system/secure/global (default: system)", "en": "Namespace: system/secure/global (default: system)" }, "type": "string", "required": false }
             ]
         },
         {
             "name": "install_app",
-            "description": { "zh": "安装应用程序。需要用户授权。", "en": "Install an app. Requires user authorization." },
+            "description": { "ru": "Install an app. Requires user authorization.", "en": "Install an app. Requires user authorization." },
             "parameters": [
-                { "name": "path", "description": { "zh": "APK文件路径", "en": "APK file path" }, "type": "string", "required": true }
+                { "name": "path", "description": { "ru": "APK file path", "en": "APK file path" }, "type": "string", "required": true }
             ]
         },
         {
             "name": "uninstall_app",
-            "description": { "zh": "卸载应用程序。需要用户授权。", "en": "Uninstall an app. Requires user authorization." },
+            "description": { "ru": "Uninstall an app. Requires user authorization.", "en": "Uninstall an app. Requires user authorization." },
             "parameters": [
-                { "name": "package_name", "description": { "zh": "应用包名", "en": "App package name" }, "type": "string", "required": true },
-                { "name": "keep_data", "description": { "zh": "是否保留数据，默认false", "en": "Whether to keep app data (default: false)" }, "type": "boolean", "required": false }
+                { "name": "package_name", "description": { "ru": "App package name", "en": "App package name" }, "type": "string", "required": true },
+                { "name": "keep_data", "description": { "ru": "Whether to keep app data (default: false)", "en": "Whether to keep app data (default: false)" }, "type": "boolean", "required": false }
             ]
         },
         {
             "name": "list_installed_apps",
-            "description": { "zh": "获取已安装应用程序列表。需要用户授权。", "en": "List installed apps. Requires user authorization." },
+            "description": { "ru": "List installed apps. Requires user authorization.", "en": "List installed apps. Requires user authorization." },
             "parameters": [
-                { "name": "include_system_apps", "description": { "zh": "是否包含系统应用，默认false", "en": "Whether to include system apps (default: false)" }, "type": "boolean", "required": false }
+                { "name": "include_system_apps", "description": { "ru": "Whether to include system apps (default: false)", "en": "Whether to include system apps (default: false)" }, "type": "boolean", "required": false }
             ]
         },
         {
             "name": "start_app",
-            "description": { "zh": "启动应用程序。需要用户授权。", "en": "Launch an app. Requires user authorization." },
+            "description": { "ru": "Launch an app. Requires user authorization.", "en": "Launch an app. Requires user authorization." },
             "parameters": [
-                { "name": "package_name", "description": { "zh": "应用包名", "en": "App package name" }, "type": "string", "required": true },
-                { "name": "activity", "description": { "zh": "可选活动名称", "en": "Optional activity name" }, "type": "string", "required": false }
+                { "name": "package_name", "description": { "ru": "App package name", "en": "App package name" }, "type": "string", "required": true },
+                { "name": "activity", "description": { "ru": "Optional activity name", "en": "Optional activity name" }, "type": "string", "required": false }
             ]
         },
         {
             "name": "stop_app",
-            "description": { "zh": "停止正在运行的应用程序。需要用户授权。", "en": "Force stop a running app. Requires user authorization." },
+            "description": { "ru": "Force stop a running app. Requires user authorization.", "en": "Force stop a running app. Requires user authorization." },
             "parameters": [
-                { "name": "package_name", "description": { "zh": "应用包名", "en": "App package name" }, "type": "string", "required": true }
+                { "name": "package_name", "description": { "ru": "App package name", "en": "App package name" }, "type": "string", "required": true }
             ]
         },
         {
             "name": "send_broadcast",
-            "description": { "zh": "发送广播（Broadcast Intent）。需要用户授权。", "en": "Send a broadcast (Broadcast Intent). Requires user authorization." },
+            "description": { "ru": "Send a broadcast (Broadcast Intent). Requires user authorization.", "en": "Send a broadcast (Broadcast Intent). Requires user authorization." },
             "parameters": [
-                { "name": "action", "description": { "zh": "Intent action，例如 android.intent.action.VIEW", "en": "Intent action, e.g. android.intent.action.VIEW" }, "type": "string", "required": true },
-                { "name": "package_name", "description": { "zh": "可选：限制广播目标包名", "en": "Optional: restrict target package" }, "type": "string", "required": false },
-                { "name": "component", "description": { "zh": "可选：组件名 package/class，优先于package_name", "en": "Optional: component package/class, takes priority over package_name" }, "type": "string", "required": false },
-                { "name": "uri", "description": { "zh": "可选：data uri", "en": "Optional: data uri" }, "type": "string", "required": false },
-                { "name": "extras", "description": { "zh": "可选：extras（对象，可用于传参）", "en": "Optional: extras (object for parameters)" }, "type": "object", "required": false }
+                { "name": "action", "description": { "ru": "Intent action, e.g. android.intent.action.VIEW", "en": "Intent action, e.g. android.intent.action.VIEW" }, "type": "string", "required": true },
+                { "name": "package_name", "description": { "ru": "Optional: restrict target package", "en": "Optional: restrict target package" }, "type": "string", "required": false },
+                { "name": "component", "description": { "ru": "Optional: component package/class, takes priority over package_name", "en": "Optional: component package/class, takes priority over package_name" }, "type": "string", "required": false },
+                { "name": "uri", "description": { "ru": "Optional: data uri", "en": "Optional: data uri" }, "type": "string", "required": false },
+                { "name": "extras", "description": { "ru": "Optional: extras (object for parameters)", "en": "Optional: extras (object for parameters)" }, "type": "object", "required": false }
             ]
         },
         {
             "name": "execute_intent",
-            "description": { "zh": "执行 Intent（Activity/Service/Broadcast），支持 extras 传参。需要用户授权。", "en": "Execute an Intent (Activity/Service/Broadcast) with extras parameters. Requires user authorization." },
+            "description": { "ru": "Execute an Intent (Activity/Service/Broadcast) with extras parameters. Requires user authorization.", "en": "Execute an Intent (Activity/Service/Broadcast) with extras parameters. Requires user authorization." },
             "parameters": [
-                { "name": "type", "description": { "zh": "类型：activity/broadcast/service，默认activity", "en": "Type: activity/broadcast/service (default: activity)" }, "type": "string", "required": false },
-                { "name": "action", "description": { "zh": "Intent action（action 或 component 至少一个必填）", "en": "Intent action (either action or component is required)" }, "type": "string", "required": false },
-                { "name": "package_name", "description": { "zh": "可选：包名", "en": "Optional: package name" }, "type": "string", "required": false },
-                { "name": "component", "description": { "zh": "可选：组件名 package/class", "en": "Optional: component package/class" }, "type": "string", "required": false },
-                { "name": "uri", "description": { "zh": "可选：data uri", "en": "Optional: data uri" }, "type": "string", "required": false },
-                { "name": "flags", "description": { "zh": "可选：flags（整数或JSON数组字符串）", "en": "Optional: flags (integer or JSON array string)" }, "type": "string", "required": false },
-                { "name": "extras", "description": { "zh": "可选：extras（对象，可用于传参）", "en": "Optional: extras (object for parameters)" }, "type": "object", "required": false }
+                { "name": "type", "description": { "ru": "Type: activity/broadcast/service (default: activity)", "en": "Type: activity/broadcast/service (default: activity)" }, "type": "string", "required": false },
+                { "name": "action", "description": { "ru": "Intent action (either action or component is required)", "en": "Intent action (either action or component is required)" }, "type": "string", "required": false },
+                { "name": "package_name", "description": { "ru": "Optional: package name", "en": "Optional: package name" }, "type": "string", "required": false },
+                { "name": "component", "description": { "ru": "Optional: component package/class", "en": "Optional: component package/class" }, "type": "string", "required": false },
+                { "name": "uri", "description": { "ru": "Optional: data uri", "en": "Optional: data uri" }, "type": "string", "required": false },
+                { "name": "flags", "description": { "ru": "Optional: flags (integer or JSON array string)", "en": "Optional: flags (integer or JSON array string)" }, "type": "string", "required": false },
+                { "name": "extras", "description": { "ru": "Optional: extras (object for parameters)", "en": "Optional: extras (object for parameters)" }, "type": "object", "required": false }
             ]
         },
         {
             "name": "get_notifications",
-            "description": { "zh": "获取设备通知内容。", "en": "Retrieve device notifications." },
+            "description": { "ru": "Retrieve device notifications.", "en": "Retrieve device notifications." },
             "parameters": [
-                { "name": "limit", "description": { "zh": "最大返回条数，默认10", "en": "Max number of entries to return (default: 10)" }, "type": "number", "required": false },
-                { "name": "include_ongoing", "description": { "zh": "是否包含常驻通知，默认false", "en": "Whether to include ongoing notifications (default: false)" }, "type": "boolean", "required": false }
+                { "name": "limit", "description": { "ru": "Max number of entries to return (default: 10)", "en": "Max number of entries to return (default: 10)" }, "type": "number", "required": false },
+                { "name": "include_ongoing", "description": { "ru": "Whether to include ongoing notifications (default: false)", "en": "Whether to include ongoing notifications (default: false)" }, "type": "boolean", "required": false }
             ]
         },
         {
             "name": "get_app_usage_time",
-            "description": { "zh": "获取应用前台使用时长。需要授予“使用情况访问权限”。", "en": "Get app foreground usage time. Requires Usage Access permission." },
+            "description": { "ru": "Get app foreground usage time. Requires Usage Access permission.", "en": "Get app foreground usage time. Requires Usage Access permission." },
             "parameters": [
-                { "name": "package_name", "description": { "zh": "可选：精确应用包名", "en": "Optional exact package name" }, "type": "string", "required": false },
-                { "name": "since_hours", "description": { "zh": "向前统计多少小时，默认24", "en": "How many hours to look back (default: 24)" }, "type": "number", "required": false },
-                { "name": "limit", "description": { "zh": "不传包名时最多返回多少个应用，默认10", "en": "Max apps to return when package_name is omitted (default: 10)" }, "type": "number", "required": false },
-                { "name": "include_system_apps", "description": { "zh": "不传包名时是否包含系统应用，默认false", "en": "Whether to include system apps when package_name is omitted (default: false)" }, "type": "boolean", "required": false }
+                { "name": "package_name", "description": { "ru": "Optional exact package name", "en": "Optional exact package name" }, "type": "string", "required": false },
+                { "name": "since_hours", "description": { "ru": "How many hours to look back (default: 24)", "en": "How many hours to look back (default: 24)" }, "type": "number", "required": false },
+                { "name": "limit", "description": { "ru": "Max apps to return when package_name is omitted (default: 10)", "en": "Max apps to return when package_name is omitted (default: 10)" }, "type": "number", "required": false },
+                { "name": "include_system_apps", "description": { "ru": "Whether to include system apps when package_name is omitted (default: false)", "en": "Whether to include system apps when package_name is omitted (default: false)" }, "type": "boolean", "required": false }
             ]
         },
         {
             "name": "get_device_location",
-            "description": { "zh": "获取设备当前位置信息。", "en": "Get current device location." },
+            "description": { "ru": "Get current device location.", "en": "Get current device location." },
             "parameters": [
-                { "name": "high_accuracy", "description": { "zh": "是否使用高精度模式，默认false", "en": "Use high accuracy mode (default: false)" }, "type": "boolean", "required": false },
-                { "name": "timeout", "description": { "zh": "超时时间（秒），默认10", "en": "Timeout in seconds (default: 10)" }, "type": "number", "required": false }
+                { "name": "high_accuracy", "description": { "ru": "Use high accuracy mode (default: false)", "en": "Use high accuracy mode (default: false)" }, "type": "boolean", "required": false },
+                { "name": "timeout", "description": { "ru": "Timeout in seconds (default: 10)", "en": "Timeout in seconds (default: 10)" }, "type": "number", "required": false }
             ]
         },
         {
             "name": "get_device_info",
-            "description": { "zh": "获取详细的设备信息，包括型号、操作系统版本、内存、存储、网络状态等。", "en": "Get detailed device information, including model, OS version, memory, storage, network status, etc." },
+            "description": { "ru": "Get detailed device information, including model, OS version, memory, storage, network status, etc.", "en": "Get detailed device information, including model, OS version, memory, storage, network status, etc." },
             "parameters": []
         }
     ]

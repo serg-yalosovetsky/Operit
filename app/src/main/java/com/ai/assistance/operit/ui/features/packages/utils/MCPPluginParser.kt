@@ -19,10 +19,10 @@ object MCPPluginParser {
         "desc",
         "summary",
         "introduction",
-        "简介",
-        "描述",
-        "介绍",
-        "说明"
+        "\u7b80\u4ecb",
+        "\u63cf\u8ff0",
+        "\u4ecb\u7ecd",
+        "\u8bf4\u660e"
     )
 
     private fun isLabelOnlyLine(raw: String): Boolean {
@@ -76,7 +76,7 @@ object MCPPluginParser {
                 .replace(Regex("^\\*\\*[^*]+\\*\\*\\s*[:：]\\s*"), "")
                 .replace(
                     Regex(
-                        "^(描述|简介|介绍|说明|description|desc|summary|introduction)\\s*[:：]\\s*",
+                        "^(\\u63cf\\u8ff0|\\u7b80\\u4ecb|\\u4ecb\\u7ecd|\\u8bf4\\u660e|description|desc|summary|introduction)\\s*[:：]\\s*",
                         RegexOption.IGNORE_CASE
                     ),
                     ""
@@ -108,8 +108,8 @@ object MCPPluginParser {
     data class MCPMetadata(
         val description: String = "",
         val repositoryUrl: String,
-        @JsonNames("installCommand") // 兼容旧的 installCommand
-        val installConfig: String, // 改为安装配置
+        @JsonNames("installCommand") // Backward compatibility with the legacy installCommand field.
+        val installConfig: String, // Installation config.
         val category: String,
         val tags: String,
         val version: String
@@ -119,12 +119,12 @@ object MCPPluginParser {
         val title: String,
         val description: String,
         val repositoryUrl: String = "",
-        val installConfig: String = "", // 改为安装配置
+        val installConfig: String = "", // Installation config.
         val category: String = "",
         val tags: String = "",
         val version: String = "",
-        val repositoryOwner: String = "", // 仓库所有者（插件作者）
-        val repositoryOwnerAvatarUrl: String = "" // 仓库所有者头像URL
+        val repositoryOwner: String = "", // Repository owner (plugin author).
+        val repositoryOwnerAvatarUrl: String = "" // Repository owner avatar URL.
     )
 
     /**
@@ -133,17 +133,17 @@ object MCPPluginParser {
     fun parsePluginInfo(issue: GitHubIssue): ParsedPluginInfo {
         val body = issue.body ?: return ParsedPluginInfo(
             title = issue.title,
-            description = "无描述信息"
+            description = "No description available"
         )
 
-        // 尝试解析 JSON 元数据
+        // Try to parse JSON metadata first.
         val metadata = parseMCPMetadata(body)
         val extractedDescription = extractHumanDescriptionFromBody(body)
 
         return if (metadata != null) {
             ParsedPluginInfo(
                 title = issue.title,
-                description = metadata.description.ifBlank { extractedDescription.ifBlank { "无描述信息" } },
+                description = metadata.description.ifBlank { extractedDescription.ifBlank { "No description available" } },
                 repositoryUrl = metadata.repositoryUrl,
                 installConfig = metadata.installConfig,
                 category = metadata.category,
@@ -154,7 +154,7 @@ object MCPPluginParser {
         } else {
             ParsedPluginInfo(
                 title = issue.title,
-                description = extractedDescription.ifBlank { "无描述信息" },
+                description = extractedDescription.ifBlank { "No description available" },
                 repositoryUrl = "",
                 repositoryOwner = ""
             )
@@ -162,7 +162,7 @@ object MCPPluginParser {
     }
 
     /**
-     * 解析隐藏在注释中的 JSON 元数据
+     * Parse JSON metadata embedded inside comments.
      */
     private fun parseMCPMetadata(body: String): MCPMetadata? {
         val prefix = "<!-- operit-mcp-json: "

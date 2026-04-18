@@ -169,7 +169,7 @@ class AutoGlmViewModel(private val context: Context) : ViewModel() {
 
                     val finalLines = finalMessage.lines()
                     if (finalLines.isNotEmpty()) {
-                        appendFinal("✅ 任务完成: ${finalLines.first().trim()}")
+                        appendFinal("✅ Task completed: ${finalLines.first().trim()}")
                         finalLines.drop(1).forEach { line ->
                             if (line.isNotBlank()) {
                                 appendFinal(line.trim())
@@ -202,9 +202,9 @@ class AutoGlmViewModel(private val context: Context) : ViewModel() {
                 SimpleDateFormat("yyyy-MM-dd EEEE", Locale.ENGLISH).format(Date())
             } else {
                 val calendar = Calendar.getInstance()
-                val sdf = SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault())
+                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 val datePart = sdf.format(Date())
-                val weekdayNames = arrayOf("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六")
+                val weekdayNames = arrayOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
                 val weekday = weekdayNames[calendar.get(Calendar.DAY_OF_WEEK) - 1]
                 "$datePart $weekday"
             }
@@ -226,12 +226,12 @@ class AutoGlmViewModel(private val context: Context) : ViewModel() {
             builder.appendLine(line)
         }
 
-        // 步骤分隔线
+        // Step separator.
         append("==================================================")
 
-        // 💭 思考过程
+        // Thinking section.
         stepResult.thinking?.takeIf { it.isNotBlank() }?.let { thinking ->
-            append("💭 思考过程:")
+            append("💭 Thinking:")
             append("--------------------------------------------------")
             thinking.trim().lines().forEach { line ->
                 if (line.isNotBlank()) {
@@ -240,10 +240,10 @@ class AutoGlmViewModel(private val context: Context) : ViewModel() {
             }
         }
 
-        // 🎯 执行动作
+        // Action section.
         stepResult.action?.let { action ->
             append("--------------------------------------------------")
-            append("🎯 执行动作:")
+            append("🎯 Action:")
 
             val jsonLines = mutableListOf<String>()
             action.actionName?.let { name ->
