@@ -56,6 +56,11 @@ kls_database.db
 operit-pc-agent.zip
 .uv-caches
 
+# Vendored binary build assets downloaded from the GitHub Release
+# (vendor-assets-2026-03). Not tracked in Git because some zips exceed
+# GitHub's 100 MB per-file limit. See docs/BUILDING.md.
+gdrive_dependencies/
+
 # generated toolpkg bundles
 *.toolpkg
 .venv
